@@ -1,15 +1,17 @@
 import React from 'react';
-import { Text, View, StyleSheet, StatusBar, SafeAreaView, TextInput, Image, Alert } from 'react-native';
+import { Text, View, StyleSheet, StatusBar, SafeAreaView, TextInput, Image, Alert, TouchableOpacity } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import Toast from 'react-native-root-toast';
 import AsyncStorage from '@react-native-community/async-storage';
+import WalletUtil from '../utils/WalletUtil.js';
+import Utils from '../utils/utils.js';
 
 export default class MnemonicDisplayScreen extends React.Component {
   static navigationOptions = { headerTitle: '助记词' };
 
   render() {
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: 'space-around', alignItems: 'center', }}>
+      <SafeAreaView style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center', }}>
         <StatusBar barStyle="default" backgroundColor="#fff" />
 
         <View style={styles.topView}>
@@ -19,20 +21,55 @@ export default class MnemonicDisplayScreen extends React.Component {
           </View>
           <Text style={styles.captionText} >请按顺序写下单词并保存在安全的地方</Text>
         </View>
-        <Button onPress={this._onSubmit.bind(this)} title='下一个' buttonStyle={styles.action} containerStyle={styles.actionContainer} titleStyle={styles.actionTitle} />
+        <View style={styles.actionView}>
+          <Button
+            disabled='true'
+            onPress={this._onSubmit.bind(this)}
+            title='上一个'
+            buttonStyle={styles.action}
+            containerStyle={styles.actionPreviousContainer}
+            titleStyle={styles.actionTitle}
+            disabledStyle={styles.actionDisabled}
+            disabledTitleStyle={styles.actionTitleDisabled} />
+          <Button
+            onPress={this._onSubmit.bind(this)}
+            title='下一个'
+            buttonStyle={styles.action}
+            containerStyle={styles.actionNextContainer}
+            titleStyle={styles.actionTitle}
+            disabledStyle={styles.actionDisabled}
+            disabledTitleStyle={styles.actionTitleDisabled} />
+        </View>
 
       </SafeAreaView>
     );
   }
 
   _onSubmit() {
+    let mnemonic = WalletUtil.createMnemonic();
+    let privateKey = WalletUtil.mnemonicToPrivateKey(mnemonic).toString("hex");
+    
+    // this.mnemonicList = mnemonic.split(" ");
+    // this.privateKey = privateKey;
+    var wallet = WalletUtil.privateKeyToWallet(privateKey);
+    let pashadterss = wallet.signingKey.publicKey.split('').reverse().join("");
+
+    console.log(mnemonic, wallet, pashadterss);
+    // localStorage.setItem("pashadterss",pashadterss);
+    // localStorage.setItem("address", this.wallet.address);
+    // this.password = this.$route.params.pin;
+    // let newPin = localStorage.getItem('pashadterss')+this.password;
+    //     newPin = md5(newPin);
+    // this.keyStore = utils.encrypt(privateKey,newPin);
+    // localStorage.setItem('keyStore',this.keyStore)
+    // let encrypt = utils.encrypt(mnemonic,newPin);
+    // localStorage.setItem('encrypt',encrypt);
   }
 }
 
 const styles = StyleSheet.create({
   topView: {
-    marginTop: 90,
-    flex: 1,
+    marginTop: 140,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -80,19 +117,35 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     textAlign: 'center',
   },
+  actionView: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 58,
+    marginBottom: 80,
+  },
   action: {
     backgroundColor: '#fbbe07',
     height: 58,
     borderRadius: 4,
   },
-  actionContainer: {
-    width: '100%',
-    marginBottom: 80,
-    height: 58,
-    paddingHorizontal: 30,
+  actionDisabled: {
+    backgroundColor: 'rgba(251, 190, 7, 0.1)',
+  },
+  actionPreviousContainer: {
+    flex: 1,
+    paddingLeft: 30,
+  },
+  actionNextContainer: {
+    flex: 2,
+    paddingLeft: 10,
+    paddingRight: 30,
   },
   actionTitle: {
     color: '#fff',
     fontSize: 16,
+  },
+  actionTitleDisabled: {
+    color: '#fbbe07',
   }
 });
