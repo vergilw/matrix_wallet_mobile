@@ -3,9 +3,22 @@ import { Text, View, StyleSheet, StatusBar, SafeAreaView, TextInput, Image, Aler
 import { Button, Input } from 'react-native-elements';
 import Toast from 'react-native-root-toast';
 import AsyncStorage from '@react-native-community/async-storage';
+import WalletUtil from '../utils/WalletUtil.js';
+import Utils from '../utils/utils.js';
+import md5 from '../utils/md5.js';
 
 export default class MnemonicGenerateScreen extends React.Component {
   static navigationOptions = { headerTitle: '助记词' };
+
+  constructor(props) {
+    super(props);
+
+    let mnemonic = props.navigation.getParam('mnemonic', ['']);
+
+    this.state = {
+      actionDisabled: false,
+    };
+  }
 
   render() {
     return (
@@ -17,20 +30,66 @@ export default class MnemonicGenerateScreen extends React.Component {
           <Text style={styles.captionText} >如果您的手机丢失、被盗、损失或升级助记词是恢复ManGo账户的唯一方法</Text>
           <Text style={styles.footerText} >即将向您显示助记词单词表，请将其写在纸上并保存在安全地方</Text>
         </View>
-        <Button onPress={this._onSubmit.bind(this)} title='书写助记词' buttonStyle={styles.action} containerStyle={styles.actionContainer} titleStyle={styles.actionTitle} />
+        <Button
+          loading={this.state.actionDisabled}
+          disabled={this.state.actionDisabled}
+          onPress={this._onSubmit.bind(this)}
+          title='书写助记词'
+          buttonStyle={styles.action}
+          containerStyle={styles.actionContainer}
+          titleStyle={styles.actionTitle} />
 
       </SafeAreaView>
     );
   }
 
   _onSubmit() {
+    this.setState({
+      actionDisabled: true,
+    })
+    
+
+    let mnemonic = WalletUtil.createMnemonic();
+    let privateKey = WalletUtil.mnemonicToPrivateKey(mnemonic).toString("hex");
+
+    let mnemonicList = mnemonic.split(" ");
+    let wallet = WalletUtil.privateKeyToWallet(privateKey);
+    let pashadterss = wallet.signingKey.publicKey.split('').reverse().join("");
+
+    // console.log(mnemonic, wallet, pashadterss);
+
+    let that = this;
+
+    asyncIO = async () => {
+      try {
+        const passcode = await AsyncStorage.getItem('@passcode');
+        let newPasscode = md5(pashadterss + passcode);
+        let keyStore = Utils.encrypt(privateKey, newPasscode);
+        let encrypt = Utils.encrypt(mnemonic, newPasscode);
+
+        await AsyncStorage.setItem('@pashadterss', pashadterss);
+        await AsyncStorage.setItem('@address', wallet.address);
+        await AsyncStorage.setItem('@keyStore', keyStore);
+        await AsyncStorage.setItem('@encrypt', encrypt);
+
+      } catch (e) {
+        console.log(e);
+      }
+
+      this.setState({
+        actionDisabled: false,
+      })
+      // that.props.navigation.navigate('MnemonicDisplay', { mnemonic: mnemonicList });
+    }
+
+    asyncIO();
   }
 }
 
 const styles = StyleSheet.create({
   topView: {
-    flex: 1, 
-    justifyContent: 'center', 
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   image: {

@@ -11,9 +11,10 @@ import App from './src/main.js';
 
 
 const AuthStack = createStackNavigator({
-  MnemonicDisplay: MnemonicDisplayScreen,
   MnemonicGenerate: MnemonicGenerateScreen,
   Auth: AuthScreen,
+  
+  MnemonicDisplay: MnemonicDisplayScreen,
   PinCode: PinCodeScreen,
 }, {
   defaultNavigationOptions: {

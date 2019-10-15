@@ -1,10 +1,10 @@
 import React from 'react';
 import { Text, View, StyleSheet, StatusBar, SafeAreaView, TextInput, Image, Alert, TouchableOpacity } from 'react-native';
-import { Button, Input } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import Toast from 'react-native-root-toast';
 
 
-export default class MnemonicDisplayScreen extends React.Component {
+export default class MnemonicSignScreen extends React.Component {
   static navigationOptions = { headerTitle: '助记词' };
 
   constructor(props) {
@@ -79,7 +79,7 @@ export default class MnemonicDisplayScreen extends React.Component {
     if (this.state.sequence > this.state.mnemonic.length - 1) {
       return;
     } else if (this.state.sequence === this.state.mnemonic.length - 1) {
-      _onDone();
+
       return;
     }
 
@@ -96,7 +96,7 @@ export default class MnemonicDisplayScreen extends React.Component {
     })
   }
 
-  _onDone() {
+  _onSubmit() {
 
   }
 }
