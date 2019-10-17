@@ -6,14 +6,17 @@ import AsyncStorage from '@react-native-community/async-storage';
 import WalletUtil from '../utils/WalletUtil.js';
 import Utils from '../utils/utils.js';
 import md5 from '../utils/md5.js';
+import { updateLoading } from '../store/actions/index.js';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
-export default class MnemonicGenerateScreen extends React.Component {
+class MnemonicGenerateScreen extends React.Component {
   static navigationOptions = { headerTitle: '助记词' };
 
   constructor(props) {
     super(props);
 
-    let mnemonic = props.navigation.getParam('mnemonic', ['']);
+    // let mnemonic = props.navigation.getParam('mnemonic', ['']);
 
     this.state = {
       actionDisabled: false,
@@ -47,7 +50,8 @@ export default class MnemonicGenerateScreen extends React.Component {
     this.setState({
       actionDisabled: true,
     })
-    
+
+    // this.props.updateLoading(true);
 
     let mnemonic = WalletUtil.createMnemonic();
     let privateKey = WalletUtil.mnemonicToPrivateKey(mnemonic).toString("hex");
@@ -76,15 +80,39 @@ export default class MnemonicGenerateScreen extends React.Component {
         console.log(e);
       }
 
-      this.setState({
-        actionDisabled: false,
-      })
+      setTimeout(()=>{
+        this.setState({
+          actionDisabled: false,
+        })
+        // this.props.updateLoading(false);
+      }, 10000);
+      
+      
       // that.props.navigation.navigate('MnemonicDisplay', { mnemonic: mnemonicList });
     }
 
     asyncIO();
   }
 }
+
+MnemonicGenerateScreen.propTypes = {
+  isLoading: PropTypes.bool.isRequired,
+}
+
+const mapStateToProps = (state) => {
+  console.log('mapStateToProps', state.mnemonicGenerate.isLoading);
+  return {
+    isLoading: state.mnemonicGenerate.isLoading,
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updateLoading: (boolean) => dispatch(updateLoading(boolean)),
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(MnemonicGenerateScreen);
 
 const styles = StyleSheet.create({
   topView: {

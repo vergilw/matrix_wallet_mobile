@@ -1,7 +1,12 @@
-const mnemonicGenerate = (state = {actionDisabled: false}, action) => {
+const mnemonicGenerate = (state = { isLoading: false }, action) => {
+  console.log('reducers', action);
   switch (action.type) {
-    case 'SET_LOADING':
-      return {actionDisabled: action.boolean}
+    case 'UPDATE_LOADING':
+        console.log('UPDATE_LOADING');
+      return {
+        ...state,
+        isLoading: action.boolean,
+      }
     default:
       return state
   }

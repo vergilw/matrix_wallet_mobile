@@ -17,7 +17,7 @@ export default class AuthScreen extends React.Component {
         </View>
         <View style={styles.actionView}>
           <Button onPress={() => this.props.navigation.navigate('PinCode')} buttonStyle={{ backgroundColor: '#fff', height: 58, borderRadius: 4, }} containerStyle={{ marginHorizontal: 30, }} title='创建钱包' titleStyle={{ color: '#fbbe07', fontSize: 16 }} />
-          <Button buttonStyle={{ backgroundColor: 'transparent', height: 58 }} containerStyle={{ marginHorizontal: 30, marginTop: 20, borderRadius: 4, borderWidth: 0.5, borderColor: '#fff' }} title='导入钱包' titleStyle={{ color: '#fff', fontSize: 16 }} />
+          <Button onPress={() => this.props.navigation.navigate('MnemonicSign')} buttonStyle={{ backgroundColor: 'transparent', height: 58 }} containerStyle={{ marginHorizontal: 30, marginTop: 20, borderRadius: 4, borderWidth: 0.5, borderColor: '#fff' }} title='导入钱包' titleStyle={{ color: '#fff', fontSize: 16 }} />
         </View>
 
       </View>

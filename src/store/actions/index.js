@@ -1,4 +1,4 @@
-export const setLoading = boolean => ({
-  type: 'SET_LOADING',
-  boolean,
+export const updateLoading = (boolean) => ({
+  type: 'UPDATE_LOADING',
+  boolean: boolean,
 })

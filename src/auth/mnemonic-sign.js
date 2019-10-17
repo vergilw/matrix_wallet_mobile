@@ -1,185 +1,182 @@
 import React from 'react';
-import { Text, View, StyleSheet, StatusBar, SafeAreaView, TextInput, Image, Alert, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, StatusBar, SafeAreaView, TextInput, FlatList } from 'react-native';
 import { Button } from 'react-native-elements';
 import Toast from 'react-native-root-toast';
-
+import AsyncStorage from '@react-native-community/async-storage';
 
 export default class MnemonicSignScreen extends React.Component {
-  static navigationOptions = { headerTitle: '助记词' };
+  static navigationOptions = { headerTitle: '登录' };
+  // const [value, onChangeText] = React.useState('Useless Placeholder');
+  state = {
+    mnemonic1: null,
+    mnemonic2: null,
+    mnemonic3: null,
+    mnemonic4: null,
+    mnemonic5: null,
+    mnemonic6: null,
+    mnemonic7: null,
+    mnemonic8: null,
+    mnemonic9: null,
+    mnemonic10: null,
+    mnemonic11: null,
+    mnemonic12: null,
+  }
+
+  // inputPlaceholderArr = [];
 
   constructor(props) {
     super(props);
 
-    let mnemonic = props.navigation.getParam('mnemonic', ['']);
-
-    this.state = {
-      mnemonic: mnemonic,
-      sequence: 0,
-      displayedMnemonic: mnemonic[0],
-      previousDisabled: true,
-      nextTitle: '下一个',
-    };
+    // for (var i=0; i<12; i++) {
+    //   let int = i + 1;
+    //   this.inputPlaceholderArr.push({index: i, text: (int < 10) ? '0' + int.toString() : int.toString()});
+    // }
   }
 
   render() {
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center', }}>
+      <SafeAreaView style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', }}>
         <StatusBar barStyle="default" backgroundColor="#fff" />
+        <Text style={styles.title} >请按顺序写下助记词</Text>
+        
+        <View style={styles.inputView}>
 
-        <View style={styles.topView}>
-          <View style={styles.wordsView}>
-            <Text style={styles.wordsText} >{this.state.displayedMnemonic}</Text>
-            <Text style={styles.wordsSequence} >{this.state.sequence + 1}/{this.state.mnemonic.length}</Text>
-          </View>
-          <Text style={styles.captionText} >请按顺序写下单词并保存在安全的地方</Text>
+          <TextInput
+            style={styles.input}
+            placeholder='01'
+            returnKeyType='done'
+            onChangeText={(text) => this.setState({mnemonic1: text})}
+            value={this.state.mnemonic1}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder='02'
+            returnKeyType='done'
+            onChangeText={(text) => this.setState({mnemonic2: text})}
+            value={this.state.mnemonic2}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder='03'
+            returnKeyType='done'
+            onChangeText={(text) => this.setState({mnemonic3: text})}
+            value={this.state.mnemonic3}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder='04'
+            returnKeyType='done'
+            onChangeText={(text) => this.setState({mnemonic4: text})}
+            value={this.state.mnemonic4}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder='05'
+            returnKeyType='done'
+            onChangeText={(text) => this.setState({mnemonic5: text})}
+            value={this.state.mnemonic5}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder='06'
+            returnKeyType='done'
+            onChangeText={(text) => this.setState({mnemonic6: text})}
+            value={this.state.mnemonic6}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder='07'
+            returnKeyType='done'
+            onChangeText={(text) => this.setState({mnemonic7: text})}
+            value={this.state.mnemonic7}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder='08'
+            returnKeyType='done'
+            onChangeText={(text) => this.setState({mnemonic8: text})}
+            value={this.state.mnemonic8}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder='09'
+            returnKeyType='done'
+            onChangeText={(text) => this.setState({mnemonic9: text})}
+            value={this.state.mnemonic9}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder='10'
+            returnKeyType='done'
+            onChangeText={(text) => this.setState({mnemonic10: text})}
+            value={this.state.mnemonic10}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder='11'
+            returnKeyType='done'
+            onChangeText={(text) => this.setState({mnemonic11: text})}
+            value={this.state.mnemonic11}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder='12'
+            returnKeyType='done'
+            onChangeText={(text) => this.setState({mnemonic12: text})}
+            value={this.state.mnemonic12}
+          />
         </View>
-        <View style={styles.actionView}>
-          <Button
-            disabled={this.state.previousDisabled}
-            onPress={this._onPrevious.bind(this)}
-            title='上一个'
-            buttonStyle={styles.action}
-            containerStyle={styles.actionPreviousContainer}
-            titleStyle={styles.actionTitle}
-            disabledStyle={styles.actionDisabled}
-            disabledTitleStyle={styles.actionTitleDisabled} />
-          <Button
-            onPress={this._onNext.bind(this)}
-            title={this.state.nextTitle}
-            buttonStyle={styles.action}
-            containerStyle={styles.actionNextContainer}
-            titleStyle={styles.actionTitle}
-            disabledStyle={styles.actionDisabled}
-            disabledTitleStyle={styles.actionTitleDisabled} />
-        </View>
+        <Button onPress={this._onSubmit.bind(this)} title='进入钱包' buttonStyle={styles.action} containerStyle={styles.actionContainer} titleStyle={styles.actionTitle} />
 
       </SafeAreaView>
+
     );
   }
 
-  _onPrevious() {
-    if (this.state.sequence <= 0) {
-      return;
-    }
-
-    if (this.state.sequence === 1) {
-      this.setState({
-        previousDisabled: true,
-      })
-    }
-
-    this.setState({
-      sequence: this.state.sequence - 1,
-      nextTitle: '下一个',
-      displayedMnemonic: this.state.mnemonic[this.state.sequence - 1],
-    })
-  }
-
-  _onNext() {
-    if (this.state.sequence > this.state.mnemonic.length - 1) {
-      return;
-    } else if (this.state.sequence === this.state.mnemonic.length - 1) {
-
-      return;
-    }
-
-    if (this.state.sequence === this.state.mnemonic.length - 2) {
-      this.setState({
-        nextTitle: '完成',
-      })
-    }
-
-    this.setState({
-      sequence: this.state.sequence + 1,
-      previousDisabled: false,
-      displayedMnemonic: this.state.mnemonic[this.state.sequence + 1],
-    })
-  }
+  // const inputPlaceholders = [{text: }]
+  // inputListComponent = inputs.map()
 
   _onSubmit() {
-
+    this.props.navigation.navigate('App');
   }
 }
 
 const styles = StyleSheet.create({
-  topView: {
-    marginTop: 140,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  wordsView: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 222,
-    height: 222,
-    backgroundColor: '#fff',
-    borderWidth: 0.5,
-    borderColor: '#f0f1f2',
-    borderRadius: 7.5,
-    shadowColor: 'rgba(134, 142, 155, 0.09)',
-    shadowOpacity: 1.0,
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    elevation: 5,
-  },
-  wordsText: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#2d2d2d',
-    marginBottom: 15,
-  },
-  wordsSequence: {
-    fontSize: 13,
-    color: '#8f92a1',
-    marginTop: 15,
-  },
-  captionText: {
-    fontSize: 13,
-    color: '#8f92a1',
-    marginTop: 32,
-    marginHorizontal: 65,
-    lineHeight: 22,
-    textAlign: 'center',
-  },
-  footerText: {
-    fontSize: 13,
-    color: '#8f92a1',
-    marginTop: 12,
-    marginHorizontal: 75,
-    lineHeight: 21,
-    textAlign: 'center',
-  },
-  actionView: {
+  inputView: {
+    marginTop: 14,
+    paddingHorizontal: 30,
+    width: '100%',
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 58,
-    marginBottom: 80,
+    flexWrap: 'wrap',
+    justifyContent: 'space-evenly',
+  },
+  input: {
+    borderColor: 'rgba(0, 0, 0, 0.05)',
+    borderWidth: 1,
+    borderRadius: 6,
+    textAlign: 'center',
+    width: '30%',
+    height: 38,
+    marginBottom: 10,
+  },
+  title: {
+    fontSize: 12,
+    color: '#8f92a1',
+    marginTop: 58,
   },
   action: {
     backgroundColor: '#fbbe07',
     height: 58,
     borderRadius: 4,
   },
-  actionDisabled: {
-    backgroundColor: 'rgba(251, 190, 7, 0.1)',
-  },
-  actionPreviousContainer: {
-    flex: 1,
-    paddingLeft: 30,
-  },
-  actionNextContainer: {
-    flex: 2,
-    paddingLeft: 10,
-    paddingRight: 30,
+  actionContainer: {
+    width: '100%',
+    marginTop: 100,
+    height: 58,
+    paddingHorizontal: 30,
   },
   actionTitle: {
     color: '#fff',
     fontSize: 16,
-  },
-  actionTitleDisabled: {
-    color: '#fbbe07',
   }
 });

@@ -5,14 +5,19 @@ import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import AuthScreen from './src/auth/auth.js';
 import PinCodeScreen from './src/auth/pin-code.js';
-import MnemonicGenerateScreen from './src/auth/mnemonic-generate.js';
+import MnemonicGenerateConnect from './src/auth/mnemonic-generate.js';
 import MnemonicDisplayScreen from './src/auth/mnemonic-display.js';
 import App from './src/main.js';
-
+import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+import AppReducers from './src/store/reducers/index.js';
+import MnemonicSignScreen from './src/auth/mnemonic-sign.js';
 
 const AuthStack = createStackNavigator({
-  MnemonicGenerate: MnemonicGenerateScreen,
   Auth: AuthScreen,
+  MnemonicSign: MnemonicSignScreen,
+  MnemonicGenerate: MnemonicGenerateConnect,
+  
   
   MnemonicDisplay: MnemonicDisplayScreen,
   PinCode: PinCodeScreen,
@@ -30,7 +35,7 @@ const AuthStack = createStackNavigator({
   },
 },);
 
-export default createAppContainer(
+const AppNavigationContainer = createAppContainer(
   createSwitchNavigator(
     {
       App: App,
@@ -42,12 +47,14 @@ export default createAppContainer(
   )
 );
 
-// export default class Auth1Screen extends React.Component {
-//   render() {
-//     return (
-//       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-//         <Text>Auth</Text>
-//       </View>
-//     );
-//   }
-// }
+const store = createStore(AppReducers);
+
+export default class Root extends React.Component {
+  render() {
+    return (
+      <Provider store={store}>
+        <AppNavigationContainer  />
+      </Provider>
+    )
+  }
+}
