@@ -15,11 +15,10 @@ import MnemonicSignScreen from './src/auth/mnemonic-sign.js';
 
 const AuthStack = createStackNavigator({
   Auth: AuthScreen,
+  MnemonicDisplay: MnemonicDisplayScreen,
+  
   MnemonicSign: MnemonicSignScreen,
   MnemonicGenerate: MnemonicGenerateConnect,
-  
-  
-  MnemonicDisplay: MnemonicDisplayScreen,
   PinCode: PinCodeScreen,
 }, {
   defaultNavigationOptions: {
@@ -42,7 +41,7 @@ const AppNavigationContainer = createAppContainer(
       Auth: AuthStack,
     },
     {
-      initialRouteName: 'Auth',
+      initialRouteName: 'App',
     }
   )
 );

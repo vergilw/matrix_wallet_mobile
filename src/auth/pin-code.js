@@ -3,13 +3,23 @@ import { Text, View, StyleSheet, StatusBar, SafeAreaView, TextInput, Alert } fro
 import { Button, Input } from 'react-native-elements';
 import Toast from 'react-native-root-toast';
 import AsyncStorage from '@react-native-community/async-storage';
+import WalletUtil from '../utils/WalletUtil.js';
+import Utils from '../utils/utils.js';
+import md5 from '../utils/md5.js';
 
 export default class PinCodeScreen extends React.Component {
   // static navigationOptions = { headerTitle: 'Pin码' };
-  // const [value, onChangeText] = React.useState('Useless Placeholder');
-  state = {
-    passcode: null,
-    repetition: null,
+
+  constructor(props) {
+    super(props);
+
+    let isSign = props.navigation.getParam('isSign', false);
+
+    this.state = {
+      passcode: null,
+      repetition: null,
+      isSign: isSign,
+    };
   }
 
   render() {
@@ -22,7 +32,7 @@ export default class PinCodeScreen extends React.Component {
             style={styles.input}
             placeholder='以字母开头，8-16位包含数字和字母'
             returnKeyType='done'
-            onChangeText={(text) => this.setState({passcode: text})}
+            onChangeText={(text) => this.setState({ passcode: text })}
             value={this.state.passcode}
           />
         </View>
@@ -31,7 +41,7 @@ export default class PinCodeScreen extends React.Component {
             style={styles.input}
             placeholder='再次重复输入'
             returnKeyType='done'
-            onChangeText={(text) => this.setState({repetition: text})}
+            onChangeText={(text) => this.setState({ repetition: text })}
             value={this.state.repetition}
           />
         </View>
@@ -64,27 +74,62 @@ export default class PinCodeScreen extends React.Component {
         delay: 0,
       });
     } else {
-      
-      storeData = async () => {
-        try {
-          await AsyncStorage.setItem('@passcode', this.state.passcode)
-        } catch (e) {
 
+      if (this.state.isSign === true) {
+        let pashadterss = this.props.navigation.getParam('pashadterss');
+        let address = this.props.navigation.getParam('address');
+        let mnemonic = this.props.navigation.getParam('mnemonic');
+        mnemonic = mnemonic.toString().replace(/,/g, " ");
+        let privateKey = this.props.navigation.getParam('privateKey');
+
+        let newPasscode = md5(pashadterss + this.state.passcode);
+        let keyStore = Utils.encrypt(privateKey, newPasscode);
+        let encrypt = Utils.encrypt(mnemonic, newPasscode);
+
+        asyncIO = async () => {
+          try {
+            await AsyncStorage.setItem('@pashadterss', pashadterss);
+            await AsyncStorage.setItem('@address', address);
+            await AsyncStorage.setItem('@keyStore', keyStore);
+            await AsyncStorage.setItem('@encrypt', encrypt);
+
+          } catch (e) {
+            console.log(e);
+          }
+
+          this.setState({
+            actionDisabled: false,
+          })
+
+          that.props.navigation.navigate('App');
         }
 
-        let toast = Toast.show("success.", {
-          duration: Toast.durations.LONG,
-          position: Toast.positions.CENTER,
-          shadow: true,
-          animation: true,
-          hideOnPress: true,
-          delay: 0,
-        });
+        asyncIO()
 
-        that.props.navigation.navigate('MnemonicGenerate');
+      } else {
+        storeData = async () => {
+          try {
+            await AsyncStorage.setItem('@passcode', this.state.passcode)
+          } catch (e) {
+
+          }
+
+          let toast = Toast.show("success.", {
+            duration: Toast.durations.LONG,
+            position: Toast.positions.CENTER,
+            shadow: true,
+            animation: true,
+            hideOnPress: true,
+            delay: 0,
+          });
+
+          that.props.navigation.navigate('MnemonicGenerate');
+        }
+
+        storeData()
       }
 
-      storeData()
+
     }
   }
 }

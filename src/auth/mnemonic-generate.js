@@ -80,15 +80,13 @@ class MnemonicGenerateScreen extends React.Component {
         console.log(e);
       }
 
-      setTimeout(()=>{
-        this.setState({
-          actionDisabled: false,
-        })
-        // this.props.updateLoading(false);
-      }, 10000);
+      this.setState({
+        actionDisabled: false,
+      })
+      // this.props.updateLoading(false);
       
       
-      // that.props.navigation.navigate('MnemonicDisplay', { mnemonic: mnemonicList });
+      that.props.navigation.navigate('MnemonicDisplay', { mnemonic: mnemonicList });
     }
 
     asyncIO();

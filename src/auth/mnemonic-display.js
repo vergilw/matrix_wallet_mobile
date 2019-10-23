@@ -19,6 +19,7 @@ export default class MnemonicDisplayScreen extends React.Component {
       previousDisabled: true,
       nextTitle: '下一个',
     };
+
   }
 
   render() {
@@ -79,7 +80,7 @@ export default class MnemonicDisplayScreen extends React.Component {
     if (this.state.sequence > this.state.mnemonic.length - 1) {
       return;
     } else if (this.state.sequence === this.state.mnemonic.length - 1) {
-      _onDone();
+      this._onDone();
       return;
     }
 
@@ -97,7 +98,7 @@ export default class MnemonicDisplayScreen extends React.Component {
   }
 
   _onDone() {
-
+    that.props.navigation.navigate('App');
   }
 }
 
