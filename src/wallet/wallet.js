@@ -2,6 +2,7 @@ import React from 'react';
 import { Text, View, StyleSheet, StatusBar, TouchableOpacity } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-community/async-storage';
+const axios = require('axios');
 
 class WalletScreen extends React.Component {
 
@@ -48,32 +49,35 @@ class WalletScreen extends React.Component {
 
     asyncIO = async () => {
       try {
-        const address = await AsyncStorage.getItem('@address');
-        console.log(address);
-        await global.httpProvider.man.getBalance(address, (error, result) => {
-          console.log(error);
-          console.log(result);
-        });
-        console.log(balance);
-        this.setState({
-          balance: balance,
-        })
-        // fetch('https://api85.matrix.io/man_getBalance', {
-        //   method: 'POST',
-        //   headers: {
-        //     Accept: 'application/json',
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify(address),
-        // }).then((response) => {
-        //   console.log(response);
-        // })
-        // .then((responseJson) => {
-        //   console.log(responseJson);
-        // })
-        // .catch((error) => {
-        //   console.error(error);
+        // this.httpProvider.man.getTransactionCount(
+        //   this.address
+        // );
+
+        // const address = await AsyncStorage.getItem('@address');
+        // console.log(address);
+        // await global.httpProvider.man.getBalance(address, (error, result) => {
+        //   console.log(error);
+        //   console.log(result);
         // });
+
+        // console.log(balance);
+        // this.setState({
+        //   balance: balance,
+        // })
+        // console.log(JSON.stringify({"jsonrpc":"2.0","method":"man_getBalance","params":["MAN.35dDuaK7Pb42338pXq5a6shtsTDoZ","latest"],"id":1}));
+        axios({
+          method: 'post',
+          url: 'https://testnet.matrix.io',
+          data: { "jsonrpc": "2.0", "method": "man_getBalance", "params": ["MAN.35dDuaK7Pb42338pXq5a6shtsTDoZ", "latest"], "id": 1 }
+        }).then((response) => {
+          console.log(response);
+        })
+          // .then((responseJson) => {
+          //   console.log(responseJson);
+          // })
+          .catch((error) => {
+            console.error(error);
+          });
 
       } catch (e) {
         console.log(e);
