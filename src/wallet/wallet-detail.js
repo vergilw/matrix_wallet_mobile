@@ -4,27 +4,41 @@ import { FlatList } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-community/async-storage';
 const axios = require('axios');
 require('bignumber.js');
+import { Button } from 'react-native-elements';
+import NumberFormat from 'react-number-format';
+import { aa,bb, contract } from "../profiles/config.js";
 
-class WalletScreen extends React.Component {
+class WalletDetailScreen extends React.Component {
 
   state = {
-    isBalanceHidden: false,
     balance: null,
-    currenryArr: null,
+    recordArr: null,
   };
 
   render() {
     return (
-      <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', backgroundColor: '#ffb900' }}>
+      <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'flex-start', backgroundColor: '#ffb900' }}>
         <StatusBar barStyle="default" backgroundColor="#fff" />
-        <View style={{ position: 'absolute', height: '60%', width: '100%', backgroundColor: '#ffb900' }} />
         <Image source={require('../../resources/img/wallet/wallet_bg.png')} style={{ position: 'absolute' }} />
-        <Text style={styles.balanceText}>{this.state.balance}</Text>
-        <TouchableOpacity onPress={this._onToggleBalance.bind(this)}>
-          <Text style={styles.balanceToggleText}>总资产</Text>
-        </TouchableOpacity>
-
-        <View style={{ position: 'absolute', width: '100%', height: '40%', bottom: 0, backgroundColor: '#f6f7fb' }}>
+        <Text style={{ marginTop: 120, marginLeft: 16 }}>
+          <Text style={styles.balanceText}>{this.state.balance}</Text>
+          <Text style={styles.balanceFooterText}>MAN</Text>
+        </Text>
+        <View style={{ width: '100%', paddingHorizontal: 16, flexDirection: 'row', marginTop: 20, }}>
+          <Button
+            // onPress={this._onSubmit.bind(this)}
+            title='转账'
+            buttonStyle={styles.actionLeft}
+            containerStyle={styles.actionLeftContainer}
+            titleStyle={styles.actionLeftTitle}
+          />
+          <Button
+            // onPress={this._onSubmit.bind(this)}
+            title='接受'
+            buttonStyle={styles.actionRight}
+            containerStyle={styles.actionRightContainer}
+            titleStyle={styles.actionRightTitle}
+          />
         </View>
 
         <FlatList
@@ -34,10 +48,10 @@ class WalletScreen extends React.Component {
           extraData={this.state}
           keyExtractor={this._keyExtractor}
           getItemLayout={(data, index) => (
-            { length: 84, offset: 96 * index, index }
+            { length: 75, offset: 76 * index, index }
           )}
           ItemSeparatorComponent={() => {
-            return <View style={{ height: 12, backgroundColor: '#f6f7fb' }}>
+            return <View style={{ height: 1, backgroundColor: '#f7f7f7' }}>
             </View>
           }}
           ListHeaderComponent={this._renderHeader}
@@ -67,7 +81,7 @@ class WalletScreen extends React.Component {
   }
 
   _renderItem = ({ item }) => (
-    <CurrencyItem
+    <RecordItem
       id={item.accountType}
       onPressItem={(id) => {
         console.log('press', id);
@@ -79,7 +93,7 @@ class WalletScreen extends React.Component {
   _renderHeader = () => (
     <View style={{ backgroundColor: '#ffb900', height: 55 }}>
       <View style={styles.header}>
-        <Text style={styles.headerTitleText}>币种列表</Text>
+        <Text style={styles.headerTitleText}>记录列表</Text>
       </View>
     </View>
   );
@@ -99,7 +113,7 @@ class WalletScreen extends React.Component {
         await global.httpProvider.man.getBalance('MAN.2TKMHtJbgcFiiviX2GZQNf4hNFoYW', (error, result) => {
           console.log(result);
           if (error === null) {
-            let balance = result[0].balance.toNumber();
+            let balance = result[0].balance.toFixed(2);
             this.setState({
               currenryArr: [result[0]],
               balance: balance,
@@ -130,7 +144,7 @@ class WalletScreen extends React.Component {
   }
 }
 
-class CurrencyItem extends React.PureComponent {
+class RecordItem extends React.PureComponent {
   _onPress = () => {
     this.props.onPressItem(this.props.id);
   };
@@ -139,9 +153,6 @@ class CurrencyItem extends React.PureComponent {
     return (
       <TouchableHighlight style={{ backgroundColor: '#f6f7fb' }} activeOpacity={0.2} underlayColor='#f6f7fb' onPress={this._onPress}>
         <View style={styles.itemView}>
-          <Image style={styles.itemImg} source={require('../../resources/img/wallet/wallet_currencyMark.png')}>
-
-          </Image>
           <View style={styles.itemTitleView}>
             <Text style={styles.itemTitleText}>
               Man
@@ -159,19 +170,45 @@ class CurrencyItem extends React.PureComponent {
   }
 }
 
-export default WalletScreen;
+export default WalletDetailScreen;
 
 const styles = StyleSheet.create({
   balanceText: {
     fontSize: 30,
     color: '#222',
     fontWeight: 'bold',
-    marginTop: 120,
   },
-  balanceToggleText: {
-    fontSize: 14,
+  balanceFooterText: {
+    fontSize: 12,
     color: '#222',
-    marginTop: 20,
+  },
+  actionLeft: {
+    backgroundColor: '#fff',
+    height: 58,
+    borderRadius: 6,
+  },
+  actionRight: {
+    backgroundColor: '#ffcf4b',
+    height: 58,
+    borderRadius: 6,
+  },
+  actionLeftContainer: {
+    marginRight: 5,
+    height: 58,
+    flexGrow: 1,
+  },
+  actionRightContainer: {
+    marginLeft: 5,
+    height: 58,
+    flexGrow: 1,
+  },
+  actionLeftTitle: {
+    color: '#fbbe07',
+    fontSize: 16,
+  },
+  actionRightTitle: {
+    color: '#fff',
+    fontSize: 16,
   },
   list: {
     overflow: 'visible',
@@ -196,24 +233,13 @@ const styles = StyleSheet.create({
   },
   itemView: {
     marginHorizontal: 16,
-    padding: 16,
-    backgroundColor: '#fff',
-    height: 84,
-    borderRadius: 6,
-    display: 'flex',
+    height: 75,
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
-  itemImg: {
-    backgroundColor: '#ccc',
-    height: 38,
-    width: 38,
-    flexGrow: 0,
-  },
   itemTitleView: {
     flexGrow: 1,
-    marginLeft: 18,
   },
   itemTitleText: {
     fontSize: 14,

@@ -14,14 +14,17 @@ import WalletScreen from './wallet/wallet.js';
 import MiningScreen from './mining.js';
 import InvitationCodeScreen from './invitation-code.js';
 import MeScreen from './me.js';
+import WalletDetailScreen from './wallet/wallet-detail.js';
 
 const WalletStack = createStackNavigator({
+  WalletDetail: WalletDetailScreen,
   Wallet: {
     screen: WalletScreen,
     navigationOptions: {
       headerTitle: '钱包',
     }
   },
+  
 }, {
   defaultNavigationOptions: {
     headerBackTitle: null,

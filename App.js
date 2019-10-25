@@ -16,7 +16,6 @@ import MnemonicSignScreen from './src/auth/mnemonic-sign.js';
 const AuthStack = createStackNavigator({
   Auth: AuthScreen,
   MnemonicDisplay: MnemonicDisplayScreen,
-  
   MnemonicSign: MnemonicSignScreen,
   MnemonicGenerate: MnemonicGenerateConnect,
   PinCode: PinCodeScreen,
