@@ -3,7 +3,8 @@ import { Text, View, StyleSheet, StatusBar, TouchableOpacity, TouchableHighlight
 import { FlatList } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-community/async-storage';
 const axios = require('axios');
-require('bignumber.js');
+const BigNumber = require('bignumber.js');
+import filters from '../utils/filters.js';
 import { Button } from 'react-native-elements';
 import NumberFormat from 'react-number-format';
 import { aa,bb, contract } from "../profiles/config.js";
@@ -26,7 +27,9 @@ class WalletDetailScreen extends React.Component {
         </Text>
         <View style={{ width: '100%', paddingHorizontal: 16, flexDirection: 'row', marginTop: 20, }}>
           <Button
-            // onPress={this._onSubmit.bind(this)}
+            onPress= {() => {
+              this.props.navigation.navigate('WalletTransfer');
+            }}
             title='转账'
             buttonStyle={styles.actionLeft}
             containerStyle={styles.actionLeftContainer}
@@ -86,7 +89,7 @@ class WalletDetailScreen extends React.Component {
       onPressItem={(id) => {
         console.log('press', id);
       }}
-      value={item.balance.toNumber()}
+      value={filters.weiToNumber(item.balance)}
     />
   );
 
@@ -113,7 +116,7 @@ class WalletDetailScreen extends React.Component {
         await global.httpProvider.man.getBalance('MAN.2TKMHtJbgcFiiviX2GZQNf4hNFoYW', (error, result) => {
           console.log(result);
           if (error === null) {
-            let balance = result[0].balance.toFixed(2);
+            let balance = filters.weiToNumber(result[0].balance);
             this.setState({
               currenryArr: [result[0]],
               balance: balance,

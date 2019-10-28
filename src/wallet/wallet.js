@@ -6,6 +6,7 @@ const axios = require('axios');
 require('bignumber.js');
 
 class WalletScreen extends React.Component {
+  static navigationOptions = { tabBarLabel: '转账', };
 
   state = {
     isBalanceHidden: false,

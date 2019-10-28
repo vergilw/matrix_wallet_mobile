@@ -15,16 +15,21 @@ import MiningScreen from './mining.js';
 import InvitationCodeScreen from './invitation-code.js';
 import MeScreen from './me.js';
 import WalletDetailScreen from './wallet/wallet-detail.js';
+import WalletTransferScreen from './wallet/wallet-transfer.js';
+import PinCodeModal from './auth/pin-code-modal.js';
 
 const WalletStack = createStackNavigator({
   WalletDetail: WalletDetailScreen,
-  Wallet: {
-    screen: WalletScreen,
+  WalletTransfer: WalletTransferScreen,
+  Wallet: WalletScreen,
+  PinCodeModal: {
+    screen: PinCodeModal,
     navigationOptions: {
-      headerTitle: '钱包',
-    }
-  },
-  
+      gestureResponseDistance: { vertical: 1000 }
+    },
+    
+    
+  } 
 }, {
   defaultNavigationOptions: {
     headerBackTitle: null,
@@ -35,23 +40,24 @@ const WalletStack = createStackNavigator({
     },
     headerTitleStyle: {
       fontSize: 17,
-    }
+    },
   },
 });
 
-WalletStack.navigationOptions = {
-  tabBarLabel: '钱包',
-  // tabBarIcon: ({ focused }) => (
-  //   <TabBarIcon
-  //     focused={focused}
-  //     name={
-  //       Platform.OS === 'ios'
-  //         ? `ios-information-circle${focused ? '' : '-outline'}`
-  //         : 'md-information-circle'
-  //     }
-  //   />
-  // ),
-};
+// WalletStack.navigationOptions = {
+//   tabBarLabel: '钱包',
+// };
+
+WalletStack.navigationOptions = ({ navigation }) => {
+  let { routeName } = navigation.state.routes[navigation.state.index];
+  let navigationOptions = {};
+  if (routeName === 'Wallet') {
+    navigationOptions.tabBarLabel = '钱包';
+  } else if (routeName !== 'Wallet') {
+    navigationOptions.tabBarVisible = false;
+  }
+  return navigationOptions;
+}
 
 const MiningStack = createStackNavigator({
   Mining: MiningScreen,
