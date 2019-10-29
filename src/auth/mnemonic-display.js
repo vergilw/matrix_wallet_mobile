@@ -98,7 +98,7 @@ export default class MnemonicDisplayScreen extends React.Component {
   }
 
   _onDone() {
-    that.props.navigation.navigate('App');
+    this.props.navigation.navigate('App');
   }
 }
 

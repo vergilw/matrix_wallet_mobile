@@ -16,8 +16,8 @@ export default class PinCodeScreen extends React.Component {
     let isSign = props.navigation.getParam('isSign', false);
 
     this.state = {
-      passcode: null,
-      repetition: null,
+      passcode: 'Vergilw123',
+      repetition: 'Vergilw123',
       isSign: isSign,
     };
   }
@@ -92,6 +92,7 @@ export default class PinCodeScreen extends React.Component {
             await AsyncStorage.setItem('@address', address);
             await AsyncStorage.setItem('@keyStore', keyStore);
             await AsyncStorage.setItem('@encrypt', encrypt);
+            await AsyncStorage.setItem('@passcode', this.state.passcode);
 
           } catch (e) {
             console.log(e);

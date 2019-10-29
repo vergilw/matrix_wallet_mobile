@@ -18,18 +18,12 @@ import WalletDetailScreen from './wallet/wallet-detail.js';
 import WalletTransferScreen from './wallet/wallet-transfer.js';
 import PinCodeModal from './auth/pin-code-modal.js';
 
+
 const WalletStack = createStackNavigator({
+  Wallet: WalletScreen,
   WalletDetail: WalletDetailScreen,
   WalletTransfer: WalletTransferScreen,
-  Wallet: WalletScreen,
-  PinCodeModal: {
-    screen: PinCodeModal,
-    navigationOptions: {
-      gestureResponseDistance: { vertical: 1000 }
-    },
-    
-    
-  } 
+
 }, {
   defaultNavigationOptions: {
     headerBackTitle: null,

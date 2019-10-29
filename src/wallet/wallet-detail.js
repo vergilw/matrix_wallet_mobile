@@ -8,6 +8,7 @@ import filters from '../utils/filters.js';
 import { Button } from 'react-native-elements';
 import NumberFormat from 'react-number-format';
 import { aa,bb, contract } from "../profiles/config.js";
+import Moment from 'moment';
 
 class WalletDetailScreen extends React.Component {
 
@@ -46,7 +47,7 @@ class WalletDetailScreen extends React.Component {
 
         <FlatList
           style={styles.list}
-          data={this.state.currenryArr}
+          data={this.state.recordArr}
           renderItem={this._renderItem}
           extraData={this.state}
           keyExtractor={this._keyExtractor}
@@ -85,11 +86,12 @@ class WalletDetailScreen extends React.Component {
 
   _renderItem = ({ item }) => (
     <RecordItem
-      id={item.accountType}
-      onPressItem={(id) => {
-        console.log('press', id);
+      onPressItem={(item) => {
+        console.log('press', item);
       }}
-      value={filters.weiToNumber(item.balance)}
+      receiver={item.receiver}
+      time={Moment(item.time).format('YYYY-MM-DD HH:mm:ss')}
+      amount={'-' + item.amount}
     />
   );
 
@@ -110,10 +112,10 @@ class WalletDetailScreen extends React.Component {
 
     asyncIO = async () => {
       try {
-        // const address = await AsyncStorage.getItem('@address');
-        // console.log(address);
+        const address = await AsyncStorage.getItem('@address');
+        console.log(address);
 
-        await global.httpProvider.man.getBalance('MAN.2TKMHtJbgcFiiviX2GZQNf4hNFoYW', (error, result) => {
+        global.httpProvider.man.getBalance(address, (error, result) => {
           console.log(result);
           if (error === null) {
             let balance = filters.weiToNumber(result[0].balance);
@@ -124,20 +126,12 @@ class WalletDetailScreen extends React.Component {
           }
         });
 
-        // console.log(balance);
-
-
-        // axios({
-        //   method: 'post',
-        //   url: 'https://testnet.matrix.io',
-        //   data: { "jsonrpc": "2.0", "method": "man_getBalance", "params": ["MAN.35dDuaK7Pb42338pXq5a6shtsTDoZ", "latest"], "id": 1 }
-        // })
-        //   .then((response) => {
-        //     console.log(response);
-        //   })
-        //   .catch((error) => {
-        //     console.error(error);
-        //   });
+        let transactionRecords = await AsyncStorage.getItem('@myTransfer');
+        transactionRecords = JSON.parse(transactionRecords);
+        console.log('transactionRecords', transactionRecords);
+        this.setState({
+          recordArr: transactionRecords,
+        })
 
       } catch (e) {
         console.log(e);
@@ -158,14 +152,14 @@ class RecordItem extends React.PureComponent {
         <View style={styles.itemView}>
           <View style={styles.itemTitleView}>
             <Text style={styles.itemTitleText}>
-              Man
+              {this.props.receiver}
             </Text>
             <Text style={styles.itemDescText}>
-              Matrix
+              {this.props.time}
             </Text>
           </View>
           <Text style={styles.itemValueText}>
-            {this.props.value}
+            {this.props.amount}
           </Text>
         </View>
       </TouchableHighlight>

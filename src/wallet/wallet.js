@@ -4,6 +4,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-community/async-storage';
 const axios = require('axios');
 require('bignumber.js');
+import filters from '../utils/filters.js';
 
 class WalletScreen extends React.Component {
   static navigationOptions = { tabBarLabel: '转账', };
@@ -58,7 +59,7 @@ class WalletScreen extends React.Component {
       })
     } else {
       if (this.state.currenryArr !== null) {
-        let balance = this.state.currenryArr[0].balance.toNumber();
+        let balance = filters.weiToNumber(this.state.currenryArr[0].balance);
         this.setState({
           balance: balance,
           isBalanceHidden: false,
@@ -71,9 +72,9 @@ class WalletScreen extends React.Component {
     <CurrencyItem
       id={item.accountType}
       onPressItem={(id) => {
-        console.log('press', id);
+        this.props.navigation.navigate('WalletDetail');
       }}
-      value={item.balance.toNumber()}
+      value={filters.weiToNumber(item.balance)}
     />
   );
 
@@ -94,13 +95,13 @@ class WalletScreen extends React.Component {
 
     asyncIO = async () => {
       try {
-        // const address = await AsyncStorage.getItem('@address');
+        const address = await AsyncStorage.getItem('@address');
         // console.log(address);
 
-        await global.httpProvider.man.getBalance('MAN.2TKMHtJbgcFiiviX2GZQNf4hNFoYW', (error, result) => {
+        await global.httpProvider.man.getBalance(address, (error, result) => {
           console.log(result);
           if (error === null) {
-            let balance = result[0].balance.toNumber();
+            let balance = filters.weiToNumber(result[0].balance);
             this.setState({
               currenryArr: [result[0]],
               balance: balance,

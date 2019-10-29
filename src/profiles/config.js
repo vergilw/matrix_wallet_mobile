@@ -1,11 +1,14 @@
 import HttpProvider from '../utils/HttpProvider.js';
 
-export const chainUrl = 'https://testnet.matrix.io'
+//distri
 // export const chainUrl = 'https://api85.matrix.io'
+// export const chainId = 1
+
+//develop
+export const chainUrl = 'https://testnet.matrix.io'
+export const chainId = 3
 
 global.httpProvider = new HttpProvider(chainUrl);
-
-export const chainId = 1
 
 export const ethUrl = 'https://mainnet.infura.io/v3/473f108e531843db9529fd549e61ad6e'
 export const ethChainId = 1

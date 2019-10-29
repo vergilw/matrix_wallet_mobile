@@ -5,7 +5,6 @@ import { Button } from 'react-native-elements';
 import WalletUtil from '../utils/WalletUtil.js';
 
 class PinCodeModalScreen extends React.Component {
-  static navigationOptions = { headerTitle: '转账', };
 
   state = {
     receiver: null,
@@ -16,9 +15,8 @@ class PinCodeModalScreen extends React.Component {
 
   render() {
     return (
-      <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'flex-start' }}>
-        <StatusBar barStyle="default" backgroundColor="#fff" />
-        <View style={{ height: '50%', width: '100%', backgroundColor: '#ccc'}}></View>
+      <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'flex-start',  }}>
+        <View style={{ height: '50%', width: '100%', backgroundColor: '#fff'}}></View>
       </View>
     );
   }

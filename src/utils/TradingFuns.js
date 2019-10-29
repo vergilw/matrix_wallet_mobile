@@ -1,7 +1,7 @@
 'use strict'
 import MatrixTx from 'matrixjs-tx'
 import BigNumber from 'bignumber.js'
-import WalletUtil from '@/utils/WalletUtil.js'
+import WalletUtil from './WalletUtil.js'
 import { chainId } from '../profiles/config.js';
 
 import Man from 'aiman'
