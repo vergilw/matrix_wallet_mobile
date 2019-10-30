@@ -7,7 +7,9 @@ require('bignumber.js');
 import filters from '../utils/filters.js';
 
 class WalletScreen extends React.Component {
-  static navigationOptions = { tabBarLabel: '转账', };
+  static navigationOptions = {
+    tabBarLabel: '转账',
+  };
 
   state = {
     isBalanceHidden: false,

@@ -3,7 +3,6 @@ import { Text, View, StyleSheet, StatusBar, TouchableOpacity, TouchableHighlight
 import AsyncStorage from '@react-native-community/async-storage';
 require('bignumber.js');
 import { Button } from 'react-native-elements';
-import NumberFormat from 'react-number-format';
 import WalletUtil from '../utils/WalletUtil.js';
 import Modal from 'react-native-modal';
 import Toast from 'react-native-root-toast';
@@ -11,6 +10,7 @@ import SendTransfer from '../utils/SendTransfer.js';
 import TradingFuns from '../utils/TradingFuns.js';
 import md5 from '../utils/md5.js';
 import utils from '../utils/utils.js';
+
 
 class WalletTransferScreen extends React.Component {
   static navigationOptions = { headerTitle: '转账', };
@@ -42,18 +42,26 @@ class WalletTransferScreen extends React.Component {
       <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'flex-start' }}>
         <StatusBar barStyle="default" backgroundColor="#fff" />
         <Text style={styles.receiverHeader}>接受地址</Text>
-        <TextInput
-          style={styles.receiverInput}
-          placeholder='输入对方钱包MAN地址'
-          returnKeyType='done'
-          onChangeText={(text) => this.setState({
-            ruleForm: {
-              ...this.state.ruleForm,
-              to: text
-            }
-          })}
-          value={this.state.ruleForm.to}
-        />
+        <View style={styles.receiverView}>
+          <TextInput
+            style={styles.receiverInput}
+            placeholder='输入对方钱包MAN地址'
+            returnKeyType='done'
+            onChangeText={(text) => this.setState({
+              ruleForm: {
+                ...this.state.ruleForm,
+                to: text
+              }
+            })}
+            value={this.state.ruleForm.to}
+          />
+          <TouchableOpacity style={styles.actionScan} onPress= {() => {
+              this.props.navigation.navigate('WalletScanner');
+            }}>
+            <Image source={require('../../resources/img/wallet/wallet_scan.png')}></Image>
+          </TouchableOpacity>
+        </View>
+
         <Text style={styles.amountHeader}>数量</Text>
         <TextInput
           style={styles.amountInput}
@@ -328,14 +336,22 @@ const styles = StyleSheet.create({
     marginTop: 150,
     marginLeft: 16,
   },
-  receiverInput: {
-    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
-    borderBottomWidth: 1,
-    paddingBottom: 10,
+  receiverView: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginHorizontal: 16,
     marginTop: 10,
-    width: '100%',
+    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+    borderBottomWidth: 1,
+  },
+  receiverInput: {
+    flexGrow: 1,
     fontSize: 15,
+  },
+  actionScan: {
+    paddingVertical: 10,
+    paddingLeft: 20,
+    paddingRight: 5,
   },
   amountHeader: {
     fontSize: 14,

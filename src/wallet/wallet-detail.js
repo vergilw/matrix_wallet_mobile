@@ -37,7 +37,9 @@ class WalletDetailScreen extends React.Component {
             titleStyle={styles.actionLeftTitle}
           />
           <Button
-            // onPress={this._onSubmit.bind(this)}
+            onPress= {() => {
+              this.props.navigation.navigate('WalletQRCode');
+            }}
             title='接受'
             buttonStyle={styles.actionRight}
             containerStyle={styles.actionRightContainer}
