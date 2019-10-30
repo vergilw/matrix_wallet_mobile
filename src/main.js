@@ -12,7 +12,7 @@ import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import WalletScreen from './wallet/wallet.js';
-import MiningScreen from './mining.js';
+import MiningScreen from './mining/mining.js';
 import InvitationCodeScreen from './invitation-code.js';
 import MeScreen from './me.js';
 import WalletDetailScreen from './wallet/wallet-detail.js';
@@ -22,7 +22,12 @@ import WalletScannerScreen from './wallet/wallet-scanner.js';
 
 const WalletStack = createStackNavigator({
 
-  Wallet: WalletScreen,
+  Wallet: {
+    screen: WalletScreen,
+    navigationOptions: {
+      headerTitle: '钱包',
+    }
+  },
   WalletDetail: WalletDetailScreen,
   WalletTransfer: WalletTransferScreen,
   WalletQRCode: WalletQRCodeScreen,
@@ -48,7 +53,7 @@ WalletStack.navigationOptions = ({ navigation }) => {
   let navigationOptions = {};
   if (routeName === 'Wallet') {
     navigationOptions.tabBarLabel = '钱包';
-    navigationOptions.tabBarIcon = ({focused, horizontal, tintColor}) => {
+    navigationOptions.tabBarIcon = ({ focused, horizontal, tintColor }) => {
       return <Image
         source={focused === true ? require('../resources/img/wallet/tabBar_walletSelected.png') : require('../resources/img/wallet/tabBar_walletNormal.png')}
       />
@@ -60,24 +65,35 @@ WalletStack.navigationOptions = ({ navigation }) => {
 }
 
 const MiningStack = createStackNavigator({
-  Mining: MiningScreen,
+  Mining: {
+    screen: MiningScreen,
+    navigationOptions: {
+      headerTitle: '挖矿',
+      headerStyle: {
+        elevation: 0,
+        shadowOpacity: 0,
+        borderBottomWidth: 0,
+      },
+    },
+
+  },
 }, {
   defaultNavigationOptions: {
     headerBackTitle: null,
-    headerTransparent: true,
+    // headerTransparent: true,
     headerTintColor: '#000',
     headerLeftContainerStyle: {
       paddingLeft: 16,
     },
     headerTitleStyle: {
       fontSize: 17,
-    }
+    },
   },
 });
 
 MiningStack.navigationOptions = {
   tabBarLabel: '挖矿',
-  tabBarIcon: ({focused, horizontal, tintColor}) => {
+  tabBarIcon: ({ focused, horizontal, tintColor }) => {
     return <Image
       source={focused === true ? require('../resources/img/wallet/tabBar_miningSelected.png') : require('../resources/img/wallet/tabBar_miningNormal.png')}
     />
@@ -102,7 +118,7 @@ const InvitationCodeStack = createStackNavigator({
 
 InvitationCodeStack.navigationOptions = {
   tabBarLabel: '邀请',
-  tabBarIcon: ({focused, horizontal, tintColor}) => {
+  tabBarIcon: ({ focused, horizontal, tintColor }) => {
     return <Image
       source={focused === true ? require('../resources/img/wallet/tabBar_invitationSelected.png') : require('../resources/img/wallet/tabBar_invitationNormal.png')}
     />
@@ -127,7 +143,7 @@ const MeStack = createStackNavigator({
 
 MeStack.navigationOptions = {
   tabBarLabel: '设置',
-  tabBarIcon: ({focused, horizontal, tintColor}) => {
+  tabBarIcon: ({ focused, horizontal, tintColor }) => {
     return <Image
       source={focused === true ? require('../resources/img/wallet/tabBar_settingsSelected.png') : require('../resources/img/wallet/tabBar_settingsNormal.png')}
     />
@@ -143,7 +159,7 @@ const AppRoot = createAppContainer(
       Me: MeStack,
     },
     {
-      initialRouteName: 'Wallet',
+      initialRouteName: 'Mining',
       tabBarOptions: {
         activeTintColor: '#f5a623',
         inactiveTintColor: '#999999',
