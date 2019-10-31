@@ -94,43 +94,34 @@ class WalletScreen extends React.Component {
   );
 
   componentDidMount() {
+    this._fetchData();
 
-    asyncIO = async () => {
-      try {
-        const address = await AsyncStorage.getItem('@address');
-        // console.log(address);
+    this.props.navigation.addListener('willFocus', this._componentWillFocus.bind(this))
+  }
 
-        await global.httpProvider.man.getBalance(address, (error, result) => {
-          console.log(result);
-          if (error === null) {
-            let balance = filters.weiToNumber(result[0].balance);
-            this.setState({
-              currenryArr: [result[0]],
-              balance: balance,
-            })
-          }
-        });
+  _componentWillFocus() {
+    this._fetchData();
+  }
 
-        // console.log(balance);
+  async _fetchData() {
+    try {
+      const address = await AsyncStorage.getItem('@address');
+      console.log(address, 'componentDidMount');
 
+      await global.httpProvider.man.getBalance(address, (error, result) => {
+        console.log(result);
+        if (error === null) {
+          let balance = filters.weiToNumber(result[0].balance);
+          this.setState({
+            currenryArr: [result[0]],
+            balance: balance,
+          })
+        }
+      });
 
-        // axios({
-        //   method: 'post',
-        //   url: 'https://testnet.matrix.io',
-        //   data: { "jsonrpc": "2.0", "method": "man_getBalance", "params": ["MAN.35dDuaK7Pb42338pXq5a6shtsTDoZ", "latest"], "id": 1 }
-        // })
-        //   .then((response) => {
-        //     console.log(response);
-        //   })
-        //   .catch((error) => {
-        //     console.error(error);
-        //   });
-
-      } catch (e) {
-        console.log(e);
-      }
+    } catch (e) {
+      console.log(e);
     }
-    asyncIO();
   }
 }
 

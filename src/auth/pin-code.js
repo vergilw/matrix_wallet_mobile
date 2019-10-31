@@ -16,8 +16,11 @@ export default class PinCodeScreen extends React.Component {
     let isSign = props.navigation.getParam('isSign', false);
 
     this.state = {
-      passcode: 'Vergilw123',
-      repetition: 'Vergilw123',
+      //FIXME: DEBUG
+      // passcode: 'Vergilw123',
+      // repetition: 'Vergilw123',
+      passcode: null,
+      repetition: null,
       isSign: isSign,
     };
   }

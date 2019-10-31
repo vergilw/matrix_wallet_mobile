@@ -7,6 +7,7 @@ import solidityUtils from './solidity/utils.js'
 const ethers = require('ethers')
 const polycrc = require('polycrc')
 const bs58 = require('bs58')
+const rnBip39 = require('react-native-bip39')
 const bip39 = require('bip39')
 const util = require('matrixjs-util')
 const hdkey = require('ethereumjs-wallet/hdkey')
@@ -31,18 +32,19 @@ WalletUtil.entropyToMnemonic = function (entropy) {
 // 组记词获取私钥
 WalletUtil.mnemonicToPrivateKey = function (mnemonic) {
 	console.log('mnemonic',mnemonic)
-  let seed = bip39.mnemonicToSeed(mnemonic)
+  let seed = rnBip39.mnemonicToSeed(mnemonic);
 	console.log('seed',seed)
   let hdWallet = hdkey.fromMasterSeed(seed)
   console.log('hdWallet',hdWallet)
   let key = hdWallet.derivePath("m/44'/60'/0'/0/0")
   console.log('key',key)
+  console.log(key._hdkey._privateKey.toString('hex'));
   return key._hdkey._privateKey
 }
 
 // 组记词获取私钥
 WalletUtil.mnemonicToKeyStore = function (mnemonic, password) {
-  let seed = bip39.mnemonicToSeed(mnemonic)
+  let seed = rnBip39.mnemonicToSeed(mnemonic)
   let hdWallet = hdkey.fromMasterSeed(seed)
   let key = hdWallet.derivePath("m/44'/60'/0'/0/0")
   let params = {

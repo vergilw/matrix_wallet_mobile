@@ -12,7 +12,6 @@
 		13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		13E619952351B32B0035B36E /* Common.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13E619942351B32B0035B36E /* Common.xcassets */; };
 		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -45,7 +44,8 @@
 		00E356EE1AD99517003FC87E /* matrix_wallet_mobileTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = matrix_wallet_mobileTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* matrix_wallet_mobileTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = matrix_wallet_mobileTests.m; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* matrix_wallet_mobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = matrix_wallet_mobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		018D2A1E84E54E249795530C /* FontAwesome5_Solid.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Solid.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Solid.ttf"; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* Dappore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dappore.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = matrix_wallet_mobile/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = matrix_wallet_mobile/AppDelegate.m; sourceTree = "<group>"; };
 		13B07FB21A68108700A75B9A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
@@ -53,17 +53,32 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = matrix_wallet_mobile/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = matrix_wallet_mobile/main.m; sourceTree = "<group>"; };
 		13E619942351B32B0035B36E /* Common.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Common.xcassets; sourceTree = "<group>"; };
+		1B93D8583FCF4C4496F2EB28 /* FontAwesome5_Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Regular.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Regular.ttf"; sourceTree = "<group>"; };
 		272E49E86048F2AE8A36E26E /* Pods-matrix_wallet_mobile-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matrix_wallet_mobile-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-matrix_wallet_mobile-tvOSTests/Pods-matrix_wallet_mobile-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		2852E78C96578C129F531DD2 /* Pods-matrix_wallet_mobileTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matrix_wallet_mobileTests.release.xcconfig"; path = "Target Support Files/Pods-matrix_wallet_mobileTests/Pods-matrix_wallet_mobileTests.release.xcconfig"; sourceTree = "<group>"; };
 		2D02E47B1E0B4A5D006451C7 /* matrix_wallet_mobile-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "matrix_wallet_mobile-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* matrix_wallet_mobile-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "matrix_wallet_mobile-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		31AAD301B4CF7412B93FFD75 /* Pods-matrix_wallet_mobile-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matrix_wallet_mobile-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-matrix_wallet_mobile-tvOSTests/Pods-matrix_wallet_mobile-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
 		337F755EDC7378F52AE1A814 /* Pods-matrix_wallet_mobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matrix_wallet_mobile.release.xcconfig"; path = "Target Support Files/Pods-matrix_wallet_mobile/Pods-matrix_wallet_mobile.release.xcconfig"; sourceTree = "<group>"; };
+		3A98B86F5A104D309B001401 /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
+		3FE51F751D1D4F90B75FD1E1 /* Fontisto.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Fontisto.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Fontisto.ttf"; sourceTree = "<group>"; };
+		421A380C79AB484F9030C500 /* Foundation.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Foundation.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Foundation.ttf"; sourceTree = "<group>"; };
 		4F006338EB4D447EBDD3B211 /* libPods-matrix_wallet_mobile-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-matrix_wallet_mobile-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		556C230618F04798A3F9D7B3 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SimpleLineIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; };
+		62012B9006EC4724AF625FD8 /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
+		62029A89ED2F48E0937D5A2E /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
+		7DB6756ABB304BEEA7DED5C8 /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
+		842977AC36A0444FB78B8109 /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Brands.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf"; sourceTree = "<group>"; };
+		883965C555494B65918D9B6F /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
+		8B4A19D8719E416FA55E9114 /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
 		913ABC87164EBD00194E316D /* Pods-matrix_wallet_mobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matrix_wallet_mobile.debug.xcconfig"; path = "Target Support Files/Pods-matrix_wallet_mobile/Pods-matrix_wallet_mobile.debug.xcconfig"; sourceTree = "<group>"; };
 		9395FD4BA46BC8E1EAB54902 /* libPods-matrix_wallet_mobileTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-matrix_wallet_mobileTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9458588864F9BE68C54D0CAE /* libPods-matrix_wallet_mobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-matrix_wallet_mobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A35C12D92F314FA7B27BB416 /* AntDesign.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = AntDesign.ttf; path = "../node_modules/react-native-vector-icons/Fonts/AntDesign.ttf"; sourceTree = "<group>"; };
+		A741EFEC9FD0401CADAFAB3B /* Entypo.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Entypo.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Entypo.ttf"; sourceTree = "<group>"; };
+		B1A1648B174B4ABE94107F08 /* MaterialIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
 		D159C826A6164F6FBFFE27E2 /* libPods-matrix_wallet_mobile-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-matrix_wallet_mobile-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D4C510EA90944106A2E224A5 /* EvilIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = EvilIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
 		F4AA1E4EF62FECF6F8C9FBC5 /* Pods-matrix_wallet_mobileTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-matrix_wallet_mobileTests.debug.xcconfig"; path = "Target Support Files/Pods-matrix_wallet_mobileTests/Pods-matrix_wallet_mobileTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -142,6 +157,22 @@
 			isa = PBXGroup;
 			children = (
 				13E619942351B32B0035B36E /* Common.xcassets */,
+				A35C12D92F314FA7B27BB416 /* AntDesign.ttf */,
+				A741EFEC9FD0401CADAFAB3B /* Entypo.ttf */,
+				D4C510EA90944106A2E224A5 /* EvilIcons.ttf */,
+				7DB6756ABB304BEEA7DED5C8 /* Feather.ttf */,
+				8B4A19D8719E416FA55E9114 /* FontAwesome.ttf */,
+				842977AC36A0444FB78B8109 /* FontAwesome5_Brands.ttf */,
+				1B93D8583FCF4C4496F2EB28 /* FontAwesome5_Regular.ttf */,
+				018D2A1E84E54E249795530C /* FontAwesome5_Solid.ttf */,
+				3FE51F751D1D4F90B75FD1E1 /* Fontisto.ttf */,
+				421A380C79AB484F9030C500 /* Foundation.ttf */,
+				62012B9006EC4724AF625FD8 /* Ionicons.ttf */,
+				883965C555494B65918D9B6F /* MaterialCommunityIcons.ttf */,
+				B1A1648B174B4ABE94107F08 /* MaterialIcons.ttf */,
+				3A98B86F5A104D309B001401 /* Octicons.ttf */,
+				556C230618F04798A3F9D7B3 /* SimpleLineIcons.ttf */,
+				62029A89ED2F48E0937D5A2E /* Zocial.ttf */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -185,7 +216,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* matrix_wallet_mobile.app */,
+				13B07F961A680F5B00A75B9A /* Dappore.app */,
 				00E356EE1AD99517003FC87E /* matrix_wallet_mobileTests.xctest */,
 				2D02E47B1E0B4A5D006451C7 /* matrix_wallet_mobile-tvOS.app */,
 				2D02E4901E0B4A5D006451C7 /* matrix_wallet_mobile-tvOSTests.xctest */,
@@ -248,7 +279,7 @@
 			);
 			name = matrix_wallet_mobile;
 			productName = matrix_wallet_mobile;
-			productReference = 13B07F961A680F5B00A75B9A /* matrix_wallet_mobile.app */;
+			productReference = 13B07F961A680F5B00A75B9A /* Dappore.app */;
 			productType = "com.apple.product-type.application";
 		};
 		2D02E47A1E0B4A5D006451C7 /* matrix_wallet_mobile-tvOS */ = {
@@ -296,7 +327,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0940;
+				LastUpgradeCheck = 940;
 				ORGANIZATIONNAME = Facebook;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
@@ -355,7 +386,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				13E619952351B32B0035B36E /* Common.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -390,7 +420,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
+			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
 		2D02E4CB1E0B4B27006451C7 /* Bundle React Native Code And Images */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -672,7 +702,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/matrix_wallet_mobile.app/matrix_wallet_mobile";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Dappore.app/Dappore";
 			};
 			name = Debug;
 		};
@@ -693,7 +723,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/matrix_wallet_mobile.app/matrix_wallet_mobile";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Dappore.app/Dappore";
 			};
 			name = Release;
 		};
@@ -714,8 +744,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.otof.yangyu;
-				PRODUCT_NAME = matrix_wallet_mobile;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zl.dappore;
+				PRODUCT_NAME = Dappore;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -737,8 +767,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.otof.yangyu;
-				PRODUCT_NAME = matrix_wallet_mobile;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zl.dappore;
+				PRODUCT_NAME = Dappore;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				VERSIONING_SYSTEM = "apple-generic";
 			};

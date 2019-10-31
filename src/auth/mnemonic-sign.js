@@ -9,30 +9,42 @@ export default class MnemonicSignScreen extends React.Component {
   static navigationOptions = { headerTitle: '登录' };
   // const [value, onChangeText] = React.useState('Useless Placeholder');
   state = {
-    // mnemonic1: null,
-    // mnemonic2: null,
-    // mnemonic3: null,
-    // mnemonic4: null,
-    // mnemonic5: null,
-    // mnemonic6: null,
-    // mnemonic7: null,
-    // mnemonic8: null,
-    // mnemonic9: null,
-    // mnemonic10: null,
-    // mnemonic11: null,
-    // mnemonic12: null,
-    mnemonic1: 'loop',
-    mnemonic2: 'credit',
-    mnemonic3: 'master',
-    mnemonic4: 'north',
-    mnemonic5: 'brand',
-    mnemonic6: 'poem',
-    mnemonic7: 'diet',
-    mnemonic8: 'deny',
-    mnemonic9: 'link',
-    mnemonic10: 'develop',
-    mnemonic11: 'wear',
-    mnemonic12: 'like',
+    mnemonic1: null,
+    mnemonic2: null,
+    mnemonic3: null,
+    mnemonic4: null,
+    mnemonic5: null,
+    mnemonic6: null,
+    mnemonic7: null,
+    mnemonic8: null,
+    mnemonic9: null,
+    mnemonic10: null,
+    mnemonic11: null,
+    mnemonic12: null,
+    // mnemonic1: 'arena',
+    // mnemonic2: 'wait',
+    // mnemonic3: 'hurry',
+    // mnemonic4: 'youth',
+    // mnemonic5: 'bicycle',
+    // mnemonic6: 'fork',
+    // mnemonic7: 'month',
+    // mnemonic8: 'video',
+    // mnemonic9: 'spoil',
+    // mnemonic10: 'lunch',
+    // mnemonic11: 'find',
+    // mnemonic12: 'elephant',
+    // mnemonic1: 'clip',
+    // mnemonic2: 'kiwi',
+    // mnemonic3: 'shaft',
+    // mnemonic4: 'symbol',
+    // mnemonic5: 'gloom',
+    // mnemonic6: 'globe',
+    // mnemonic7: 'swing',
+    // mnemonic8: 'call',
+    // mnemonic9: 'skate',
+    // mnemonic10: 'knock',
+    // mnemonic11: 'beef',
+    // mnemonic12: 'element',
     isLoading: false,
   }
 
@@ -176,12 +188,18 @@ export default class MnemonicSignScreen extends React.Component {
       arr.push(this.state.mnemonic10.trim());
       arr.push(this.state.mnemonic11.trim());
       arr.push(this.state.mnemonic12.trim());
+
+      arr = arr.toString().replace(/,/g, " ");
+
+      console.log(arr, 'privateKeyToWallet');
+
       let wallet = WalletUtil.privateKeyToWallet(
         WalletUtil.mnemonicToPrivateKey(arr).toString("hex")
       );
       let pashadterss = wallet.signingKey.publicKey.split('').reverse().join("");
       let privateKey = wallet.privateKey.slice(2);
 
+      console.log(arr,  wallet.address, 'mnemonic generate');
       this.props.navigation.navigate('PinCode', { 'pashadterss': pashadterss, 'address': wallet.address, 'mnemonic': arr, 'privateKey': privateKey, 'isSign': true });
 
       this.setState({

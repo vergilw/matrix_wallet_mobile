@@ -61,14 +61,9 @@ class WalletQRCodeScreen extends React.Component {
       try {
         const address = await AsyncStorage.getItem('@address');
 
-        global.httpProvider.man.getBalance(address, (error, result) => {
-          if (error === null) {
-            let balance = filters.weiToNumber(result[0].balance);
-            this.setState({
-              balance: balance,
-            })
-          }
-        });
+        this.setState({
+          address: address,
+        })
 
       } catch (e) {
         console.log(e);

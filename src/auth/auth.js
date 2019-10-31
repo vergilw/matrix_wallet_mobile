@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, View, Image, StyleSheet, StatusBar } from 'react-native';
 import { Button } from 'react-native-elements';
+import AsyncStorage from '@react-native-community/async-storage';
 
 export default class AuthScreen extends React.Component {
   static navigationOptions = { header: null };
@@ -24,6 +25,24 @@ export default class AuthScreen extends React.Component {
 
     );
   }
+
+  componentDidMount() {
+
+    asyncIO = async () => {
+      try {
+        let address = await AsyncStorage.getItem('@address');
+        console.log('auth componentDidMount', address)
+        if (address !== null) {
+          this.props.navigation.navigate('App');
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
+    asyncIO();
+  }
+
 }
 
 const styles = StyleSheet.create({

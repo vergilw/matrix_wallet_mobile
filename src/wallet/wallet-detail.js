@@ -69,23 +69,6 @@ class WalletDetailScreen extends React.Component {
 
   _keyExtractor = (item, index) => item.accountType;
 
-  _onToggleBalance() {
-    if (this.state.isBalanceHidden === false) {
-      this.setState({
-        balance: '******',
-        isBalanceHidden: true,
-      })
-    } else {
-      if (this.state.currenryArr !== null) {
-        let balance = this.state.currenryArr[0].balance.toNumber();
-        this.setState({
-          balance: balance,
-          isBalanceHidden: false,
-        })
-      }
-    }
-  }
-
   _renderItem = ({ item }) => (
     <RecordItem
       onPressItem={(item) => {
@@ -112,7 +95,14 @@ class WalletDetailScreen extends React.Component {
 
   componentDidMount() {
     this._fetchData();
+
+    this.props.navigation.addListener('willFocus', this._componentWillFocus.bind(this))
   }
+
+  _componentWillFocus() {
+    this._fetchData();
+  }
+
 
   async _fetchData() {
     try {
@@ -124,7 +114,6 @@ class WalletDetailScreen extends React.Component {
         if (error === null) {
           let balance = filters.weiToNumber(result[0].balance);
           this.setState({
-            currenryArr: [result[0]],
             balance: balance,
           })
         }

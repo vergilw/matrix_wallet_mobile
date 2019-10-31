@@ -1,12 +1,12 @@
 import HttpProvider from '../utils/HttpProvider.js';
 
 //distri
-// export const chainUrl = 'https://api85.matrix.io'
-// export const chainId = 1
+export const chainUrl = 'https://api85.matrix.io'
+export const chainId = 1
 
 //develop
-export const chainUrl = 'https://testnet.matrix.io'
-export const chainId = 3
+// export const chainUrl = 'https://testnet.matrix.io'
+// export const chainId = 3
 
 global.httpProvider = new HttpProvider(chainUrl);
 

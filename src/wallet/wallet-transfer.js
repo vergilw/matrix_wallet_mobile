@@ -19,8 +19,11 @@ class WalletTransferScreen extends React.Component {
     remark: null,
     ruleForm: {
       addressList: [],
-      value: "10",
-      to: 'MAN.35dDuaK7Pb42338pXq5a6shtsTDoZ',
+      //FIXME: DEBUG
+      // value: "10",
+      // to: 'MAN.35dDuaK7Pb42338pXq5a6shtsTDoZ',
+      value: null,
+      to: null,
       IsEntrustTx: "",
       ExtraTimeTxType: "0",
       gas: global.httpProvider.fromWei(210000 * 18000000000),
@@ -33,7 +36,9 @@ class WalletTransferScreen extends React.Component {
     },
     myNonceNum: 0,
     isModalVisible: false,
-    passcode: 'Vergilw123',
+    //FIXME: DEBUG
+    // passcode: 'Vergilw123',
+    passcode: null,
     isLoading: false,
   };
 
@@ -111,6 +116,7 @@ class WalletTransferScreen extends React.Component {
             <View style={styles.modalHandle}></View>
             <View style={styles.inputView}>
               <TextInput
+                secureTextEntry={true}
                 style={styles.input}
                 placeholder='请输入PIN码，以此验证你的身份'
                 returnKeyType='done'

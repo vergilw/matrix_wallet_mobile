@@ -13,7 +13,6 @@ import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import WalletScreen from './wallet/wallet.js';
 import MiningScreen from './mining/mining.js';
-import InvitationCodeScreen from './invitation-code.js';
 import MeScreen from './me.js';
 import WalletDetailScreen from './wallet/wallet-detail.js';
 import WalletTransferScreen from './wallet/wallet-transfer.js';
@@ -99,31 +98,6 @@ MiningStack.navigationOptions = {
   },
 };
 
-const InvitationCodeStack = createStackNavigator({
-  InvitationCode: InvitationCodeScreen,
-}, {
-  defaultNavigationOptions: {
-    headerBackTitle: null,
-    headerTransparent: true,
-    headerTintColor: '#000',
-    headerLeftContainerStyle: {
-      paddingLeft: 16,
-    },
-    headerTitleStyle: {
-      fontSize: 17,
-    }
-  },
-});
-
-InvitationCodeStack.navigationOptions = {
-  tabBarLabel: '邀请',
-  tabBarIcon: ({ focused, horizontal, tintColor }) => {
-    return <Image
-      source={focused === true ? require('../resources/img/wallet/tabBar_invitationSelected.png') : require('../resources/img/wallet/tabBar_invitationNormal.png')}
-    />
-  },
-};
-
 const MeStack = createStackNavigator({
   Me: MeScreen,
 }, {
@@ -154,7 +128,6 @@ const AppRoot = createAppContainer(
     {
       Wallet: WalletStack,
       Mining: MiningStack,
-      InvitationCode: InvitationCodeStack,
       Me: MeStack,
     },
     {

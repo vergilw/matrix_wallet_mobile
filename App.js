@@ -12,6 +12,8 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import AppReducers from './src/store/reducers/index.js';
 import MnemonicSignScreen from './src/auth/mnemonic-sign.js';
+import SplashScreen from 'react-native-splash-screen'
+
 
 const AuthStack = createStackNavigator({
   Auth: AuthScreen,
@@ -58,5 +60,9 @@ export default class Root extends React.Component {
         <AppNavigationContainer  />
       </Provider>
     )
+  }
+
+  componentDidMount() {
+    SplashScreen.hide();
   }
 }
