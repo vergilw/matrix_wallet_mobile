@@ -3,9 +3,10 @@ import { Text, View, StyleSheet, StatusBar, TouchableOpacity, TouchableHighlight
 import AsyncStorage from '@react-native-community/async-storage';
 import { Button } from 'react-native-elements';
 import Toast from 'react-native-root-toast';
-import QRCode from 'react-native-qrcode-svg';
-import QRCodeScanner from 'react-native-qrcode-scanner';
-import { RNCamera as Camera } from 'react-native-camera';
+// import QRCode from 'react-native-qrcode-svg';
+// import QRCodeScanner from 'react-native-qrcode-scanner';
+import { RNCamera } from 'react-native-camera';
+import { StackActions } from "react-navigation";
 
 class WalletScannerScreen extends React.Component {
   static navigationOptions = { headerTitle: '二维码', };
@@ -18,7 +19,7 @@ class WalletScannerScreen extends React.Component {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f6f7fb' }}>
         <StatusBar barStyle="default" backgroundColor="#fff" />
-        <QRCodeScanner
+        {/* <QRCodeScanner
           onRead={this._onSuccess.bind(this)}
           flashMode={Camera.Constants.FlashMode.torch}
           topContent={
@@ -31,6 +32,18 @@ class WalletScannerScreen extends React.Component {
               <Text style={styles.buttonText}>OK. Got it!</Text>
             </TouchableOpacity>
           }
+        /> */}
+        <RNCamera
+          barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
+          flashMode={RNCamera.Constants.FlashMode.on}
+          ref={ref => {
+            this.camera = ref;
+          }}
+          style={{
+            flex: 1,
+            width: '100%',
+          }}
+          onBarCodeRead={this._onSuccess.bind(this)}
         />
       </View>
     );
@@ -38,6 +51,10 @@ class WalletScannerScreen extends React.Component {
 
   _onSuccess(e) {
     console.log(e.data);
+
+    let func = this.props.navigation.getParam('onReadSuccess');
+    func(e.data);
+    this.props.navigation.goBack();
   }
 
   _onPressCopy() {

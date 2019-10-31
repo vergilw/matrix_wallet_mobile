@@ -16,7 +16,7 @@ class MyStakesScreen extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', }}>
-        <StatusBar barStyle="default" backgroundColor="#fff" />
+        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
         <ImageBackground source={require('../../resources/img/wallet/wallet_bg.png')} style={styles.overviewView}>
           <Text style={styles.overviewHeaderText}>MAN钱包</Text>
           <Text style={{ marginTop: 15 }}>

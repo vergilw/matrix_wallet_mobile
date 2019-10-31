@@ -40,7 +40,7 @@ class WalletTransferScreen extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'flex-start' }}>
-        <StatusBar barStyle="default" backgroundColor="#fff" />
+        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
         <Text style={styles.receiverHeader}>接受地址</Text>
         <View style={styles.receiverView}>
           <TextInput
@@ -56,7 +56,14 @@ class WalletTransferScreen extends React.Component {
             value={this.state.ruleForm.to}
           />
           <TouchableOpacity style={styles.actionScan} onPress= {() => {
-              this.props.navigation.navigate('WalletScanner');
+              this.props.navigation.navigate('WalletScanner', {onReadSuccess: (string) => {
+                this.setState({
+                  ruleForm: {
+                    ...this.state.ruleForm,
+                    to: string,
+                  }
+                })
+              }});
             }}>
             <Image source={require('../../resources/img/wallet/wallet_scan.png')}></Image>
           </TouchableOpacity>
@@ -324,6 +331,12 @@ class WalletTransferScreen extends React.Component {
       hideOnPress: true,
       delay: 0,
     });
+
+    
+
+    let func = this.props.navigation.getParam('onSuccessTransfer');
+    func();
+    this.props.navigation.goBack();
   }
 }
 
@@ -347,6 +360,7 @@ const styles = StyleSheet.create({
   receiverInput: {
     flexGrow: 1,
     fontSize: 15,
+    flexShrink: 1,
   },
   actionScan: {
     paddingVertical: 10,

@@ -22,14 +22,18 @@ const AuthStack = createStackNavigator({
 }, {
   defaultNavigationOptions: {
     headerBackTitle: null,
-    headerTransparent: true,
     headerTintColor: '#000',
     headerLeftContainerStyle: {
       paddingLeft: 16,
     },
     headerTitleStyle: {
       fontSize: 17,
-    }
+    },
+    headerStyle: {
+      elevation: 0,
+      shadowOpacity: 0,
+      borderBottomWidth: 0,
+    },
   },
 },);
 
@@ -40,7 +44,7 @@ const AppNavigationContainer = createAppContainer(
       Auth: AuthStack,
     },
     {
-      initialRouteName: 'App',
+      initialRouteName: 'Auth',
     }
   )
 );

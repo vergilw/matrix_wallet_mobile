@@ -80,7 +80,6 @@ const MiningStack = createStackNavigator({
 }, {
   defaultNavigationOptions: {
     headerBackTitle: null,
-    // headerTransparent: true,
     headerTintColor: '#000',
     headerLeftContainerStyle: {
       paddingLeft: 16,
@@ -159,7 +158,7 @@ const AppRoot = createAppContainer(
       Me: MeStack,
     },
     {
-      initialRouteName: 'Mining',
+      initialRouteName: 'Wallet',
       tabBarOptions: {
         activeTintColor: '#f5a623',
         inactiveTintColor: '#999999',

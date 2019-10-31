@@ -25,7 +25,7 @@ export default class PinCodeScreen extends React.Component {
   render() {
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', }}>
-        <StatusBar barStyle="default" backgroundColor="#fff" />
+        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
         <Text style={styles.title} >设置解锁PIN码</Text>
         <View style={styles.inputView}>
           <TextInput
@@ -115,7 +115,7 @@ export default class PinCodeScreen extends React.Component {
 
           }
 
-          let toast = Toast.show("success.", {
+          let toast = Toast.show("PIN码设置成功", {
             duration: Toast.durations.LONG,
             position: Toast.positions.CENTER,
             shadow: true,

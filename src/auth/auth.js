@@ -11,7 +11,7 @@ export default class AuthScreen extends React.Component {
         <StatusBar barStyle="light-content" backgroundColor="#fbbe07" />
         <View />
         <View style={styles.sloganView}>
-          <Image style={{ width: 58, height: 58, backgroundColor: '#fff' }} ></Image>
+          <Image source={require('../../resources/img/auth/auth_walletLogo.png')} ></Image>
           <Text style={styles.sloganTitle} >ManGo</Text>
           <Text style={styles.sloganDesc} >用简单的方法管理资金</Text>
         </View>

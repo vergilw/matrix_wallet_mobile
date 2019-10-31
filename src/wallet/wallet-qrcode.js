@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { Button } from 'react-native-elements';
 import Toast from 'react-native-root-toast';
 import QRCode from 'react-native-qrcode-svg';
+import filters from '../utils/filters.js';
 
 class WalletQRCodeScreen extends React.Component {
   static navigationOptions = { headerTitle: '二维码', };
@@ -15,18 +16,18 @@ class WalletQRCodeScreen extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f6f7fb' }}>
-        <StatusBar barStyle="default" backgroundColor="#fff" />
+        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
         <View style={styles.container}>
           <View style={styles.qrcodeView}>
-            <QRCode 
-            size={Dimensions.get('window').width - 60 - 50} 
-            value={this.state.address}
-            logo={require('../../resources/img/wallet/wallet_currencyMark.png')}
-            logoSize={38}
-            logoBorderRadius={6}
+            <QRCode
+              size={Dimensions.get('window').width - 60 - 50}
+              value={this.state.address}
+              logo={require('../../resources/img/wallet/wallet_currencyMark.png')}
+              logoSize={38}
+              logoBorderRadius={6}
             ></QRCode>
           </View>
-          <Text>{this.state.address}</Text>
+          <Text ellipsizeMode='tail' numberOfLines={1}>{this.state.address}</Text>
           <Button
             onPress={this._onPressCopy.bind(this)}
             title='复制编码'
@@ -54,32 +55,56 @@ class WalletQRCodeScreen extends React.Component {
     });
   }
 
+  componentDidMount() {
+
+    asyncIO = async () => {
+      try {
+        const address = await AsyncStorage.getItem('@address');
+
+        global.httpProvider.man.getBalance(address, (error, result) => {
+          if (error === null) {
+            let balance = filters.weiToNumber(result[0].balance);
+            this.setState({
+              balance: balance,
+            })
+          }
+        });
+
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    asyncIO();
+  }
+
 }
 
 export default WalletQRCodeScreen;
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 30, 
-    backgroundColor: '#fff', 
-    justifyContent: 'center', 
+    marginHorizontal: 30,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 6,
   },
   qrcodeView: {
-    margin: 25, 
+    margin: 25,
     marginBottom: 16,
-    backgroundColor: '#fff', 
+    backgroundColor: '#fff',
     width: Dimensions.get('window').width - 60 - 50,
     height: Dimensions.get('window').width - 60 - 50,
   },
   qrcodeText: {
     fontSize: 13,
     color: '#222',
+    marginHorizontal: 25,
+    flexShrink: 1,
   },
   action: {
     backgroundColor: 'rgba(251, 190, 7, 0.1)',
-    
+
     borderRadius: 6,
     paddingVertical: 0,
     paddingHorizontal: 20,

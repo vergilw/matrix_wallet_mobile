@@ -25,7 +25,7 @@ export default class MnemonicDisplayScreen extends React.Component {
   render() {
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center', }}>
-        <StatusBar barStyle="default" backgroundColor="#fff" />
+        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
         <View style={styles.topView}>
           <View style={styles.wordsView}>

@@ -26,10 +26,10 @@ class MnemonicGenerateScreen extends React.Component {
   render() {
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'space-around', alignItems: 'center', }}>
-        <StatusBar barStyle="default" backgroundColor="#fff" />
+        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
         <View style={styles.topView}>
-          <Image style={styles.image} ></Image>
+          <Image source={require('../../resources/img/auth/auth_mnenonicBg.png')} style={styles.image} ></Image>
           <Text style={styles.captionText} >如果您的手机丢失、被盗、损失或升级助记词是恢复ManGo账户的唯一方法</Text>
           <Text style={styles.footerText} >即将向您显示助记词单词表，请将其写在纸上并保存在安全地方</Text>
         </View>
@@ -46,25 +46,19 @@ class MnemonicGenerateScreen extends React.Component {
     );
   }
 
-  _onSubmit() {
-    this.setState({
-      actionDisabled: true,
-    })
-
-    // this.props.updateLoading(true);
-
-    let mnemonic = WalletUtil.createMnemonic();
-    let privateKey = WalletUtil.mnemonicToPrivateKey(mnemonic).toString("hex");
-
-    let mnemonicList = mnemonic.split(" ");
-    let wallet = WalletUtil.privateKeyToWallet(privateKey);
-    let pashadterss = wallet.signingKey.publicKey.split('').reverse().join("");
-
-    // console.log(mnemonic, wallet, pashadterss);
+  _generateMnemonic() {
 
     let that = this;
 
     asyncIO = async () => {
+
+      let mnemonic = WalletUtil.createMnemonic();
+      let privateKey = WalletUtil.mnemonicToPrivateKey(mnemonic).toString("hex");
+
+      let mnemonicList = mnemonic.split(" ");
+      let wallet = WalletUtil.privateKeyToWallet(privateKey);
+      let pashadterss = wallet.signingKey.publicKey.split('').reverse().join("");
+
       try {
         const passcode = await AsyncStorage.getItem('@passcode');
         let newPasscode = md5(pashadterss + passcode);
@@ -84,12 +78,25 @@ class MnemonicGenerateScreen extends React.Component {
         actionDisabled: false,
       })
       // this.props.updateLoading(false);
-      
-      
+
+
       that.props.navigation.navigate('MnemonicDisplay', { mnemonic: mnemonicList });
     }
 
     asyncIO();
+  }
+
+  _onSubmit() {
+    this.setState({
+      actionDisabled: true,
+    })
+
+    // this.props.updateLoading(true);
+
+    setTimeout(() => {
+      this._generateMnemonic();
+    }, 1);
+    
   }
 }
 
@@ -121,7 +128,6 @@ const styles = StyleSheet.create({
   image: {
     width: 188,
     height: 250,
-    backgroundColor: '#ccc',
   },
   captionText: {
     fontSize: 14,

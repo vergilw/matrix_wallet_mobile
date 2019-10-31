@@ -7,7 +7,7 @@ const BigNumber = require('bignumber.js');
 import filters from '../utils/filters.js';
 import { Button } from 'react-native-elements';
 import NumberFormat from 'react-number-format';
-import { aa,bb, contract } from "../profiles/config.js";
+import { aa, bb, contract } from "../profiles/config.js";
 import Moment from 'moment';
 
 class WalletDetailScreen extends React.Component {
@@ -20,7 +20,7 @@ class WalletDetailScreen extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'flex-start', backgroundColor: '#ffb900' }}>
-        <StatusBar barStyle="default" backgroundColor="#fff" />
+        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
         <Image source={require('../../resources/img/wallet/wallet_bg.png')} style={{ position: 'absolute' }} />
         <Text style={{ marginTop: 120, marginLeft: 16 }}>
           <Text style={styles.balanceText}>{this.state.balance}</Text>
@@ -28,8 +28,8 @@ class WalletDetailScreen extends React.Component {
         </Text>
         <View style={{ width: '100%', paddingHorizontal: 16, flexDirection: 'row', marginTop: 20, }}>
           <Button
-            onPress= {() => {
-              this.props.navigation.navigate('WalletTransfer');
+            onPress={() => {
+              this.props.navigation.navigate('WalletTransfer', { onSuccessTransfer: this._onChangedRecords.bind(this) });
             }}
             title='转账'
             buttonStyle={styles.actionLeft}
@@ -37,7 +37,7 @@ class WalletDetailScreen extends React.Component {
             titleStyle={styles.actionLeftTitle}
           />
           <Button
-            onPress= {() => {
+            onPress={() => {
               this.props.navigation.navigate('WalletQRCode');
             }}
             title='接受'
@@ -111,35 +111,39 @@ class WalletDetailScreen extends React.Component {
   );
 
   componentDidMount() {
+    this._fetchData();
+  }
 
-    asyncIO = async () => {
-      try {
-        const address = await AsyncStorage.getItem('@address');
-        console.log(address);
+  async _fetchData() {
+    try {
+      const address = await AsyncStorage.getItem('@address');
+      console.log(address);
 
-        global.httpProvider.man.getBalance(address, (error, result) => {
-          console.log(result);
-          if (error === null) {
-            let balance = filters.weiToNumber(result[0].balance);
-            this.setState({
-              currenryArr: [result[0]],
-              balance: balance,
-            })
-          }
-        });
+      global.httpProvider.man.getBalance(address, (error, result) => {
+        console.log(result);
+        if (error === null) {
+          let balance = filters.weiToNumber(result[0].balance);
+          this.setState({
+            currenryArr: [result[0]],
+            balance: balance,
+          })
+        }
+      });
 
-        let transactionRecords = await AsyncStorage.getItem('@myTransfer');
-        transactionRecords = JSON.parse(transactionRecords);
-        console.log('transactionRecords', transactionRecords);
-        this.setState({
-          recordArr: transactionRecords,
-        })
+      let transactionRecords = await AsyncStorage.getItem('@myTransfer');
+      transactionRecords = JSON.parse(transactionRecords);
+      console.log('transactionRecords', transactionRecords);
+      this.setState({
+        recordArr: transactionRecords,
+      })
 
-      } catch (e) {
-        console.log(e);
-      }
+    } catch (e) {
+      console.log(e);
     }
-    asyncIO();
+  }
+
+  _onChangedRecords() {
+    this._fetchData();
   }
 }
 
@@ -153,7 +157,7 @@ class RecordItem extends React.PureComponent {
       <TouchableHighlight style={{ backgroundColor: '#f6f7fb' }} activeOpacity={0.2} underlayColor='#f6f7fb' onPress={this._onPress}>
         <View style={styles.itemView}>
           <View style={styles.itemTitleView}>
-            <Text style={styles.itemTitleText}>
+            <Text style={styles.itemTitleText} numberOfLines={1}>
               {this.props.receiver}
             </Text>
             <Text style={styles.itemDescText}>
@@ -239,6 +243,8 @@ const styles = StyleSheet.create({
   },
   itemTitleView: {
     flexGrow: 1,
+    flexShrink: 1,
+    marginRight: 10,
   },
   itemTitleText: {
     fontSize: 14,

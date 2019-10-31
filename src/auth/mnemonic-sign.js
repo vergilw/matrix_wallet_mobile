@@ -33,6 +33,7 @@ export default class MnemonicSignScreen extends React.Component {
     mnemonic10: 'develop',
     mnemonic11: 'wear',
     mnemonic12: 'like',
+    isLoading: false,
   }
 
   // inputPlaceholderArr = [];
@@ -49,7 +50,7 @@ export default class MnemonicSignScreen extends React.Component {
   render() {
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', }}>
-        <StatusBar barStyle="default" backgroundColor="#fff" />
+        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
         <Text style={styles.title} >请按顺序写下助记词</Text>
 
         <View style={styles.inputView}>
@@ -139,7 +140,13 @@ export default class MnemonicSignScreen extends React.Component {
             value={this.state.mnemonic12}
           />
         </View>
-        <Button onPress={this._onSubmit.bind(this)} title='进入钱包' buttonStyle={styles.action} containerStyle={styles.actionContainer} titleStyle={styles.actionTitle} />
+        <Button
+          loading={this.state.isLoading}
+          disabled={this.state.isLoading}
+          onPress={this._onSubmit.bind(this)}
+          title='进入钱包' buttonStyle={styles.action}
+          containerStyle={styles.actionContainer}
+          titleStyle={styles.actionTitle} />
 
       </SafeAreaView>
 
@@ -150,26 +157,38 @@ export default class MnemonicSignScreen extends React.Component {
   // inputListComponent = inputs.map()
 
   _onSubmit() {
-    let arr = [];
-    arr.push(this.state.mnemonic1.trim());
-    arr.push(this.state.mnemonic2.trim());
-    arr.push(this.state.mnemonic3.trim());
-    arr.push(this.state.mnemonic4.trim());
-    arr.push(this.state.mnemonic5.trim());
-    arr.push(this.state.mnemonic6.trim());
-    arr.push(this.state.mnemonic7.trim());
-    arr.push(this.state.mnemonic8.trim());
-    arr.push(this.state.mnemonic9.trim());
-    arr.push(this.state.mnemonic10.trim());
-    arr.push(this.state.mnemonic11.trim());
-    arr.push(this.state.mnemonic12.trim());
-    let wallet = WalletUtil.privateKeyToWallet(
-      WalletUtil.mnemonicToPrivateKey(arr).toString("hex")
-    );
-    let pashadterss = wallet.signingKey.publicKey.split('').reverse().join("");
-    let privateKey = wallet.privateKey.slice(2);
 
-    this.props.navigation.navigate('PinCode', { 'pashadterss': pashadterss, 'address': wallet.address, 'mnemonic': arr, 'privateKey': privateKey, 'isSign': true });
+    this.setState({
+      isLoading: true,
+    });
+
+    setTimeout(() => {
+      let arr = [];
+      arr.push(this.state.mnemonic1.trim());
+      arr.push(this.state.mnemonic2.trim());
+      arr.push(this.state.mnemonic3.trim());
+      arr.push(this.state.mnemonic4.trim());
+      arr.push(this.state.mnemonic5.trim());
+      arr.push(this.state.mnemonic6.trim());
+      arr.push(this.state.mnemonic7.trim());
+      arr.push(this.state.mnemonic8.trim());
+      arr.push(this.state.mnemonic9.trim());
+      arr.push(this.state.mnemonic10.trim());
+      arr.push(this.state.mnemonic11.trim());
+      arr.push(this.state.mnemonic12.trim());
+      let wallet = WalletUtil.privateKeyToWallet(
+        WalletUtil.mnemonicToPrivateKey(arr).toString("hex")
+      );
+      let pashadterss = wallet.signingKey.publicKey.split('').reverse().join("");
+      let privateKey = wallet.privateKey.slice(2);
+
+      this.props.navigation.navigate('PinCode', { 'pashadterss': pashadterss, 'address': wallet.address, 'mnemonic': arr, 'privateKey': privateKey, 'isSign': true });
+
+      this.setState({
+        isLoading: false,
+      });
+    }, 1);
+
   }
 }
 

@@ -9,4 +9,6 @@ import {name as appName} from './app.json';
 import './shim.js';
 import './src/profiles/config.js';
 
+console.disableYellowBox = true;
+
 AppRegistry.registerComponent(appName, () => App);

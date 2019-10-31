@@ -20,7 +20,7 @@ class WalletScreen extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', backgroundColor: '#ffb900' }}>
-        <StatusBar barStyle="default" backgroundColor="#fff" />
+        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
         <View style={{ position: 'absolute', height: '60%', width: '100%', backgroundColor: '#ffb900' }} />
         <Image source={require('../../resources/img/wallet/wallet_bg.png')} style={{ position: 'absolute' }} />
         <Text style={styles.balanceText}>{this.state.balance}</Text>
