@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, } from 'react-native';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import AuthScreen from './src/auth/auth.js';
@@ -12,8 +12,9 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import AppReducers from './src/store/reducers/index.js';
 import MnemonicSignScreen from './src/auth/mnemonic-sign.js';
-import SplashScreen from 'react-native-splash-screen'
-
+import SplashScreen from 'react-native-splash-screen';
+import AuthPinCodeScreen from './src/auth/auth-pin-code.js';
+import NavigationService from './src/utils/NavigationService.js';
 
 const AuthStack = createStackNavigator({
   Auth: AuthScreen,
@@ -37,13 +38,14 @@ const AuthStack = createStackNavigator({
       borderBottomWidth: 0,
     },
   },
-},);
+});
 
 const AppNavigationContainer = createAppContainer(
   createSwitchNavigator(
     {
       App: App,
       Auth: AuthStack,
+      PinCode: AuthPinCodeScreen,
     },
     {
       initialRouteName: 'Auth',
@@ -57,12 +59,17 @@ export default class Root extends React.Component {
   render() {
     return (
       <Provider store={store}>
-        <AppNavigationContainer  />
+        <AppNavigationContainer
+          ref={navigatorRef => {
+            NavigationService.setTopLevelNavigator(navigatorRef);
+          }}
+        />
       </Provider>
     )
   }
 
   componentDidMount() {
     SplashScreen.hide();
+
   }
 }

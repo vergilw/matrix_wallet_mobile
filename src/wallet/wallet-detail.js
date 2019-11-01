@@ -15,6 +15,7 @@ class WalletDetailScreen extends React.Component {
   state = {
     balance: null,
     recordArr: null,
+    listener: null,
   };
 
   render() {
@@ -96,7 +97,15 @@ class WalletDetailScreen extends React.Component {
   componentDidMount() {
     this._fetchData();
 
-    this.props.navigation.addListener('willFocus', this._componentWillFocus.bind(this))
+    const listener = this.props.navigation.addListener('willFocus', this._componentWillFocus.bind(this));
+    this.setState({
+      listener: listener,
+    })
+  }
+
+  componentWillUnmount() {
+
+    this.state.listener.remove();
   }
 
   _componentWillFocus() {

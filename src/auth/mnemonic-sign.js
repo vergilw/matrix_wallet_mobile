@@ -7,7 +7,7 @@ import WalletUtil from "../utils/WalletUtil.js";
 
 export default class MnemonicSignScreen extends React.Component {
   static navigationOptions = { headerTitle: '登录' };
-  // const [value, onChangeText] = React.useState('Useless Placeholder');
+  
   state = {
     mnemonic1: null,
     mnemonic2: null,

@@ -15,6 +15,7 @@ class WalletScreen extends React.Component {
     isBalanceHidden: false,
     balance: null,
     currenryArr: null,
+    listener: null,
   };
 
   render() {
@@ -96,11 +97,22 @@ class WalletScreen extends React.Component {
   componentDidMount() {
     this._fetchData();
 
-    this.props.navigation.addListener('willFocus', this._componentWillFocus.bind(this))
+    const listener = this.props.navigation.addListener('willFocus', this._componentWillFocus.bind(this));
+    this.setState({
+      listener: listener,
+    })
+
+  }
+
+  componentWillUnmount() {
+
+    this.state.listener.remove();
   }
 
   _componentWillFocus() {
     this._fetchData();
+
+    
   }
 
   async _fetchData() {

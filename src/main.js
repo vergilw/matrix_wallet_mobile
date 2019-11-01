@@ -7,8 +7,8 @@
  */
 
 import React from 'react';
-import { Image } from 'react-native';
-import { createAppContainer } from 'react-navigation';
+import { Image, AppState } from 'react-native';
+import { createAppContainer, NavigationActions } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import WalletScreen from './wallet/wallet.js';
@@ -18,6 +18,7 @@ import WalletDetailScreen from './wallet/wallet-detail.js';
 import WalletTransferScreen from './wallet/wallet-transfer.js';
 import WalletQRCodeScreen from './wallet/wallet-qrcode.js';
 import WalletScannerScreen from './wallet/wallet-scanner.js';
+import NavigationService from './utils/NavigationService.js';
 
 const WalletStack = createStackNavigator({
 
@@ -123,24 +124,26 @@ MeStack.navigationOptions = {
   },
 };
 
-const AppRoot = createAppContainer(
-  createBottomTabNavigator(
-    {
-      Wallet: WalletStack,
-      Mining: MiningStack,
-      Me: MeStack,
-    },
-    {
-      initialRouteName: 'Wallet',
-      tabBarOptions: {
-        activeTintColor: '#f5a623',
-        inactiveTintColor: '#999999',
-        labelStyle: {
-          fontSize: 10,
-        },
+const BottomTabNavigator = createBottomTabNavigator(
+  {
+    Wallet: WalletStack,
+    Mining: MiningStack,
+    Me: MeStack,
+  },
+  {
+    initialRouteName: 'Wallet',
+    tabBarOptions: {
+      activeTintColor: '#f5a623',
+      inactiveTintColor: '#999999',
+      labelStyle: {
+        fontSize: 10,
       },
-    }
-  )
+    },
+  }
+);
+
+const AppRoot = createAppContainer(
+  BottomTabNavigator
 );
 
 export default class App extends React.Component {
@@ -148,5 +151,20 @@ export default class App extends React.Component {
     return (
       <AppRoot />
     )
+  }
+
+  componentDidMount() {
+    AppState.addEventListener('change', this._appStateDidChange);
+  }
+
+  componentWillMount() {
+    AppState.removeEventListener('change', this._appStateDidChange);
+  }
+
+  _appStateDidChange() {
+
+    if (AppState.currentState === 'active') {
+      NavigationService.navigate('PinCode');
+    }
   }
 }
