@@ -147,6 +147,11 @@ const AppRoot = createAppContainer(
 );
 
 export default class App extends React.Component {
+
+  state = {
+    needAuth: false,
+  }
+
   render() {
     return (
       <AppRoot />
@@ -154,17 +159,24 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    AppState.addEventListener('change', this._appStateDidChange);
+    AppState.addEventListener('change', this._appStateDidChange.bind(this));
   }
 
   componentWillMount() {
-    AppState.removeEventListener('change', this._appStateDidChange);
+    AppState.removeEventListener('change', this._appStateDidChange.bind(this));
   }
 
   _appStateDidChange() {
 
-    if (AppState.currentState === 'active') {
-      NavigationService.navigate('PinCode');
+    if (AppState.currentState === 'background') {
+      this.setState({
+        needAuth: true,
+      })
+    } else if (this.state.needAuth === true && AppState.currentState === 'active') {
+      NavigationService.navigate('AuthPinCode');
+      this.setState({
+        needAuth: false,
+      })
     }
   }
 }

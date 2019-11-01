@@ -32,7 +32,7 @@ export default class AuthScreen extends React.Component {
       try {
         let address = await AsyncStorage.getItem('@address');
         if (address !== null) {
-          this.props.navigation.navigate('App');
+          this.props.navigation.navigate('AuthPinCode');
         }
       } catch (e) {
         console.log(e);

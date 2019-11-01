@@ -45,7 +45,7 @@ const AppNavigationContainer = createAppContainer(
     {
       App: App,
       Auth: AuthStack,
-      PinCode: AuthPinCodeScreen,
+      AuthPinCode: AuthPinCodeScreen,
     },
     {
       initialRouteName: 'Auth',
