@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 const BigNumber = require('bignumber.js');
 import filters from '../utils/filters.js';
 
-class AllStakesScreen extends React.Component {
+export default class StakeAllScreen extends React.Component {
 
   state = {
     balance: null,
@@ -144,12 +144,11 @@ class StakeItem extends React.PureComponent {
   }
 }
 
-export default AllStakesScreen;
 
 const styles = StyleSheet.create({
   overviewView: {
     marginHorizontal: 16,
-    marginTop: 80,
+    marginTop: 20,
     paddingHorizontal: 22,
     alignSelf: 'stretch',
     borderRadius: 6,

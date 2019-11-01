@@ -19,6 +19,7 @@ import WalletTransferScreen from './wallet/wallet-transfer.js';
 import WalletQRCodeScreen from './wallet/wallet-qrcode.js';
 import WalletScannerScreen from './wallet/wallet-scanner.js';
 import NavigationService from './utils/NavigationService.js';
+import StakePostScreen from './mining/stake-post.js';
 
 const WalletStack = createStackNavigator({
 
@@ -75,7 +76,17 @@ const MiningStack = createStackNavigator({
         borderBottomWidth: 0,
       },
     },
-
+  },
+  StakePost: {
+    screen: StakePostScreen,
+    navigationOptions: {
+      headerTitle: '创建节点',
+      headerStyle: {
+        elevation: 0,
+        shadowOpacity: 0,
+        borderBottomWidth: 0,
+      },
+    },
   },
 }, {
   defaultNavigationOptions: {
@@ -90,14 +101,30 @@ const MiningStack = createStackNavigator({
   },
 });
 
-MiningStack.navigationOptions = {
-  tabBarLabel: '挖矿',
-  tabBarIcon: ({ focused, horizontal, tintColor }) => {
-    return <Image
-      source={focused === true ? require('../resources/img/wallet/tabBar_miningSelected.png') : require('../resources/img/wallet/tabBar_miningNormal.png')}
-    />
-  },
-};
+// MiningStack.navigationOptions = {
+//   tabBarLabel: '挖矿',
+//   tabBarIcon: ({ focused, horizontal, tintColor }) => {
+//     return <Image
+//       source={focused === true ? require('../resources/img/wallet/tabBar_miningSelected.png') : require('../resources/img/wallet/tabBar_miningNormal.png')}
+//     />
+//   },
+// };
+
+MiningStack.navigationOptions = ({ navigation }) => {
+  let { routeName } = navigation.state.routes[navigation.state.index];
+  let navigationOptions = {};
+  if (routeName === 'Mining') {
+    navigationOptions.tabBarLabel = '钱包';
+    navigationOptions.tabBarIcon = ({ focused, horizontal, tintColor }) => {
+      return <Image
+        source={focused === true ? require('../resources/img/wallet/tabBar_miningSelected.png') : require('../resources/img/wallet/tabBar_miningNormal.png')}
+      />
+    }
+  } else if (routeName !== 'Mining') {
+    navigationOptions.tabBarVisible = false;
+  }
+  return navigationOptions;
+}
 
 const MeStack = createStackNavigator({
   Me: MeScreen,

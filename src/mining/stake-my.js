@@ -5,11 +5,11 @@ import AsyncStorage from '@react-native-community/async-storage';
 const BigNumber = require('bignumber.js');
 import filters from '../utils/filters.js';
 
-class MyStakesScreen extends React.Component {
+export default class StakeMyScreen extends React.Component {
 
   state = {
     balance: null,
-    address: 'MAN.35dDuaK7Pb42338pXq5a6shtsTDoZ',
+    address: null,
     recordArr: null,
   };
 
@@ -23,7 +23,7 @@ class MyStakesScreen extends React.Component {
             <Text style={styles.balanceText}>{this.state.balance}</Text>
             <Text style={styles.balanceFooterText}>MAN</Text>
           </Text>
-          <Text style={styles.addressText}></Text>
+          <Text style={styles.addressText}>{this.state.address}</Text>
           <View style={styles.overviewFooterView}>
             <View style={{ alignItems: 'center', flex: 1, borderRightWidth: 1, borderColor: 'rgba(255, 255, 255, 0.3)' }}>
               <Text style={styles.overviewValueText}>0</Text>
@@ -88,33 +88,29 @@ class MyStakesScreen extends React.Component {
 
   componentDidMount() {
 
-    asyncIO = async () => {
-      try {
-        const address = await AsyncStorage.getItem('@address');
-        console.log(address);
+    this._fetchData();
+  }
 
-        global.httpProvider.man.getBalance(address, (error, result) => {
-          console.log(result);
-          if (error === null) {
-            let balance = filters.weiToNumber(result[0].balance);
-            this.setState({
-              balance: balance,
-            })
-          }
-        });
+  async _fetchData() {
+    try {
+      const address = await AsyncStorage.getItem('@address');
+      this.setState({
+        address: address,
+      })
 
-        let transactionRecords = await AsyncStorage.getItem('@myTransfer');
-        transactionRecords = JSON.parse(transactionRecords);
-        console.log('transactionRecords', transactionRecords);
-        this.setState({
-          recordArr: transactionRecords,
-        })
+      global.httpProvider.man.getBalance(address, (error, result) => {
+        console.log(result);
+        if (error === null) {
+          let balance = filters.weiToNumber(result[0].balance);
+          this.setState({
+            balance: balance,
+          })
+        }
+      });
 
-      } catch (e) {
-        console.log(e);
-      }
+    } catch (e) {
+      console.log(e);
     }
-    asyncIO();
   }
 }
 
@@ -144,12 +140,11 @@ class StakeItem extends React.PureComponent {
   }
 }
 
-export default MyStakesScreen;
 
 const styles = StyleSheet.create({
   overviewView: {
     marginHorizontal: 16,
-    marginTop: 80,
+    marginTop: 20,
     paddingHorizontal: 22,
     alignSelf: 'stretch',
     borderRadius: 6,

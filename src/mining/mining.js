@@ -4,12 +4,13 @@ import { FlatList } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-community/async-storage';
 const BigNumber = require('bignumber.js');
 import filters from '../utils/filters.js';
-import MyStakesScreen from './my-stakes.js';
-import AllStakesScreen from './all-stakes.js';
+import StakeMyScreen from './stake-my.js';
+import StakeAllScreen from './stake-all.js';
 import { createMaterialTopTabNavigator, MaterialTopTabBar } from 'react-navigation-tabs';
 import { createAppContainer } from 'react-navigation';
+import LinearGradient from 'react-native-linear-gradient';
 
-function SafeAreaMaterialTopTabBar (props) {
+function SafeAreaMaterialTopTabBar(props) {
   return (
     <SafeAreaView>
       <MaterialTopTabBar {...props} />
@@ -19,7 +20,7 @@ function SafeAreaMaterialTopTabBar (props) {
 
 const MaterialTopTabNavigator = createMaterialTopTabNavigator({
   MyStakes: {
-    screen: MyStakesScreen,
+    screen: StakeMyScreen,
     navigationOptions: {
       tabBarLabel: '我的节点',
       // tabBarIcon: ({ tintColor }) => (
@@ -28,7 +29,7 @@ const MaterialTopTabNavigator = createMaterialTopTabNavigator({
     }
   },
   AllStakes: {
-    screen: AllStakesScreen,
+    screen: StakeAllScreen,
     navigationOptions: {
       tabBarLabel: '所有节点',
       // tabBarIcon: ({ tintColor }) => (
@@ -39,20 +40,22 @@ const MaterialTopTabNavigator = createMaterialTopTabNavigator({
 }, {
   initialRouteName: 'MyStakes',
   tabBarOptions: {
-    activeTintColor: 'orange',
-    inactiveTintColor: 'grey',
+    // activeTintColor: 'orange',
+    // inactiveTintColor: 'grey',
+    labelStyle: {
+      color: '#2d2d2d',
+      fontSize: 15,
+    },
     style: {
       backgroundColor: '#fff',
     },
     indicatorStyle: {
-      // height: 3,
-      // marginHorizontal: 20,
-      // backgroundColor: '#fbbe07',
+      marginHorizontal: (Dimensions.get('window').width / 2 - 48) / 2,
       borderBottomColor: '#fbbe07',
-      borderBottomWidth: 2,
+      width: 48,
     },
-    showLabel: true,
   },
+  lazy: true,
   tabBarComponent: SafeAreaMaterialTopTabBar,
 });
 
@@ -61,8 +64,35 @@ const MiningRoot = createAppContainer(MaterialTopTabNavigator);
 export default class MiningScreen extends React.Component {
   render() {
     return (
-      <MiningRoot />
+      <View style={{ flex: 1 }}>
+        <MiningRoot />
+        <TouchableOpacity style={styles.postBtn} onPress={() =>  {
+          this.props.navigation.navigate('StakePost');
+        }}>
+          <LinearGradient colors={['#fde011', '#fbbe07']} locations={[0, 0.7]} style={styles.linear}>
+            <Text>+</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
     )
   }
 }
+
+const styles = StyleSheet.create({
+  linear: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems:  'center',
+    borderRadius: 24,
+  },
+  postBtn: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    width: 48,
+    height: 48,
+    
+    // backgroundColor
+  }
+});
 
