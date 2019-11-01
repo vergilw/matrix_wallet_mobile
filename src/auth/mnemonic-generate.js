@@ -53,7 +53,6 @@ class MnemonicGenerateScreen extends React.Component {
     asyncIO = async () => {
 
       let mnemonic = WalletUtil.createMnemonic();
-      console.log('createMnemonic', mnemonic);
       let privateKey = WalletUtil.mnemonicToPrivateKey(mnemonic).toString("hex");
 
       let mnemonicList = mnemonic.split(" ");
@@ -106,7 +105,6 @@ MnemonicGenerateScreen.propTypes = {
 }
 
 const mapStateToProps = (state) => {
-  console.log('mapStateToProps', state.mnemonicGenerate.isLoading);
   return {
     isLoading: state.mnemonicGenerate.isLoading,
   }

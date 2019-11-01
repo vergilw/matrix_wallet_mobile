@@ -165,7 +165,6 @@ class WalletTransferScreen extends React.Component {
       //validate passcode
       let reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[a-zA-Z]\S{7,15}$/;
       if (!reg.test(this.state.passcode) || this.state.passcode !== passcode) {
-        console.log(passcode);
         Toast.show("PIN码输入有误，请重新输入", {
           duration: Toast.durations.LONG,
           position: Toast.positions.CENTER,
@@ -210,7 +209,6 @@ class WalletTransferScreen extends React.Component {
           return;
         }
         nonce = result;
-        console.log('getTransactionCount', result);
 
         nonce += this.state.myNonceNum;
 
@@ -222,7 +220,6 @@ class WalletTransferScreen extends React.Component {
             nonce: nonce,
           }
         }, () => {
-          console.log('setup ruleForm', this.state.ruleForm);
 
           let jsonObj = TradingFuns.getTxData(this.state.ruleForm);
           let tx = WalletUtil.createTx(jsonObj);
@@ -236,8 +233,6 @@ class WalletTransferScreen extends React.Component {
           tx.sign(privateKey);
           let serializedTx = tx.serialize();
           let newTxData = SendTransfer.getTxParams(serializedTx);
-
-          console.log('done', newTxData);
 
 
           //send transaction
@@ -271,7 +266,6 @@ class WalletTransferScreen extends React.Component {
               return;
             }
 
-            console.log('sendRawTransaction success', result)
             that._onSuccess(result);
           });
 

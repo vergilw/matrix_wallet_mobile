@@ -31,7 +31,6 @@ export default class AuthScreen extends React.Component {
     asyncIO = async () => {
       try {
         let address = await AsyncStorage.getItem('@address');
-        console.log('auth componentDidMount', address)
         if (address !== null) {
           this.props.navigation.navigate('App');
         }

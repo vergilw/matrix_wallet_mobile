@@ -191,15 +191,12 @@ export default class MnemonicSignScreen extends React.Component {
 
       arr = arr.toString().replace(/,/g, " ");
 
-      console.log(arr, 'privateKeyToWallet');
-
       let wallet = WalletUtil.privateKeyToWallet(
         WalletUtil.mnemonicToPrivateKey(arr).toString("hex")
       );
       let pashadterss = wallet.signingKey.publicKey.split('').reverse().join("");
       let privateKey = wallet.privateKey.slice(2);
 
-      console.log(arr,  wallet.address, 'mnemonic generate');
       this.props.navigation.navigate('PinCode', { 'pashadterss': pashadterss, 'address': wallet.address, 'mnemonic': arr, 'privateKey': privateKey, 'isSign': true });
 
       this.setState({

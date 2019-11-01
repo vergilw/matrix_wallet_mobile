@@ -107,10 +107,8 @@ class WalletDetailScreen extends React.Component {
   async _fetchData() {
     try {
       const address = await AsyncStorage.getItem('@address');
-      console.log(address);
 
       global.httpProvider.man.getBalance(address, (error, result) => {
-        console.log(result);
         if (error === null) {
           let balance = filters.weiToNumber(result[0].balance);
           this.setState({
@@ -121,7 +119,6 @@ class WalletDetailScreen extends React.Component {
 
       let transactionRecords = await AsyncStorage.getItem('@myTransfer');
       transactionRecords = JSON.parse(transactionRecords);
-      console.log('transactionRecords', transactionRecords);
       this.setState({
         recordArr: transactionRecords,
       })

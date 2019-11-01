@@ -50,7 +50,6 @@ class WalletScannerScreen extends React.Component {
   }
 
   _onSuccess(e) {
-    console.log(e.data);
 
     let func = this.props.navigation.getParam('onReadSuccess');
     func(e.data);

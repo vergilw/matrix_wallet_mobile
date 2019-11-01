@@ -106,7 +106,6 @@ class WalletScreen extends React.Component {
   async _fetchData() {
     try {
       const address = await AsyncStorage.getItem('@address');
-      console.log(address, 'componentDidMount');
 
       await global.httpProvider.man.getBalance(address, (error, result) => {
         console.log(result);
