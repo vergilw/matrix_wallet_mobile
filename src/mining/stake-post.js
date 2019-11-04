@@ -1,26 +1,32 @@
 import React from 'react';
 import { Text, View, StyleSheet, StatusBar, SafeAreaView, TextInput, Alert } from 'react-native';
-import { Button } from 'react-native-elements';
+import { Button, ButtonGroup } from 'react-native-elements';
 import Toast from 'react-native-root-toast';
 import AsyncStorage from '@react-native-community/async-storage';
 import WalletUtil from '../utils/WalletUtil.js';
 import Utils from '../utils/utils.js';
 import md5 from '../utils/md5.js';
 
+import { aa, bb, contract } from "../profiles/config.js";
+import TradingFuns from "../utils/TradingFuns.js";
+import SendTransfer from "../utils/SendTransfer.js";
+
 export default class StakePostScreen extends React.Component {
 
   constructor(props) {
     super(props);
 
-    let isSign = props.navigation.getParam('isSign', false);
-
     this.state = {
-      //FIXME: DEBUG
-      // passcode: 'Vergilw123',
-      // repetition: 'Vergilw123',
-      passcode: null,
-      repetition: null,
-      isSign: isSign,
+      address: null,
+      name: null,
+      nodeAddress: null,
+      amount: null,
+      nodeRate: null,
+      period: null,
+      periodSelectedIndex: null,
+      ownerRate: 1,
+      lvlRate: [1, 1, 1],
+      myNonceNum: 0,
     };
   }
 
@@ -28,25 +34,95 @@ export default class StakePostScreen extends React.Component {
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', }}>
         <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-        <Text style={styles.title} >设置解锁PIN码</Text>
-        <View style={styles.inputView}>
+
+        <View style={styles.inputTopView}>
+          <Text style={styles.inputTitle}>节点名称</Text>
           <TextInput
             style={styles.input}
-            placeholder='以字母开头，8-16位包含数字和字母'
+            placeholder='输入节点名称'
             returnKeyType='done'
             onChangeText={(text) => this.setState({ passcode: text })}
             value={this.state.passcode}
           />
         </View>
         <View style={styles.inputView}>
+          <Text style={styles.inputTitle}>签名地址</Text>
           <TextInput
             style={styles.input}
-            placeholder='再次重复输入'
+            placeholder='输入签名地址'
             returnKeyType='done'
-            onChangeText={(text) => this.setState({ repetition: text })}
-            value={this.state.repetition}
+            onChangeText={(text) => this.setState({ passcode: text })}
+            value={this.state.passcode}
           />
         </View>
+        <View style={styles.inputView}>
+          <Text style={styles.inputTitle}>抵押MAN数量</Text>
+          <TextInput
+            style={styles.input}
+            placeholder='抵押数量不得低于10000'
+            returnKeyType='done'
+            onChangeText={(text) => this.setState({ passcode: text })}
+            value={this.state.passcode}
+          />
+        </View>
+        <View style={styles.inputView}>
+          <Text style={styles.inputTitle}>节点管理费（%）</Text>
+          <TextInput
+            style={styles.input}
+            placeholder='输入节点管理费'
+            returnKeyType='done'
+            onChangeText={(text) => this.setState({ passcode: text })}
+            value={this.state.passcode}
+          />
+        </View>
+        <View style={styles.inputView}>
+          <Text style={styles.inputTitle}>节点名称</Text>
+          <ButtonGroup
+            containerStyle={styles.periodContainer}
+            buttonStyle={styles.periodBtn}
+            containerBorderRadius={0}
+            innerBorderStyle={{ width: 10, color: '#fff' }}
+            selectedButtonStyle={styles.periodSelectedBtn}
+            textStyle={styles.periodText}
+            selectedTextStyle={styles.periodSelectedText}
+            onPress={(index) => {
+              if (index === 0) {
+                this.setState({
+                  periodSelectedIndex: index,
+                  period: '0',
+                });
+              } else if (index === 1) {
+                this.setState({
+                  periodSelectedIndex: index,
+                  period: '1',
+                });
+              } else if (index === 2) {
+                this.setState({
+                  periodSelectedIndex: index,
+                  period: '3',
+                });
+              } else if (index === 3) {
+                this.setState({
+                  periodSelectedIndex: index,
+                  period: '6',
+                });
+              } else if (index === 4) {
+                this.setState({
+                  periodSelectedIndex: index,
+                  period: '12',
+                });
+              }
+              
+            }}
+            selectedIndex={this.state.periodSelectedIndex}
+            buttons={['活期', '1个月', '3个月', '6个月', '12个月']}
+          />
+        </View>
+        <View style={{ alignSelf: 'stretch' }}>
+
+        </View>
+
+
         <Button onPress={this._onSubmit.bind(this)} title='确定' buttonStyle={styles.action} containerStyle={styles.actionContainer} titleStyle={styles.actionTitle} />
 
       </SafeAreaView>
@@ -55,99 +131,192 @@ export default class StakePostScreen extends React.Component {
   }
 
   _onSubmit() {
-    let that = this;
-    let reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[a-zA-Z]\S{7,15}$/;
-    if (this.state.passcode !== this.state.repetition) {
-      let toast = Toast.show("两次输入不一致.", {
-        duration: Toast.durations.LONG,
-        position: Toast.positions.CENTER,
-        shadow: true,
-        animation: true,
-        hideOnPress: true,
-        delay: 0,
-      });
-    } else if (!reg.test(this.state.passcode)) {
-      let toast = Toast.show("8-16 bits of numbers and letters, beginning with a letter.", {
-        duration: Toast.durations.LONG,
-        position: Toast.positions.CENTER,
-        shadow: true,
-        animation: true,
-        hideOnPress: true,
-        delay: 0,
-      });
-    } else {
+    // 加入输入判断
+    if (
+      !this.state.nodeRate > -1 &&
+      !this.state.nodeRate <= 100 &&
+      !/(^[0-9]\d*$)/.test(this.state.nodeRate)
+    ) {
+      // that.muhyFromchoushui = true;
+      // done();
+      // setTimeout(function () {
+      //   that.yzjdContshow = true;
+      // }, 0);
+      return false;
 
-      if (this.state.isSign === true) {
-        let pashadterss = this.props.navigation.getParam('pashadterss');
-        let address = this.props.navigation.getParam('address');
-        let mnemonic = this.props.navigation.getParam('mnemonic');
-        mnemonic = mnemonic.toString().replace(/,/g, " ");
-        let privateKey = this.props.navigation.getParam('privateKey');
+    } else if (this.state.amount < 100000) {
+      // that.muhyFromNumflag = true;
+      // done();
+      // setTimeout(function () {
+      //   that.yzjdContshow = true;
+      // }, 0);
+      return false;
 
-        let newPasscode = md5(pashadterss + this.state.passcode);
-        let keyStore = Utils.encrypt(privateKey, newPasscode);
-        let encrypt = Utils.encrypt(mnemonic, newPasscode);
+    } else if (this.state.nodeAddress === null) {
+      // that.muhyFromAddress = true;
+      // done();
+      // setTimeout(function () {
+      //   that.yzjdContshow = true;
+      // }, 0);
+      return false;
+    } else if (global.httpProvider.fromUtf8(this.state.name).length > 66) {
+      // done();
+      // setTimeout(function () {
+      //   that.yzjdContshow = true;
+      //   that.$notify(that.$t("nodeDetail.NameTooLong"));
+      // }, 0);
+      return false;
+    }
 
-        asyncIO = async () => {
-          try {
-            await AsyncStorage.setItem('@pashadterss', pashadterss);
-            await AsyncStorage.setItem('@address', address);
-            await AsyncStorage.setItem('@keyStore', keyStore);
-            await AsyncStorage.setItem('@encrypt', encrypt);
-            await AsyncStorage.setItem('@passcode', this.state.passcode);
+    // if (parseInt(this.muhyFrom.number) > parseInt(this.mybalance)) {
+    //   done();
+    //   setTimeout(function () {
+    //     that.yzjdContshow = true;
+    //     that.$notify(that.$t("nodeDetail.Insufficient"));
+    //   }, 0);
+    //   return false;
+    // }
 
-          } catch (e) {
-            console.log(e);
-          }
 
-          this.setState({
-            actionDisabled: false,
-          })
+    // 创建母合约 abi调用
+    let contractAbiArray = JSON.parse(aa.abi);
+    let contractAddress = aa.address;
+    // 初始化abi
+    let contractAbi = global.ethProvider.eth.Contract(
+      contractAbiArray,
+      contractAddress
+    );
 
-          that.props.navigation.navigate('App');
-        }
+    // 输入数值进行转化
+    let myaddrTemps = SendTransfer.sanitizeHex(
+      WalletUtil.addressChange(this.state.nodeAddress.split(".")[1])
+    );
+    let nodeRate = this.state.nodeRate * 10000000;
+    // 生成交易凭证
+    var result = contractAbi.methods
+      .createValidatorGroup(
+        myaddrTemps,
+        this.state.period,
+        this.state.ownerRate,
+        nodeRate,
+        this.state.lvlRate
+      )
+      .encodeABI();
+    let muhyFromNames = global.httpProvider
+      .fromUtf8(this.state.name)
+      .slice(2);
+    let zero =
+      "0000000000000000000000000000000000000000000000000000000000000000";
+    muhyFromNames =
+      zero.substr(0, 64 - muhyFromNames.length) + muhyFromNames;
+    // rawTx.data = rawTx.data+zero.substr(0,64-tt.length)+tt;
+    result += muhyFromNames;
 
-        asyncIO()
+    let nonce = global.httpProvider.man.getTransactionCount(this.state.address);
+    nonce += this.state.myNonceNum;
+    nonce = WalletUtil.numToHex(nonce);
+    let data = {
+      to: contractAddress, // MAN母合约不转化地址
+      value: this.state.amount,
+      gasLimit: 210000,
+      data: "",
+      gasPrice: 18000000000,
+      extra_to: [[0, 0, []]],
+      nonce: nonce
+    };
+    let jsonObj = TradingFuns.getTxData(data);
+    jsonObj.data = result;
+    let tx = WalletUtil.createTx(jsonObj);
 
+    // let newPin = md5(pashadterss + passcode);
+    // let decrypt = utils.decrypt(keyStore, newPin);
+
+    let privateKey = decrypt;
+    privateKey = Buffer.from(
+      privateKey.indexOf("0x") > -1
+        ? privateKey.substring(2, privateKey.length)
+        : privateKey,
+      "hex"
+    );
+    tx.sign(privateKey);
+    let serializedTx = tx.serialize();
+    let newTxData = SendTransfer.getTxParams(serializedTx);
+
+    try {
+      this.hash = global.httpProvider.man.sendRawTransaction(newTxData);
+      this.myNonceNum = 0;
+      this.$toast(that.$t("nodes.Masternodecreation"));
+      //that.$notify("节点创建成功！");
+      done();
+    } catch (error) {
+      if (this.myNonceNum < 5) {
+        this.myNonceNum++;
+        this.creatHyBeCloseMhou(action, done, params);
       } else {
-        storeData = async () => {
-          try {
-            await AsyncStorage.setItem('@passcode', this.state.passcode)
-          } catch (e) {
-
-          }
-
-          let toast = Toast.show("PIN码设置成功", {
-            duration: Toast.durations.LONG,
-            position: Toast.positions.CENTER,
-            shadow: true,
-            animation: true,
-            hideOnPress: true,
-            delay: 0,
-          });
-
-          that.props.navigation.navigate('MnemonicGenerate');
-        }
-
-        storeData()
+        this.$toast(that.$t("nodes.Requestprocessing"));
       }
 
-
+      //this.$notify("区块交易过于频繁！");
+      //done();
     }
   }
 }
 
 const styles = StyleSheet.create({
-  inputView: {
+  inputTopView: {
     marginTop: 60,
     paddingHorizontal: 35,
     width: '100%',
   },
+  inputView: {
+    marginTop: 20,
+    paddingHorizontal: 35,
+    alignSelf: 'stretch',
+  },
+  inputTitle: {
+    fontSize: 14,
+    color: '#2d2d2d',
+    fontWeight: 'bold',
+  },
   input: {
     borderBottomColor: 'rgba(0, 0, 0, 0.05)',
     borderBottomWidth: 1,
-    textAlign: 'center',
-    paddingBottom: 10,
+    paddingBottom: 6,
+    paddingTop: 10,
+    fontSize: 15,
+  },
+  periodContainer: {
+    height: 30,
+    borderWidth: 0,
+    borderRadius: 0,
+    marginLeft: 0,
+    marginRight: 0,
+  },
+  periodBtn: {
+    borderRadius: 6,
+    borderWidth: 0.5,
+    borderColor: "#f2f2f2",
+  },
+  periodSelectedBtn: {
+    borderWidth: 0,
+    backgroundColor: "#fbbe07",
+  },
+  periodText: {
+    fontSize: 14,
+    color: "#222222",
+    fontWeight: 'normal',
+  },
+  periodSelectedText: {
+    color: "#fff",
+  },
+  periodOptionLeft: {
+    fontSize: 14,
+  },
+  periodOptionMiddle: {
+    fontSize: 14,
+  },
+  periodOptionRight: {
+    fontSize: 14,
   },
   title: {
     fontSize: 20,

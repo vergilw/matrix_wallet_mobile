@@ -60,6 +60,7 @@ class WalletQRCodeScreen extends React.Component {
     asyncIO = async () => {
       try {
         const address = await AsyncStorage.getItem('@address');
+        console.log(address);
 
         this.setState({
           address: address,
