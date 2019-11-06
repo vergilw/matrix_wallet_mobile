@@ -18,6 +18,7 @@ export default class StakePostScreen extends React.Component {
 
     this.state = {
       address: null,
+      balance: null,
       name: null,
       nodeAddress: null,
       amount: null,
@@ -27,6 +28,9 @@ export default class StakePostScreen extends React.Component {
       ownerRate: 1,
       lvlRate: [1, 1, 1],
       myNonceNum: 0,
+      passcode: null,
+      isModalVisible: false,
+      isLoading: false,
     };
   }
 
@@ -112,7 +116,7 @@ export default class StakePostScreen extends React.Component {
                   period: '12',
                 });
               }
-              
+
             }}
             selectedIndex={this.state.periodSelectedIndex}
             buttons={['活期', '1个月', '3个月', '6个月', '12个月']}
@@ -125,9 +129,62 @@ export default class StakePostScreen extends React.Component {
 
         <Button onPress={this._onSubmit.bind(this)} title='确定' buttonStyle={styles.action} containerStyle={styles.actionContainer} titleStyle={styles.actionTitle} />
 
+        <Modal
+          style={{ margin: 0, justifyContent: 'flex-end', }}
+          isVisible={this.state.isModalVisible}
+          onSwipeComplete={() => this.setState({ isModalVisible: false })}
+          onBackdropPress={() => this.setState({ isModalVisible: false })}
+          swipeDirection={['down']}
+        >
+          <View style={styles.modal}>
+            <View style={styles.modalHandle}></View>
+            <View style={styles.inputView}>
+              <TextInput
+                secureTextEntry={true}
+                style={styles.input}
+                placeholder='请输入PIN码，以此验证你的身份'
+                returnKeyType='done'
+                onChangeText={(text) => this.setState({ passcode: text })}
+                value={this.state.passcode}
+              />
+            </View>
+            <Button
+              onPress={this._onSubmitPasscode.bind(this)}
+              title='确定'
+              buttonStyle={styles.action}
+              containerStyle={styles.actionContainer}
+              titleStyle={styles.actionTitle}
+            />
+          </View>
+        </Modal>
       </SafeAreaView>
 
     );
+  }
+
+  componentDidMount() {
+    this._fetchData();
+  }
+
+  async _fetchData() {
+    try {
+      const address = await AsyncStorage.getItem('@address');
+      this.setState({
+        address: address,
+      })
+
+      global.httpProvider.man.getBalance(address, (error, result) => {
+        if (error === null) {
+          let balance = filters.weiToNumber(result[0].balance);
+          this.setState({
+            balance: balance,
+          })
+        }
+      });
+
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   _onSubmit() {
@@ -166,16 +223,56 @@ export default class StakePostScreen extends React.Component {
       //   that.$notify(that.$t("nodeDetail.NameTooLong"));
       // }, 0);
       return false;
+    } else if (parseInt(this.state.amount) > parseInt(this.state.balance)) {
+      // done();
+      // setTimeout(function () {
+      //   that.yzjdContshow = true;
+      //   that.$notify(that.$t("nodeDetail.Insufficient"));
+      // }, 0);
+      return false;
     }
 
-    // if (parseInt(this.muhyFrom.number) > parseInt(this.mybalance)) {
-    //   done();
-    //   setTimeout(function () {
-    //     that.yzjdContshow = true;
-    //     that.$notify(that.$t("nodeDetail.Insufficient"));
-    //   }, 0);
-    //   return false;
-    // }
+    this.setState({
+      isModalVisible: true,
+    });
+  }
+
+  _onSubmitPasscode() {
+    this._postStake();
+  }
+
+  async _postStake() {
+    let passcode;
+    let keyStore;
+    let pashadterss;
+    try {
+      passcode = await AsyncStorage.getItem('@passcode');
+      keyStore = await AsyncStorage.getItem('@keyStore');
+      pashadterss = await AsyncStorage.getItem('@pashadterss');
+
+    } catch (e) {
+      console.log(e);
+    }
+
+    //validate passcode
+    let reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[a-zA-Z]\S{7,15}$/;
+    if (!reg.test(this.state.passcode) || this.state.passcode !== passcode) {
+      Toast.show("PIN码输入有误，请重新输入", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+      return;
+    }
+
+    //dismiss passcode modal and show loading
+    this.setState({
+      isModalVisible: false,
+      isLoading: true,
+    });
 
 
     // 创建母合约 abi调用
@@ -228,8 +325,8 @@ export default class StakePostScreen extends React.Component {
     jsonObj.data = result;
     let tx = WalletUtil.createTx(jsonObj);
 
-    // let newPin = md5(pashadterss + passcode);
-    // let decrypt = utils.decrypt(keyStore, newPin);
+    let newPin = md5(pashadterss + passcode);
+    let decrypt = utils.decrypt(keyStore, newPin);
 
     let privateKey = decrypt;
     privateKey = Buffer.from(
@@ -242,23 +339,35 @@ export default class StakePostScreen extends React.Component {
     let serializedTx = tx.serialize();
     let newTxData = SendTransfer.getTxParams(serializedTx);
 
-    try {
-      this.hash = global.httpProvider.man.sendRawTransaction(newTxData);
-      this.myNonceNum = 0;
-      this.$toast(that.$t("nodes.Masternodecreation"));
-      //that.$notify("节点创建成功！");
-      done();
-    } catch (error) {
-      if (this.myNonceNum < 5) {
-        this.myNonceNum++;
-        this.creatHyBeCloseMhou(action, done, params);
-      } else {
-        this.$toast(that.$t("nodes.Requestprocessing"));
+
+    global.httpProvider.man.sendRawTransaction(newTxData, (error, result) => {
+      if (error !== null) {
+        if (this.state.myNonceNum < 5) {
+          this.setState({
+            myNonceNum: this.state.myNonceNum + 1,
+          }, () => {
+            this._postStake();
+          })
+        } else {
+          Toast.show("交易正在处理中", {
+            duration: Toast.durations.LONG,
+            position: Toast.positions.CENTER,
+            shadow: true,
+            animation: true,
+            hideOnPress: true,
+            delay: 0,
+          });
+
+          this.setState({
+            isLoading: false,
+          });
+        }
+        return;
       }
 
-      //this.$notify("区块交易过于频繁！");
-      //done();
-    }
+      let hash = result;
+      console.log('success post', result);
+    });
   }
 }
 
@@ -322,6 +431,19 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#000',
     marginTop: 100,
+  },
+  modal: {
+    borderRadius: 16,
+    width: '100%',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+  },
+  modalHandle: {
+    width: 38,
+    height: 5,
+    backgroundColor: 'rgba(45, 45, 45, 0.2)',
+    borderRadius: 2.5,
+    marginTop: 22,
   },
   action: {
     backgroundColor: '#fbbe07',
