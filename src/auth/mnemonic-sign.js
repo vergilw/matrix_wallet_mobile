@@ -9,18 +9,19 @@ export default class MnemonicSignScreen extends React.Component {
   static navigationOptions = { headerTitle: '登录' };
   
   state = {
-    mnemonic1: null,
-    mnemonic2: null,
-    mnemonic3: null,
-    mnemonic4: null,
-    mnemonic5: null,
-    mnemonic6: null,
-    mnemonic7: null,
-    mnemonic8: null,
-    mnemonic9: null,
-    mnemonic10: null,
-    mnemonic11: null,
-    mnemonic12: null,
+    // mnemonic1: null,
+    // mnemonic2: null,
+    // mnemonic3: null,
+    // mnemonic4: null,
+    // mnemonic5: null,
+    // mnemonic6: null,
+    // mnemonic7: null,
+    // mnemonic8: null,
+    // mnemonic9: null,
+    // mnemonic10: null,
+    // mnemonic11: null,
+    // mnemonic12: null,
+
     // mnemonic1: 'arena',
     // mnemonic2: 'wait',
     // mnemonic3: 'hurry',
@@ -33,6 +34,20 @@ export default class MnemonicSignScreen extends React.Component {
     // mnemonic10: 'lunch',
     // mnemonic11: 'find',
     // mnemonic12: 'elephant',
+    
+    mnemonic1: 'humor',
+    mnemonic2: 'odor',
+    mnemonic3: 'swing',
+    mnemonic4: 'skin',
+    mnemonic5: 'celery',
+    mnemonic6: 'middle',
+    mnemonic7: 'denial',
+    mnemonic8: 'science',
+    mnemonic9: 'vote',
+    mnemonic10: 'junk',
+    mnemonic11: 'onion',
+    mnemonic12: 'canvas',
+               
     // mnemonic1: 'clip',
     // mnemonic2: 'kiwi',
     // mnemonic3: 'shaft',
@@ -45,6 +60,7 @@ export default class MnemonicSignScreen extends React.Component {
     // mnemonic10: 'knock',
     // mnemonic11: 'beef',
     // mnemonic12: 'element',
+
     isLoading: false,
   }
 

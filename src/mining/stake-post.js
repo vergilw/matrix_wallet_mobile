@@ -4,12 +4,13 @@ import { Button, ButtonGroup } from 'react-native-elements';
 import Toast from 'react-native-root-toast';
 import AsyncStorage from '@react-native-community/async-storage';
 import WalletUtil from '../utils/WalletUtil.js';
-import Utils from '../utils/utils.js';
+import utils from '../utils/utils.js';
 import md5 from '../utils/md5.js';
-
+import filters from '../utils/filters.js';
 import { aa, bb, contract } from "../profiles/config.js";
 import TradingFuns from "../utils/TradingFuns.js";
 import SendTransfer from "../utils/SendTransfer.js";
+import Modal from 'react-native-modal';
 
 export default class StakePostScreen extends React.Component {
 
@@ -19,10 +20,10 @@ export default class StakePostScreen extends React.Component {
     this.state = {
       address: null,
       balance: null,
-      name: null,
-      nodeAddress: null,
-      amount: null,
-      nodeRate: null,
+      name: 'SuperDaddy',
+      nodeAddress: 'MAN.zEiE1VLa2SJ8nPpWmGJqp7rMhHYZ',
+      amount: '100000',
+      nodeRate: '1',
       period: null,
       periodSelectedIndex: null,
       ownerRate: 1,
@@ -45,8 +46,8 @@ export default class StakePostScreen extends React.Component {
             style={styles.input}
             placeholder='输入节点名称'
             returnKeyType='done'
-            onChangeText={(text) => this.setState({ passcode: text })}
-            value={this.state.passcode}
+            onChangeText={(text) => this.setState({ name: text })}
+            value={this.state.name}
           />
         </View>
         <View style={styles.inputView}>
@@ -55,8 +56,8 @@ export default class StakePostScreen extends React.Component {
             style={styles.input}
             placeholder='输入签名地址'
             returnKeyType='done'
-            onChangeText={(text) => this.setState({ passcode: text })}
-            value={this.state.passcode}
+            onChangeText={(text) => this.setState({ nodeAddress: text })}
+            value={this.state.nodeAddress}
           />
         </View>
         <View style={styles.inputView}>
@@ -65,8 +66,8 @@ export default class StakePostScreen extends React.Component {
             style={styles.input}
             placeholder='抵押数量不得低于10000'
             returnKeyType='done'
-            onChangeText={(text) => this.setState({ passcode: text })}
-            value={this.state.passcode}
+            onChangeText={(text) => this.setState({ amount: text })}
+            value={this.state.amount}
           />
         </View>
         <View style={styles.inputView}>
@@ -75,8 +76,8 @@ export default class StakePostScreen extends React.Component {
             style={styles.input}
             placeholder='输入节点管理费'
             returnKeyType='done'
-            onChangeText={(text) => this.setState({ passcode: text })}
-            value={this.state.passcode}
+            onChangeText={(text) => this.setState({ nodeRate: text })}
+            value={this.state.nodeRate}
           />
         </View>
         <View style={styles.inputView}>
@@ -138,7 +139,7 @@ export default class StakePostScreen extends React.Component {
         >
           <View style={styles.modal}>
             <View style={styles.modalHandle}></View>
-            <View style={styles.inputView}>
+            <View style={{ marginTop: 26, paddingHorizontal: 35, alignSelf: 'stretch', }}>
               <TextInput
                 secureTextEntry={true}
                 style={styles.input}
@@ -152,7 +153,13 @@ export default class StakePostScreen extends React.Component {
               onPress={this._onSubmitPasscode.bind(this)}
               title='确定'
               buttonStyle={styles.action}
-              containerStyle={styles.actionContainer}
+              containerStyle={{
+                width: '100%',
+                marginTop: 26,
+                height: 58,
+                paddingHorizontal: 30,
+                marginBottom: 50,
+              }}
               titleStyle={styles.actionTitle}
             />
           </View>
@@ -279,9 +286,9 @@ export default class StakePostScreen extends React.Component {
     let contractAbiArray = JSON.parse(aa.abi);
     let contractAddress = aa.address;
     // 初始化abi
-    let contractAbi = global.ethProvider.eth.Contract(
+    let contractAbi = new global.ethProvider.eth.Contract(
       contractAbiArray,
-      contractAddress
+      '0x0000000000000000000000000000000000000014',
     );
 
     // 输入数值进行转化
@@ -309,65 +316,72 @@ export default class StakePostScreen extends React.Component {
     // rawTx.data = rawTx.data+zero.substr(0,64-tt.length)+tt;
     result += muhyFromNames;
 
-    let nonce = global.httpProvider.man.getTransactionCount(this.state.address);
-    nonce += this.state.myNonceNum;
-    nonce = WalletUtil.numToHex(nonce);
-    let data = {
-      to: contractAddress, // MAN母合约不转化地址
-      value: this.state.amount,
-      gasLimit: 210000,
-      data: "",
-      gasPrice: 18000000000,
-      extra_to: [[0, 0, []]],
-      nonce: nonce
-    };
-    let jsonObj = TradingFuns.getTxData(data);
-    jsonObj.data = result;
-    let tx = WalletUtil.createTx(jsonObj);
-
-    let newPin = md5(pashadterss + passcode);
-    let decrypt = utils.decrypt(keyStore, newPin);
-
-    let privateKey = decrypt;
-    privateKey = Buffer.from(
-      privateKey.indexOf("0x") > -1
-        ? privateKey.substring(2, privateKey.length)
-        : privateKey,
-      "hex"
-    );
-    tx.sign(privateKey);
-    let serializedTx = tx.serialize();
-    let newTxData = SendTransfer.getTxParams(serializedTx);
-
-
-    global.httpProvider.man.sendRawTransaction(newTxData, (error, result) => {
+    global.httpProvider.man.getTransactionCount(this.state.address, (error, result) => {
       if (error !== null) {
-        if (this.state.myNonceNum < 5) {
-          this.setState({
-            myNonceNum: this.state.myNonceNum + 1,
-          }, () => {
-            this._postStake();
-          })
-        } else {
-          Toast.show("交易正在处理中", {
-            duration: Toast.durations.LONG,
-            position: Toast.positions.CENTER,
-            shadow: true,
-            animation: true,
-            hideOnPress: true,
-            delay: 0,
-          });
-
-          this.setState({
-            isLoading: false,
-          });
-        }
+        console.log('getTransactionCount', error); 
         return;
       }
+      let nonce = result;
+      nonce += this.state.myNonceNum;
+      nonce = WalletUtil.numToHex(nonce);
+      let data = {
+        to: contractAddress, // MAN母合约不转化地址
+        value: this.state.amount,
+        gasLimit: 210000,
+        data: "",
+        gasPrice: 18000000000,
+        extra_to: [[0, 0, []]],
+        nonce: nonce
+      };
+      let jsonObj = TradingFuns.getTxData(data);
+      jsonObj.data = result;
+      let tx = WalletUtil.createTx(jsonObj);
 
-      let hash = result;
-      console.log('success post', result);
+      let newPin = md5(pashadterss + passcode);
+      let decrypt = utils.decrypt(keyStore, newPin);
+
+      let privateKey = decrypt;
+      privateKey = Buffer.from(
+        privateKey.indexOf("0x") > -1
+          ? privateKey.substring(2, privateKey.length)
+          : privateKey,
+        "hex"
+      );
+      tx.sign(privateKey);
+      let serializedTx = tx.serialize();
+      let newTxData = SendTransfer.getTxParams(serializedTx);
+
+
+      global.httpProvider.man.sendRawTransaction(newTxData, (error, result) => {
+        if (error !== null) {
+          if (this.state.myNonceNum < 5) {
+            this.setState({
+              myNonceNum: this.state.myNonceNum + 1,
+            }, () => {
+              this._postStake();
+            })
+          } else {
+            Toast.show("交易正在处理中", {
+              duration: Toast.durations.LONG,
+              position: Toast.positions.CENTER,
+              shadow: true,
+              animation: true,
+              hideOnPress: true,
+              delay: 0,
+            });
+
+            this.setState({
+              isLoading: false,
+            });
+          }
+          return;
+        }
+
+        let hash = result;
+        console.log('success post', result);
+      });
     });
+
   }
 }
 
