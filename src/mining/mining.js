@@ -69,7 +69,7 @@ export default class MiningScreen extends React.Component {
   render() {
     return (
       <View style={{ flex: 1 }}>
-        <MiningRoot />
+        <MiningRoot screenProps={{ parentNavigation: this.props.navigation }} />
         <TouchableOpacity style={styles.postBtn} onPress={() =>  {
           this.props.navigation.navigate('StakePost');
         }}>

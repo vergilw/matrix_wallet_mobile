@@ -58,7 +58,7 @@ export default class StakeMyScreen extends React.Component {
       onPressItem={(item) => {
         console.log('press', item);
       }}
-      stakeAddress={item.key}
+      stakeAddress={item.name}
       ownerAddress={item.OwnerInfo.Owner}
       amount={item.allAmountFif}
       partner={item.ValidatorMap.length}
@@ -253,7 +253,7 @@ export default class StakeMyScreen extends React.Component {
         for (let i in keys) {
           let key = keys[i];
           let value = validatorGroupInfo[key];
-          value['key'] = key;
+          value['name'] = key;
           if (value.OwnerInfo.Owner === address) {
             groupInfo.push(value);
           }

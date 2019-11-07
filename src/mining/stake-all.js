@@ -3,6 +3,7 @@ import { Text, View, StyleSheet, FlatList, Dimensions, ImageBackground, StatusBa
 import AsyncStorage from '@react-native-community/async-storage';
 import filters from '../utils/filters.js';
 const axios = require('axios');
+import { NavigationActions} from 'react-navigation';
 
 export default class StakeAllScreen extends React.Component {
 
@@ -51,9 +52,10 @@ export default class StakeAllScreen extends React.Component {
   _renderItem = ({ item }) => (
     <StakeItem
       onPressItem={(item) => {
-        console.log('press', item);
+        this.props.screenProps.parentNavigation.navigate('StakeDetail', {'stake': item});
       }}
-      stakeAddress={item.key}
+      stake={item}
+      stakeAddress={item.name}
       ownerAddress={item.OwnerInfo.Owner}
       amount={item.allAmountFif}
       partner={item.ValidatorMap.length}
@@ -214,7 +216,7 @@ export default class StakeAllScreen extends React.Component {
         for (let i in keys) {
           let key = keys[i];
           let value = validatorGroupInfo[key];
-          value['key'] = key;
+          value['name'] = key;
           groupInfo.push(value);
         }
 
@@ -235,7 +237,7 @@ export default class StakeAllScreen extends React.Component {
 
 class StakeItem extends React.PureComponent {
   _onPress = () => {
-    // this.props.onPressItem(this.props.id);
+    this.props.onPressItem(this.props.stake);
   };
 
   render() {

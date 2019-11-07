@@ -7,23 +7,53 @@ const axios = require('axios');
 
 export default class StakeDetailScreen extends React.Component {
 
-  state = {
-    balance: null,
-    address: null,
-    entrustAmount: null,
-    redeemAmount: null,
-    validatorGroupInfo: null,
-    ownerAddress: [],
-    listener: null,
-  };
+  constructor(props) {
+    super(props);
+
+    let stake = props.navigation.getParam('stake');
+
+    this.state = {
+      stake: stake,
+      balance: null,
+      address: null,
+      entrustAmount: null,
+      partnerAmount: stake.ValidatorMap.length,
+      nodeRate: stake.Reward.NodeRate.Rate /stake.Reward.NodeRate.Decimal * 100,
+    };
+  }
 
   render() {
     return (
       <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', }}>
         <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
-
-        <FlatList
+        <View style={styles.overviewView}>
+          <Text style={styles.overviewTitleText}>{this.state.stake.name}</Text>
+          <Text style={styles.overviewCaptionText}>
+            <Text style={styles.overviewCaptionTitleText}>发起人：</Text>
+            <Text style={styles.overviewCaptionValueText}>{this.state.stake.OwnerInfo.Owner}</Text>
+          </Text>
+          <Text style={styles.overviewCaptionText}>
+            <Text style={styles.overviewCaptionTitleText}>发起人抵押到期时间：</Text>
+            <Text style={styles.overviewCaptionValueText}>2019/01/01 08:00:00 活期</Text>
+          </Text>
+          <View style={styles.overviewSeparatorView}></View>
+          <View style={styles.overviewFooterView}>
+            <View style={styles.overviewItemView}>
+              <Text style={styles.overviewItemValueText}>{this.state.entrustAmount}</Text>
+              <Text style={styles.overviewItemTitleText}>金额</Text>
+            </View>
+            <View style={styles.overviewItemView}>
+              <Text style={styles.overviewItemValueText}>{this.state.nodeRate}%</Text>
+              <Text style={styles.overviewItemTitleText}>管理费</Text>
+            </View>
+            <View style={styles.overviewItemEndView}>
+              <Text style={styles.overviewItemValueText}>{this.state.partnerAmount}人</Text>
+              <Text style={styles.overviewItemTitleText}>委托者</Text>
+            </View>
+          </View>
+        </View>
+        {/* <FlatList
           style={styles.list}
           data={this.state.validatorGroupInfo}
           renderItem={this._renderItem}
@@ -36,9 +66,9 @@ export default class StakeDetailScreen extends React.Component {
             return <View style={{ height: 1, backgroundColor: '#f7f7f7' }}>
             </View>
           }}
-          // ListHeaderComponent={this._renderHeader}
+        // ListHeaderComponent={this._renderHeader}
         // ListFooterComponent={this._renderFooter}
-        />
+        /> */}
       </View>
     );
   }
@@ -89,166 +119,166 @@ export default class StakeDetailScreen extends React.Component {
 
   componentDidMount() {
     this._fetchData();
-
-    const listener = this.props.navigation.addListener('willFocus', this._componentWillFocus.bind(this));
-    this.setState({
-      listener: listener,
-    })
-  }
-
-  componentWillUnmount() {
-    this.state.listener.remove();
-  }
-
-  _componentWillFocus() {
-    this._fetchData();
   }
 
   async _fetchData() {
+    let address;
+
     try {
-      const address = await AsyncStorage.getItem('@address');
+      address = await AsyncStorage.getItem('@address');
+
       this.setState({
         address: address,
-      })
-
-      global.httpProvider.man.getBalance(address, (error, result) => {
-        if (error === null) {
-          let balance = filters.weiToNumber(result[0].balance);
-          this.setState({
-            balance: balance,
-          })
-        }
-      });
-
-      // 获取数组遍历数据
-
-      global.httpProvider.man.getValidatorGroupInfo((error, result) => {
-        let validatorGroupInfo = result;
-        let myGroupInfo = {};
-        let ownerAddress = [];
-        let bba = [];
-
-        // 循环api获取用户列表
-        for (let item in validatorGroupInfo) {
-          validatorGroupInfo[item].stakingNames = "resp.data.data.alias";
-          validatorGroupInfo[item].stakingFormlv = "999";
-          // 获取名称与年收益率
-          axios.post('https://www.matrixscan.io/api', {
-            method: "getAliasByAddress",
-            address: item
-          }).then(resp => {
-            // that.validatorGroupInfo[item].stakingNames = resp.data.data.alias;
-            if (resp.data.status == "200") {
-              validatorGroupInfo[item].stakingNames = resp.data.data.alias;
-              validatorGroupInfo[item].stakingFormlv =
-                resp.data.data.rate * 100 + "%";
-            }
-            // that.$set(that.validatorGroupInfo[item]);
-          });
-
-          let array = validatorGroupInfo[item].ValidatorMap;
-
-          // 计算年收益
-          let num = 0;
-          for (let index = 0; index < array.length; index++) {
-            num += parseFloat(array[index].AllAmount);
-
-            // 计算年收益
-            if (array[index].Address === address) {
-              // this.Num += 1;
-
-              // console.log("Reward", this.Reward);
-              // this.Reward += parseInt(array[index].Reward);
-              // console.log("Reward11", this.Reward);
-              myGroupInfo[item] = validatorGroupInfo[item];
-
-              ownerAddress.push(item);
-              // 定期提取计算
-              // if (this.Positions) {
-              //   for (let i = 0; i < this.Positions.length; i++) {
-              //     if (this.Positions[i].EndTime) {
-              //       // this.Shuhui += 1;
-              //     }
-              //   }
-              // }
-            }
-          }
-
-          let fromWei = global.httpProvider.fromWei(num);
-          if (fromWei.indexOf(".") != -1) {
-            validatorGroupInfo[item].allAmountFif = fromWei.substring(
-              0,
-              fromWei.indexOf(".") + 5
-            );
-          } else {
-            validatorGroupInfo[item].allAmountFif = fromWei;
-          }
-        }
-
-        let sum = 0;
-        let e19 = 1000000000000000000;
-
-        for (let item in myGroupInfo) {
-          let maGroupInfoArr = myGroupInfo[item].ValidatorMap;
-          for (let index in maGroupInfoArr) {
-            if (maGroupInfoArr[index].Address == address) {
-              let PositionsArr = maGroupInfoArr[index].Positions;
-              for (let ips in PositionsArr) {
-                if (PositionsArr[ips].EndTime != 0) {
-                  sum += Number(PositionsArr[ips].Amount);
-                }
-              }
-
-              // 活期处理
-              if (maGroupInfoArr[index].Current.WithdrawList.length > 0) {
-                let redeemArr = maGroupInfoArr[index].Current.WithdrawList;
-                for (let i in redeemArr) {
-                  sum += Number(redeemArr[i].WithDrawAmount);
-                }
-              }
-
-              let aba = Number(maGroupInfoArr[index].AllAmount);
-              aba = aba / e19;
-              bba.push(aba);
-            }
-          }
-        }
-
-        sum = sum / e19;
-        sum = String(sum).replace(/^(.*\..{4}).*$/, "$1");
-        sum = Number(sum);
-        // that.redeem = sum;
-
-        let allAmount = 0;
-        for (let i in bba) {
-          allAmount += bba[i];
-        }
-        let entrustAmount = allAmount.toFixed(4);
-        // let arrays = this.myGroupInfo;
-
-        let groupInfo = [];
-        let keys = Object.keys(validatorGroupInfo);
-
-        for (let i in keys) {
-          let key = keys[i];
-          let value = validatorGroupInfo[key];
-          value['key'] = key;
-          groupInfo.push(value);
-        }
-
-        this.setState({
-          entrustAmount: entrustAmount,
-          redeemAmount: sum,
-          validatorGroupInfo: groupInfo,
-        })
-
-        console.log('render list', groupInfo);
       })
     } catch (e) {
       console.log(e);
     }
-  }
 
+    let balance;
+    global.httpProvider.man.getBalance(address, (error, result) => {
+      if (error === null) {
+        balance = filters.weiToNumber(result[0].balance);
+        this.setState({
+          balance: balance,
+        })
+      }
+    });
+
+    let getDepositByAddr;
+    global.httpProvider.man.getDepositByAddr(this.state.stake.name, "latest", (error, result) => {
+      if (error !== null) {
+        console.log(error, getDepositByAddr);
+        return;
+      }
+
+      getDepositByAddr = result;
+      // console.log(this.getDepositByAddr);
+
+
+      // this.ownerAddressFn(this.staking.name);
+
+      let AllAmount = 0;
+      // let that = this;
+      let nowTime = parseInt(new Date().getTime() / 1000);
+      console.log(nowTime)
+
+      let currentAmount;
+      let maxTime = 0;
+      let validatorMap = this.state.stake.ValidatorMap;
+
+      for (let i = 0; i < validatorMap.length; i++) {
+        AllAmount += parseInt(validatorMap[i].AllAmount);
+        if (validatorMap[i].Address === this.state.stake.OwnerInfo.Owner) {
+          let ownerArr = validatorMap[i];
+          // console.log(ownerArr)
+          let positions = [];
+          if (ownerArr.Positions.length != 0) {
+            for (let j in ownerArr.Positions) {
+              let amount = ownerArr.Positions[j].Amount;
+              let fromWei = global.httpProvider.fromWei(amount);
+              if (Number(fromWei) >= 100000) {
+                positions.push(ownerArr.Positions[j].Position)
+              }
+            }
+          } else {
+            currentAmount = true;
+          }
+          if (positions.length == 0) {
+            let currentAmount = global.httpProvider.fromWei(ownerArr.Current.Amount);
+            let maxAmount = global.httpProvider.fromWei(ownerArr.Current.Amount);
+            let currentposition = 0;
+            if (Number(currentAmount) >= 100000) {
+              currentAmount = true;
+            } else {
+              if (ownerArr.Positions.length != 0) {
+                for (let j in ownerArr.Positions) {
+                  let amount = ownerArr.Positions[j].Amount
+                  let fromWei = global.httpProvider.fromWei(amount);
+                  if (Number(fromWei) > Number(maxAmount)) {
+                    currentposition = ownerArr.Positions[j].Position;
+                  }
+                }
+                if (currentposition == 0) {
+                  currentAmount = true;
+                } else {
+                  for (let k in getDepositByAddr.Dpstmsg) {
+                    if (currentposition == getDepositByAddr.Dpstmsg[k].Position && getDepositByAddr.Dpstmsg[k].WithDrawInfolist.length == 0) {
+                      let beginTime = [];
+                      let beginTimeItem = getDepositByAddr.Dpstmsg[k].BeginTime;
+                      let depositType = getDepositByAddr.Dpstmsg[k].DepositType;
+                      let endTimes = beginTimeItem + (parseInt((nowTime - beginTimeItem) / (depositType * 2592000)) + 1) * depositType * 2592000
+                      if (maxTime < endTimes)
+                        maxTime = endTimes;
+                    }
+                  }
+                }
+              } else {
+                currentAmount = true;
+              }
+            }
+          } else {
+            for (let j in positions) {
+              // console.log(that.getDepositByAddr)
+              for (let k in getDepositByAddr.Dpstmsg) {
+                if (positions[j] == getDepositByAddr.Dpstmsg[k].Position && getDepositByAddr.Dpstmsg[k].WithDrawInfolist.length == 0) {
+                  // alert(positions[j])
+                  let beginTime = [];
+                  let beginTimeItem = getDepositByAddr.Dpstmsg[k].BeginTime;
+                  let depositType = getDepositByAddr.Dpstmsg[k].DepositType;
+                  let endTimes = beginTimeItem + (parseInt((nowTime - beginTimeItem) / (depositType * 2592000)) + 1) * depositType * 2592000
+                  // console.log("ssssssssssss", that.maxTime, endTimes);
+                  if (maxTime < endTimes)
+                    maxTime = endTimes;
+
+                  // console.log(that.maxTime)
+                }
+                // console.log(that.getDepositByAddr.Dpstmsg[k].Position)
+              }
+            }
+          }
+        }
+        if (validatorMap[i].Address === address) {
+          // that.reward = validatorMap[i].Reward;
+          // that.Current = validatorMap[i].Current;
+          // that.positionsList = validatorMap[i].Positions;
+          // that.isTiqu = true;
+        }
+      }
+
+
+      let b = {};
+      // console.log(b);
+      // if (that.Current.Amount === undefined) {
+      //   this.currentMassage = false;
+      // } else {
+      //   that.Current.Amount = global.httpProvider.fromWei(that.Current.Amount);
+      // }
+
+      // console.log(that.Current.Amount == undefined);
+      // this.stakingForm.AllAmount = this.httpProvider.fromWei(AllAmount);
+      // this.stakingForm.AllAmount = this.stakingForm.AllAmount.substring(0,this.stakingForm.AllAmount.indexOf(".") + 5);
+      //console.log('....222222',this.stakingForm.AllAmount)
+      let fromWei = global.httpProvider.fromWei(AllAmount);
+      //console.log(fromWei)
+      if (fromWei.indexOf(".") != -1) {
+        AllAmount = fromWei.substring(0, fromWei.indexOf(".") + 5);
+      } else {
+        AllAmount = fromWei;
+      }
+
+      this.setState({
+        entrustAmount: AllAmount,
+      })
+
+      // this.stakingForm.renNum = this.staking.ValidatorMap.length;
+      // console.log(this.stakingForm);
+
+      // this.getYearSyl();
+    });
+
+
+
+  }
 }
 
 class StakeItem extends React.PureComponent {
@@ -284,119 +314,68 @@ class StakeItem extends React.PureComponent {
 const styles = StyleSheet.create({
   overviewView: {
     marginHorizontal: 16,
-    marginTop: 20,
-    paddingHorizontal: 22,
+    marginTop: 16,
+    padding: 20,
     alignSelf: 'stretch',
     borderRadius: 6,
-    overflow: 'hidden',
-  },
-  overviewHeaderText: {
-    fontSize: 18,
-    color: '#222',
-    fontWeight: 'bold',
-    marginTop: 20,
-  },
-  balanceText: {
-    fontSize: 30,
-    color: '#222',
-    fontWeight: 'bold',
-    marginTop: 15,
-  },
-  balanceFooterText: {
-    fontSize: 12,
-    color: '#222',
-  },
-  addressText: {
-    fontSize: 12,
-    color: '#222',
-  },
-  overviewFooterView: {
-    marginVertical: 25,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  overviewValueText: {
-    fontSize: 15,
-    color: '#222',
-    fontWeight: 'bold',
+    borderWidth: 0.5,
+    borderColor: "#f0f1f2",
+    backgroundColor: '#fff',
+    shadowColor: 'rgba(134, 142, 155, 0.15)',
+    shadowOffset: {
+      width: 0,
+      height: 10
+    },
+    shadowRadius: 15,
+    shadowOpacity: 1
   },
   overviewTitleText: {
-    fontSize: 12,
-    color: '#222',
-    marginTop: 5,
-  },
-  actionLeft: {
-    backgroundColor: '#fff',
-    height: 58,
-    borderRadius: 6,
-  },
-  actionRight: {
-    backgroundColor: '#ffcf4b',
-    height: 58,
-    borderRadius: 6,
-  },
-  actionLeftContainer: {
-    marginRight: 5,
-    height: 58,
-    flexGrow: 1,
-  },
-  actionRightContainer: {
-    marginLeft: 5,
-    height: 58,
-    flexGrow: 1,
-  },
-  actionLeftTitle: {
-    color: '#fbbe07',
-    fontSize: 16,
-  },
-  actionRightTitle: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  list: {
-    overflow: 'visible',
-    marginTop: 30,
-    // backgroundColor: 'transparent',
-    backgroundColor: '#f6f7fb',
-    width: '100%',
-  },
-  header: {
-    // borderTopRightRadius: 10,
-    // borderTopLeftRadius: 10,
-    height: 55,
-    backgroundColor: '#f6f7fb',
-    padding: 16,
-    display: 'flex',
-    justifyContent: 'center',
-  },
-  headerTitleText: {
-    fontSize: 18,
-    color: '#2d2d2d',
+    fontSize: 17,
+    color: "#2d2d2d",
     fontWeight: 'bold',
   },
-  itemView: {
-    marginHorizontal: 16,
-    height: 75,
+  overviewCaptionText: {
+    marginTop: 6,
+  },
+  overviewCaptionTitleText: {
+    fontSize: 13,
+    color: "#222222",
+
+  },
+  overviewCaptionValueText: {
+    fontSize: 13,
+    color: "#8f92a1",
+  },
+  overviewFooterView: {
+    marginTop: 15,
+    borderColor: '#f7f7f7',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-around',
     alignItems: 'center',
   },
-  itemTitleView: {
-    flexGrow: 1,
+  overviewItemView: {
+    alignItems: 'center',
+    marginVertical: 15,
+    borderColor: '#f7f7f7',
+    borderRightWidth: 1,
+    flex: 1,
   },
-  itemTitleText: {
-    fontSize: 14,
-    color: '#2d2d2d',
+  overviewItemEndView: {
+    alignItems: 'center',
+    marginVertical: 15,
+    flex: 1,
+  },
+  overviewItemTitleText: {
+    fontSize: 12,
+    color: "#222222",
+    marginTop: 5,
+  },
+  overviewItemValueText: {
+    fontSize: 17,
+    color: "#222222",
     fontWeight: 'bold',
-  },
-  itemDescText: {
-    fontSize: 14,
-    color: '#8f92a1',
-  },
-  itemValueText: {
-    flexGrow: 0,
-    fontSize: 16,
-    color: '#222',
   }
 });
 

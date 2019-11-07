@@ -20,6 +20,7 @@ import WalletQRCodeScreen from './wallet/wallet-qrcode.js';
 import WalletScannerScreen from './wallet/wallet-scanner.js';
 import NavigationService from './utils/NavigationService.js';
 import StakePostScreen from './mining/stake-post.js';
+import StakeDetailScreen from './mining/stake-detail.js';
 
 const WalletStack = createStackNavigator({
 
@@ -81,6 +82,17 @@ const MiningStack = createStackNavigator({
     screen: StakePostScreen,
     navigationOptions: {
       headerTitle: '创建节点',
+      headerStyle: {
+        elevation: 0,
+        shadowOpacity: 0,
+        borderBottomWidth: 0,
+      },
+    },
+  },
+  StakeDetail: {
+    screen: StakeDetailScreen,
+    navigationOptions: {
+      headerTitle: '节点详情',
       headerStyle: {
         elevation: 0,
         shadowOpacity: 0,
