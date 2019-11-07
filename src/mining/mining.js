@@ -1,6 +1,5 @@
 import React from 'react';
 import { Text, View, SafeAreaView, StyleSheet, Icon, Dimensions, ImageBackground, StatusBar, TouchableOpacity, TouchableHighlight, Image } from 'react-native';
-import { FlatList } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-community/async-storage';
 const BigNumber = require('bignumber.js');
 import filters from '../utils/filters.js';
@@ -54,6 +53,11 @@ const MaterialTopTabNavigator = createMaterialTopTabNavigator({
       borderBottomColor: '#fbbe07',
       width: 48,
     },
+    tabStyle: {
+      borderColor: 'transparent',
+      borderBottomColor: '#f7f7f7',
+      borderWidth: 1,
+    }
   },
   lazy: true,
   tabBarComponent: SafeAreaMaterialTopTabBar,

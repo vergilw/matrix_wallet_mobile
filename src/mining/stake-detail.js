@@ -1,10 +1,11 @@
 import React from 'react';
 import { Text, View, StyleSheet, Dimensions, FlatList, ImageBackground, StatusBar, TouchableOpacity, TouchableHighlight, Image } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
+const BigNumber = require('bignumber.js');
 import filters from '../utils/filters.js';
 const axios = require('axios');
 
-export default class StakeMyScreen extends React.Component {
+export default class StakeDetailScreen extends React.Component {
 
   state = {
     balance: null,
@@ -14,7 +15,6 @@ export default class StakeMyScreen extends React.Component {
     validatorGroupInfo: null,
     ownerAddress: [],
     listener: null,
-    isRefreshing: false,
   };
 
   render() {
@@ -22,30 +22,22 @@ export default class StakeMyScreen extends React.Component {
       <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', }}>
         <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
+
         <FlatList
           style={styles.list}
           data={this.state.validatorGroupInfo}
           renderItem={this._renderItem}
           extraData={this.state}
           keyExtractor={this._keyExtractor}
-          onRefresh={() =>  {
-            this.setState({
-              isRefreshing: true,
-            })
-
-            this._fetchData();
-          }}
-          refreshing={this.state.isRefreshing}
           getItemLayout={(data, index) => (
-            { length: 110, offset: 111 * index, index }
+            { length: 75, offset: 76 * index, index }
           )}
           ItemSeparatorComponent={() => {
-            return <View style={{ marginHorizontal: 16, height: 1, backgroundColor: '#f7f7f7' }}>
+            return <View style={{ height: 1, backgroundColor: '#f7f7f7' }}>
             </View>
           }}
-          ListHeaderComponent={this._renderHeader}
+          // ListHeaderComponent={this._renderHeader}
         // ListFooterComponent={this._renderFooter}
-          
         />
       </View>
     );
@@ -66,32 +58,28 @@ export default class StakeMyScreen extends React.Component {
   );
 
   _renderHeader = () => (
-    <View>
-      <ImageBackground source={require('../../resources/img/wallet/wallet_bg.png')} style={styles.overviewView}>
-        <Text style={styles.overviewHeaderText}>MAN钱包</Text>
-        <Text style={{ marginTop: 15 }}>
-          <Text style={styles.balanceText}>{this.state.balance}</Text>
-          <Text style={styles.balanceFooterText}>MAN</Text>
-        </Text>
-        <Text style={styles.addressText}>{this.state.address}</Text>
-        <View style={styles.overviewFooterView}>
-          <View style={{ alignItems: 'center', flex: 1, borderRightWidth: 1, borderColor: 'rgba(255, 255, 255, 0.3)' }}>
-            <Text style={styles.overviewValueText}>{this.state.balance}</Text>
-            <Text style={styles.overviewTitleText}>可用余额</Text>
-          </View>
-          <View style={{ alignItems: 'center', flex: 1, borderRightWidth: 1, borderColor: 'rgba(255, 255, 255, 0.3)' }}>
-            <Text style={styles.overviewValueText}>{this.state.entrustAmount}</Text>
-            <Text style={styles.overviewTitleText}>委托</Text>
-          </View>
-          <View style={{ alignItems: 'center', flex: 1, }}>
-            <Text style={styles.overviewValueText}>{this.state.redeemAmount}</Text>
-            <Text style={styles.overviewTitleText}>赎回中</Text>
-          </View>
+    <ImageBackground source={require('../../resources/img/wallet/wallet_bg.png')} style={styles.overviewView}>
+      <Text style={styles.overviewHeaderText}>MAN钱包</Text>
+      <Text style={{ marginTop: 15 }}>
+        <Text style={styles.balanceText}>{this.state.balance}</Text>
+        <Text style={styles.balanceFooterText}>MAN</Text>
+      </Text>
+      <Text style={styles.addressText}>{this.state.address}</Text>
+      <View style={styles.overviewFooterView}>
+        <View style={{ alignItems: 'center', flex: 1, borderRightWidth: 1, borderColor: 'rgba(255, 255, 255, 0.3)' }}>
+          <Text style={styles.overviewValueText}>{this.state.balance}</Text>
+          <Text style={styles.overviewTitleText}>可用余额</Text>
         </View>
-      </ImageBackground>
-      <View style={{ marginHorizontal: 16, height: 1, backgroundColor: '#f7f7f7' }}>
+        <View style={{ alignItems: 'center', flex: 1, borderRightWidth: 1, borderColor: 'rgba(255, 255, 255, 0.3)' }}>
+          <Text style={styles.overviewValueText}>{this.state.entrustAmount}</Text>
+          <Text style={styles.overviewTitleText}>委托</Text>
+        </View>
+        <View style={{ alignItems: 'center', flex: 1, }}>
+          <Text style={styles.overviewValueText}>{this.state.redeemAmount}</Text>
+          <Text style={styles.overviewTitleText}>赎回中</Text>
+        </View>
       </View>
-    </View>
+    </ImageBackground>
   );
 
   // _renderFooter = () => (
@@ -117,7 +105,6 @@ export default class StakeMyScreen extends React.Component {
   }
 
   async _fetchData() {
-
     try {
       const address = await AsyncStorage.getItem('@address');
       this.setState({
@@ -136,14 +123,6 @@ export default class StakeMyScreen extends React.Component {
       // 获取数组遍历数据
 
       global.httpProvider.man.getValidatorGroupInfo((error, result) => {
-        if (error !== null) {
-          console.log(error, 'getValidatorGroupInfo');
-          this.setState({
-            isRefreshing: false,
-          })
-
-          return;
-        }
         let validatorGroupInfo = result;
         let myGroupInfo = {};
         let ownerAddress = [];
@@ -254,16 +233,13 @@ export default class StakeMyScreen extends React.Component {
           let key = keys[i];
           let value = validatorGroupInfo[key];
           value['key'] = key;
-          if (value.OwnerInfo.Owner === address) {
-            groupInfo.push(value);
-          }
+          groupInfo.push(value);
         }
 
         this.setState({
           entrustAmount: entrustAmount,
           redeemAmount: sum,
           validatorGroupInfo: groupInfo,
-          isRefreshing: false,
         })
 
         console.log('render list', groupInfo);
@@ -282,21 +258,22 @@ class StakeItem extends React.PureComponent {
 
   render() {
     return (
-      <TouchableHighlight activeOpacity={0.2} underlayColor='#f6f7fb' onPress={this._onPress}>
+      <TouchableHighlight style={{ backgroundColor: '#f6f7fb' }} activeOpacity={0.2} underlayColor='#f6f7fb' onPress={this._onPress}>
         <View style={styles.itemView}>
-          <Text style={styles.itemTitleText}>{this.props.stakeAddress}</Text>
-          <Text>
-          <Text style={styles.itemCaptionTitleText}>发起人：</Text>
-          <Text style={styles.itemCaptionText}>{this.props.ownerAddress}</Text>
-          </Text>
-          
-
-          <View style={styles.itemFooterView}>
-            <Text style={styles.itemFooterText}>金额：{this.props.amount}</Text>
-            <Text style={{ marginHorizontal: 12, fontSize: 13, color: '#8f92a1', }}> | </Text>
-            <Text style={styles.itemFooterText}>人数：{this.props.partner}</Text>
+          <View style={styles.itemTitleView}>
+            <Text style={styles.itemTitleText}>
+              {this.props.stakeAddress}
+            </Text>
+            <Text style={styles.itemTitleText}>
+              {this.props.ownerAddress}
+            </Text>
+            <Text style={styles.itemDescText}>
+              金额：{this.props.amount}
+            </Text>
           </View>
-
+          <Text style={styles.itemValueText}>
+            人数：{this.props.partner}
+          </Text>
         </View>
       </TouchableHighlight>
     );
@@ -308,7 +285,6 @@ const styles = StyleSheet.create({
   overviewView: {
     marginHorizontal: 16,
     marginTop: 20,
-    marginBottom: 30,
     paddingHorizontal: 22,
     alignSelf: 'stretch',
     borderRadius: 6,
@@ -379,40 +355,48 @@ const styles = StyleSheet.create({
   },
   list: {
     overflow: 'visible',
-    // marginTop: 30,
-    backgroundColor: '#fff',
+    marginTop: 30,
+    // backgroundColor: 'transparent',
+    backgroundColor: '#f6f7fb',
     width: '100%',
   },
-  itemView: {
-    marginHorizontal: 18,
-    height: 110,
+  header: {
+    // borderTopRightRadius: 10,
+    // borderTopLeftRadius: 10,
+    height: 55,
+    backgroundColor: '#f6f7fb',
+    padding: 16,
+    display: 'flex',
+    justifyContent: 'center',
   },
-  itemFooterView: {
-    flexGrow: 1,
+  headerTitleText: {
+    fontSize: 18,
+    color: '#2d2d2d',
+    fontWeight: 'bold',
+  },
+  itemView: {
+    marginHorizontal: 16,
+    height: 75,
     flexDirection: 'row',
-    marginTop: 10,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  itemTitleView: {
+    flexGrow: 1,
   },
   itemTitleText: {
-    marginTop: 25,
     fontSize: 14,
     color: '#2d2d2d',
     fontWeight: 'bold',
   },
-  itemCaptionTitleText: {
-    marginTop: 5,
-    fontSize: 13,
-    lineHeight: 22,
-    color: '#2d2d2d',
-  },
-  itemCaptionText: {
-    marginTop: 5,
-    fontSize: 13,
-    lineHeight: 22,
+  itemDescText: {
+    fontSize: 14,
     color: '#8f92a1',
   },
-  itemFooterText: {
-    fontSize: 13,
-    color: '#8f92a1',
-  },
+  itemValueText: {
+    flexGrow: 0,
+    fontSize: 16,
+    color: '#222',
+  }
 });
 

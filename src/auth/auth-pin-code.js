@@ -10,7 +10,7 @@ export default class AuthPinCodeScreen extends React.Component {
     super(props);
 
     this.state = {
-      passcode: null,
+      passcode: 'Vergilw123',
     };
   }
 

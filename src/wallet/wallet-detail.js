@@ -1,6 +1,5 @@
 import React from 'react';
-import { Text, View, StyleSheet, StatusBar, TouchableOpacity, TouchableHighlight, Image } from 'react-native';
-import { FlatList } from 'react-native-gesture-handler';
+import { Text, View, StyleSheet, FlatList, StatusBar, TouchableOpacity, TouchableHighlight, Image } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 const axios = require('axios');
 const BigNumber = require('bignumber.js');

@@ -24,12 +24,12 @@ export default class StakePostScreen extends React.Component {
       nodeAddress: 'MAN.zEiE1VLa2SJ8nPpWmGJqp7rMhHYZ',
       amount: '100000',
       nodeRate: '1',
-      period: null,
-      periodSelectedIndex: null,
+      period: '0',
+      periodSelectedIndex: 0,
       ownerRate: 1,
       lvlRate: [1, 1, 1],
       myNonceNum: 0,
-      passcode: null,
+      passcode: 'Vergilw123',
       isModalVisible: false,
       isLoading: false,
     };
@@ -127,8 +127,15 @@ export default class StakePostScreen extends React.Component {
 
         </View>
 
-
-        <Button onPress={this._onSubmit.bind(this)} title='确定' buttonStyle={styles.action} containerStyle={styles.actionContainer} titleStyle={styles.actionTitle} />
+        <Button
+          loading={this.state.isLoading}
+          disabled={this.state.isLoading}
+          onPress={this._onSubmit.bind(this)}
+          title='确定'
+          buttonStyle={styles.action}
+          containerStyle={styles.actionContainer}
+          titleStyle={styles.actionTitle}
+        />
 
         <Modal
           style={{ margin: 0, justifyContent: 'flex-end', }}
@@ -197,9 +204,9 @@ export default class StakePostScreen extends React.Component {
   _onSubmit() {
     // 加入输入判断
     if (
+      !/(^[0-9]\d*$)/.test(this.state.nodeRate) &&
       !this.state.nodeRate > -1 &&
-      !this.state.nodeRate <= 100 &&
-      !/(^[0-9]\d*$)/.test(this.state.nodeRate)
+      !this.state.nodeRate <= 100
     ) {
       // that.muhyFromchoushui = true;
       // done();
@@ -297,15 +304,16 @@ export default class StakePostScreen extends React.Component {
     );
     let nodeRate = this.state.nodeRate * 10000000;
     // 生成交易凭证
-    var result = contractAbi.methods
+    let result = contractAbi.methods
       .createValidatorGroup(
         myaddrTemps,
         this.state.period,
         this.state.ownerRate,
         nodeRate,
-        this.state.lvlRate
+        this.state.lvlRate,
       )
       .encodeABI();
+
     let muhyFromNames = global.httpProvider
       .fromUtf8(this.state.name)
       .slice(2);
@@ -316,12 +324,12 @@ export default class StakePostScreen extends React.Component {
     // rawTx.data = rawTx.data+zero.substr(0,64-tt.length)+tt;
     result += muhyFromNames;
 
-    global.httpProvider.man.getTransactionCount(this.state.address, (error, result) => {
+    global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
       if (error !== null) {
-        console.log('getTransactionCount', error); 
+        console.log('getTransactionCount', error);
         return;
       }
-      let nonce = result;
+      let nonce = resultData;
       nonce += this.state.myNonceNum;
       nonce = WalletUtil.numToHex(nonce);
       let data = {
@@ -351,9 +359,25 @@ export default class StakePostScreen extends React.Component {
       let serializedTx = tx.serialize();
       let newTxData = SendTransfer.getTxParams(serializedTx);
 
-
-      global.httpProvider.man.sendRawTransaction(newTxData, (error, result) => {
+      global.httpProvider.man.sendRawTransaction(newTxData, (error, resultData) => {
         if (error !== null) {
+          if (error.message === 'insufficient funds for gas * price + value') {
+            Toast.show("余额不足以支付交易手续费", {
+              duration: Toast.durations.LONG,
+              position: Toast.positions.CENTER,
+              shadow: true,
+              animation: true,
+              hideOnPress: true,
+              delay: 0,
+            });
+
+            this.setState({
+              isLoading: false,
+            });
+
+            return
+          }
+
           if (this.state.myNonceNum < 5) {
             this.setState({
               myNonceNum: this.state.myNonceNum + 1,
@@ -377,8 +401,11 @@ export default class StakePostScreen extends React.Component {
           return;
         }
 
-        let hash = result;
-        console.log('success post', result);
+        let hash = resultData;
+        console.log('success post', resultData);
+        this.setState({
+          isLoading: false,
+        });
       });
     });
 
