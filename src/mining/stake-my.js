@@ -28,7 +28,7 @@ export default class StakeMyScreen extends React.Component {
           renderItem={this._renderItem}
           extraData={this.state}
           keyExtractor={this._keyExtractor}
-          onRefresh={() =>  {
+          onRefresh={() => {
             this.setState({
               isRefreshing: true,
             })
@@ -45,7 +45,7 @@ export default class StakeMyScreen extends React.Component {
           }}
           ListHeaderComponent={this._renderHeader}
         // ListFooterComponent={this._renderFooter}
-          
+
         />
       </View>
     );
@@ -56,8 +56,9 @@ export default class StakeMyScreen extends React.Component {
   _renderItem = ({ item }) => (
     <StakeItem
       onPressItem={(item) => {
-        console.log('press', item);
+        this.props.screenProps.parentNavigation.navigate('StakeDetail', { 'stake': item });
       }}
+      stake={item}
       stakeAddress={item.name}
       ownerAddress={item.OwnerInfo.Owner}
       amount={item.allAmountFif}
@@ -277,7 +278,7 @@ export default class StakeMyScreen extends React.Component {
 
 class StakeItem extends React.PureComponent {
   _onPress = () => {
-    this.props.onPressItem(this.props.id);
+    this.props.onPressItem(this.props.stake);
   };
 
   render() {
@@ -286,10 +287,10 @@ class StakeItem extends React.PureComponent {
         <View style={styles.itemView}>
           <Text style={styles.itemTitleText}>{this.props.stakeAddress}</Text>
           <Text>
-          <Text style={styles.itemCaptionTitleText}>发起人：</Text>
-          <Text style={styles.itemCaptionText}>{this.props.ownerAddress}</Text>
+            <Text style={styles.itemCaptionTitleText}>发起人：</Text>
+            <Text style={styles.itemCaptionText}>{this.props.ownerAddress}</Text>
           </Text>
-          
+
 
           <View style={styles.itemFooterView}>
             <Text style={styles.itemFooterText}>金额：{this.props.amount}</Text>

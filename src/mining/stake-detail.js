@@ -18,7 +18,8 @@ export default class StakeDetailScreen extends React.Component {
   ActionType = Object.freeze({
     RedeemCurrent: Symbol("1"),
     RedeemTime: Symbol("2"),
-    Withdraw: Symbol("3")
+    Withdraw: Symbol("3"),
+    WithdrawReward: Symbol("4"),
   });
 
   constructor(props) {
@@ -273,7 +274,7 @@ export default class StakeDetailScreen extends React.Component {
           <Button
             // loading={this.state.isLoading}
             // disabled={this.state.isLoading}
-            // onPress={this._onSubmit.bind(this)}
+            onPress={this._onWithdrawReward.bind(this)}
             title='提取收益' buttonStyle={styles.rewardAction}
             containerStyle={styles.rewardActionContainer}
             titleStyle={styles.rewardActionTitle}
@@ -533,11 +534,20 @@ export default class StakeDetailScreen extends React.Component {
     });
   }
 
+  _onWithdrawReward() {
+    this.setState({
+      isModalVisible: true,
+      actionType: this.ActionType.WithdrawReward,
+    });
+  }
+
   _onSubmitPasscode() {
     if (this.state.actionType === this.ActionType.RedeemCurrent) {
       this._redeemCurrent();
     } else if (this.state.actionType === this.ActionType.RedeemTime) {
       this._redeemTime();
+    } else if (this.state.actionType === this.ActionType.WithdrawReward) {
+      this._withdrawReward();
     }
   }
 
@@ -865,6 +875,112 @@ export default class StakeDetailScreen extends React.Component {
     // console.log(contractAbi);
 
     let result = contractAbi.methods.refund(this.state.widthdrawAmount).encodeABI();
+
+    global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
+      if (error !== null) {
+        console.log('getTransactionCount', error);
+        return;
+      }
+      let nonce = resultData;
+      nonce += this.state.myNonceNum;
+      nonce = WalletUtil.numToHex(nonce);
+      let data = {
+        to: contractAddress, // MAN母合约不转化地址
+        value: this.state.amount,
+        gasLimit: 210000,
+        data: "",
+        gasPrice: 18000000000,
+        extra_to: [[0, 0, []]],
+        nonce: nonce
+      };
+      let jsonObj = TradingFuns.getTxData(data);
+      jsonObj.data = result;
+      let tx = WalletUtil.createTx(jsonObj);
+
+      let newPin = md5(pashadterss + passcode);
+      let decrypt = utils.decrypt(keyStore, newPin);
+
+      let privateKey = decrypt;
+      privateKey = Buffer.from(
+        privateKey.indexOf("0x") > -1
+          ? privateKey.substring(2, privateKey.length)
+          : privateKey,
+        "hex"
+      );
+      tx.sign(privateKey);
+      let serializedTx = tx.serialize();
+      let newTxData = SendTransfer.getTxParams(serializedTx);
+
+      global.httpProvider.man.sendRawTransaction(newTxData, (error, resultData) => {
+        if (error !== null) {
+          if (error.message === 'insufficient funds for gas * price + value') {
+            Toast.show("余额不足以支付交易手续费", {
+              duration: Toast.durations.LONG,
+              position: Toast.positions.CENTER,
+              shadow: true,
+              animation: true,
+              hideOnPress: true,
+              delay: 0,
+            });
+
+            this.setState({
+              isLoading: false,
+            });
+
+            return
+          }
+
+          if (this.state.myNonceNum < 5) {
+            this.setState({
+              myNonceNum: this.state.myNonceNum + 1,
+            }, () => {
+              this._postStake();
+            })
+          } else {
+            Toast.show("交易正在处理中", {
+              duration: Toast.durations.LONG,
+              position: Toast.positions.CENTER,
+              shadow: true,
+              animation: true,
+              hideOnPress: true,
+              delay: 0,
+            });
+
+            this.setState({
+              isLoading: false,
+              myNonceNum: 0,
+            });
+          }
+          return;
+        }
+
+        let hash = resultData;
+        console.log('success post', resultData);
+        this.setState({
+          isLoading: false,
+          myNonceNum: 0,
+        });
+      });
+    });
+  }
+
+  async _withdrawReward() {
+    // let that = this;
+    // console.log(item);
+    if (this.state.reward <= 0) {
+      // this.$notify(that.$t('nodeDetail.RewardsZero'));
+      return;
+    }
+
+    let contractAbiArray = JSON.parse(bb.abi);
+    let contractAddress = bb.address;
+    let contractAbi = new global.ethProvider.eth.Contract(
+      contractAbiArray,
+      '0x0000000000000000000000000000000000000014'
+    );
+    // console.log(contractAbi);
+    let result = contractAbi.methods.getReward().encodeABI();
+    // console.log(result);
 
     global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
       if (error !== null) {
