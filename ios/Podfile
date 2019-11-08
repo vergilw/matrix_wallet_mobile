@@ -43,7 +43,6 @@ target 'matrix_wallet_mobile' do
 
 
 
-  pod 'react-native-randombytes', :path => '../node_modules/react-native-randombytes'
 
   target 'matrix_wallet_mobileTests' do
     inherit! :search_paths

@@ -12,8 +12,32 @@ import filters from '../utils/filters.js';
 import { aa, bb, contract } from "../profiles/config.js";
 import TradingFuns from "../utils/TradingFuns.js";
 import SendTransfer from "../utils/SendTransfer.js";
+import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
 
 export default class StakeDetailScreen extends React.Component {
+
+  _menu = null;
+
+  static navigationOptions = {
+    headerRight: () => (
+      <Menu
+        ref={ref => {
+          this._menu = ref;
+        }}
+        button={<Text onPress={() => {
+          this._menu.show();
+        }} style={styles.navigationEditText}>编辑</Text>}
+      >
+        <MenuItem onPress={this.hideMenu}>Menu item 1</MenuItem>
+        <MenuItem onPress={this.hideMenu}>Menu item 2</MenuItem>
+        <MenuItem onPress={this.hideMenu} disabled>
+          Menu item 3
+          </MenuItem>
+        <MenuDivider />
+        <MenuItem onPress={this.hideMenu}>Menu item 4</MenuItem>
+      </Menu>
+    ),
+  };
 
   ActionType = Object.freeze({
     RedeemCurrent: Symbol("1"),
@@ -57,7 +81,22 @@ export default class StakeDetailScreen extends React.Component {
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', }}>
         <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-
+        <Menu
+          ref={ref => {
+            this._menu = ref;
+          }}
+          button={<Text onPress={() => {
+            this._menu.show();
+          }} style={styles.navigationEditText}>编辑</Text>}
+        >
+          <MenuItem onPress={this.hideMenu}>Menu item 1</MenuItem>
+          <MenuItem onPress={this.hideMenu}>Menu item 2</MenuItem>
+          <MenuItem onPress={this.hideMenu} disabled>
+            Menu item 3
+          </MenuItem>
+          <MenuDivider />
+          <MenuItem onPress={this.hideMenu}>Menu item 4</MenuItem>
+        </Menu>
         <SectionList
           style={styles.list}
           sections={this.state.stakeRecordArr}
@@ -1158,6 +1197,15 @@ class StakeTimeItem extends React.PureComponent {
 }
 
 const styles = StyleSheet.create({
+  navigationEditText: {
+    backgroundColor: '#ccc',
+    paddingRight: 16,
+    paddingLeft: 30,
+    paddingTop: 12,
+    paddingBottom: 12,
+    color: '#fbbe07',
+    fontSize: 15,
+  },
   overviewView: {
     marginHorizontal: 16,
     marginTop: 16,

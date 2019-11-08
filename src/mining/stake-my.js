@@ -52,7 +52,7 @@ export default class StakeMyScreen extends React.Component {
   }
 
   _keyExtractor = (item, index) => index;
-
+  
   _renderItem = ({ item }) => (
     <StakeItem
       onPressItem={(item) => {
