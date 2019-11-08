@@ -1,11 +1,25 @@
 import React from 'react';
-import { Text, View, StyleSheet, Dimensions, FlatList, ImageBackground, StatusBar, TouchableOpacity, TouchableHighlight, Image } from 'react-native';
+import { Text, View, StyleSheet, SafeAreaView, TextInput, Dimensions, SectionList, ImageBackground, StatusBar, TouchableOpacity, TouchableHighlight, Image } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
-const BigNumber = require('bignumber.js');
+import { Button } from 'react-native-elements';
+import moment from 'moment';
+import Modal from 'react-native-modal';
+import Toast from 'react-native-root-toast';
+import WalletUtil from '../utils/WalletUtil.js';
+import utils from '../utils/utils.js';
+import md5 from '../utils/md5.js';
 import filters from '../utils/filters.js';
-const axios = require('axios');
+import { aa, bb, contract } from "../profiles/config.js";
+import TradingFuns from "../utils/TradingFuns.js";
+import SendTransfer from "../utils/SendTransfer.js";
 
 export default class StakeDetailScreen extends React.Component {
+
+  ActionType = Object.freeze({
+    RedeemCurrent: Symbol("1"),
+    RedeemTime: Symbol("2"),
+    Withdraw: Symbol("3")
+  });
 
   constructor(props) {
     super(props);
@@ -18,15 +32,213 @@ export default class StakeDetailScreen extends React.Component {
       address: null,
       entrustAmount: null,
       partnerAmount: stake.ValidatorMap.length,
-      nodeRate: stake.Reward.NodeRate.Rate /stake.Reward.NodeRate.Decimal * 100,
+      nodeRate: stake.Reward.NodeRate.Rate / stake.Reward.NodeRate.Decimal * 100,
+      reward: 0,
+      currentAmount: 0,
+      currentInterest: 0,
+      stakeRecordArr: null,
+
+      myNonceNum: 0,
+      redeemCurrentAmount: null,
+      redeemTimeAmount: null,
+      redeemTimePosition: null,
+      widthdrawAmount: null,
+
+      actionType: null,
+      isRedeemModalVisible: false,
+      passcode: 'Vergilw123',
+      isModalVisible: false,
+      isLoading: false,
     };
   }
 
   render() {
     return (
-      <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', }}>
+      <SafeAreaView style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', }}>
         <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
+        <SectionList
+          style={styles.list}
+          sections={this.state.stakeRecordArr}
+          renderItem={this._renderItem}
+          extraData={this.state}
+          keyExtractor={this._keyExtractor}
+          // getItemLayout={(data, index) => (
+          //   { length: 75, offset: 76 * index, index }
+          // )}
+          ItemSeparatorComponent={() => {
+            return <View style={{ height: 1, backgroundColor: '#f0f1f2' }}>
+            </View>
+          }}
+          ListHeaderComponent={this._renderHeader}
+          // ListFooterComponent={this._renderFooter}
+          renderSectionHeader={this._renderSectionHeader}
+          stickySectionHeadersEnabled={false}
+        />
+        <View style={styles.bottomFloatView}>
+          <Button
+            // loading={this.state.isLoading}
+            // disabled={this.state.isLoading}
+            onPress={() => {
+              this.props.navigation.navigate('StakeJoin', { 'stake': this.state.stake });
+            }}
+            title='加入节点' buttonStyle={styles.action}
+            containerStyle={styles.actionContainer}
+            titleStyle={styles.actionTitle}
+          />
+        </View>
+
+        <Modal
+          style={{ margin: 0, justifyContent: 'flex-end', }}
+          isVisible={this.state.isRedeemModalVisible}
+          onSwipeComplete={() => this.setState({ isModalVisible: false })}
+          onBackdropPress={() => this.setState({ isModalVisible: false })}
+          swipeDirection={['down']}
+        >
+          <View style={styles.modal}>
+            <View style={styles.modalHandle}></View>
+            <View style={{ marginTop: 26, paddingHorizontal: 35, alignSelf: 'stretch', }}>
+              <TextInput
+                style={styles.input}
+                placeholder='请输入赎回活期的数量'
+                returnKeyType='done'
+                keyboardType='decimal-pad'
+                onChangeText={(text) => this.setState({ redeemCurrentAmount: text })}
+                value={this.state.redeemCurrentAmount}
+              />
+            </View>
+            <Button
+              onPress={() => {
+                this.setState({
+                  isRedeemModalVisible: false,
+                }, () => {
+                  setTimeout(() => {
+                    this.setState({
+                      isModalVisible: true,
+                    })
+                  }, 1000);
+                });
+              }}
+              title='确定'
+              buttonStyle={styles.action}
+              containerStyle={{
+                width: '100%',
+                marginTop: 26,
+                height: 58,
+                paddingHorizontal: 30,
+                marginBottom: 50,
+              }}
+              titleStyle={styles.actionTitle}
+            />
+          </View>
+        </Modal>
+        <Modal
+          style={{ margin: 0, justifyContent: 'flex-end', }}
+          isVisible={this.state.isModalVisible}
+          onSwipeComplete={() => this.setState({ isModalVisible: false })}
+          onBackdropPress={() => this.setState({ isModalVisible: false })}
+          swipeDirection={['down']}
+        >
+          <View style={styles.modal}>
+            <View style={styles.modalHandle}></View>
+            <View style={{ marginTop: 26, paddingHorizontal: 35, alignSelf: 'stretch', }}>
+              <TextInput
+                secureTextEntry={true}
+                style={styles.input}
+                placeholder='请输入PIN码，以此验证你的身份'
+                returnKeyType='done'
+                onChangeText={(text) => this.setState({ passcode: text })}
+                value={this.state.passcode}
+              />
+            </View>
+            <Button
+              loading={this.state.isLoading}
+              disabled={this.state.isLoading}
+              onPress={this._onSubmitPasscode.bind(this)}
+              title='确定'
+              buttonStyle={styles.action}
+              containerStyle={{
+                width: '100%',
+                marginTop: 26,
+                height: 58,
+                paddingHorizontal: 30,
+                marginBottom: 50,
+              }}
+              titleStyle={styles.actionTitle}
+            />
+          </View>
+        </Modal>
+      </SafeAreaView>
+    );
+  }
+
+  _keyExtractor = (item, index) => index;
+
+  _renderItem = ({ item, index, section }) => {
+    if (section.index === 0) {
+
+      let amount = global.httpProvider.fromWei(item.WithDrawAmount);
+      if (amount.indexOf(".") != -1) {
+        amount = amount.substring(0, amount.indexOf(".") + 5);
+      }
+
+      return <StakeCurrentItem
+        onPressItem={(item) => {
+          console.log('press', item);
+        }}
+        item={item}
+        amount={amount}
+        time={item.WithDrawTime}
+      />;
+    } else if (section.index === 1) {
+
+      let amount = global.httpProvider.fromWei(item.Amount);
+      if (amount.indexOf(".") != -1) {
+        amount = amount.substring(0, amount.indexOf(".") + 5);
+      }
+
+      let type;
+      if (item.DType === 0) {
+        type = '活期';
+      } else if (item.DType === 1) {
+        type = '1个月';
+      } else if (item.DType === 3) {
+        type = '3个月';
+      } else if (item.DType === 16) {
+        type = '6个月';
+      } else if (item.DType === 12) {
+        type = '12个月';
+      }
+
+      return <StakeTimeItem
+        onRedeem={({ amount, position }) => {
+          this.setState({
+            redeemTimeAmount: amount,
+            redeemTimePosition: position,
+          }, () => {
+            this._onRedeemTime();
+          })
+        }}
+        onWithdraw={({ amount, position }) => {
+          // console.log('press', item);
+        }}
+        item={item}
+        amount={amount}
+        type={type}
+        time={item.EndTime}
+        position={item.Position}
+      />;
+    }
+
+  };
+
+  _renderHeader = () => {
+    let expiredDate = '活期';
+    if (this.state.stake.OwnerInfo.WithdrawAllTime !== 0) {
+      expiredDate = moment(this.state.stake.OwnerInfo.WithdrawAllTime * 1000).format('YYYY.M.D HH:mm:ss')
+    }
+    return (
+      <View>
         <View style={styles.overviewView}>
           <Text style={styles.overviewTitleText}>{this.state.stake.name}</Text>
           <Text style={styles.overviewCaptionText}>
@@ -34,8 +246,8 @@ export default class StakeDetailScreen extends React.Component {
             <Text style={styles.overviewCaptionValueText}>{this.state.stake.OwnerInfo.Owner}</Text>
           </Text>
           <Text style={styles.overviewCaptionText}>
-            <Text style={styles.overviewCaptionTitleText}>发起人抵押到期时间：</Text>
-            <Text style={styles.overviewCaptionValueText}>2019/01/01 08:00:00 活期</Text>
+            <Text style={styles.overviewCaptionTitleText}>发起人委托到期时间：</Text>
+            <Text style={styles.overviewCaptionValueText}>{expiredDate}</Text>
           </Text>
           <View style={styles.overviewSeparatorView}></View>
           <View style={styles.overviewFooterView}>
@@ -53,69 +265,66 @@ export default class StakeDetailScreen extends React.Component {
             </View>
           </View>
         </View>
-        {/* <FlatList
-          style={styles.list}
-          data={this.state.validatorGroupInfo}
-          renderItem={this._renderItem}
-          extraData={this.state}
-          keyExtractor={this._keyExtractor}
-          getItemLayout={(data, index) => (
-            { length: 75, offset: 76 * index, index }
-          )}
-          ItemSeparatorComponent={() => {
-            return <View style={{ height: 1, backgroundColor: '#f7f7f7' }}>
-            </View>
-          }}
-        // ListHeaderComponent={this._renderHeader}
-        // ListFooterComponent={this._renderFooter}
-        /> */}
-      </View>
-    );
-  }
-
-  _keyExtractor = (item, index) => index;
-
-  _renderItem = ({ item }) => (
-    <StakeItem
-      onPressItem={(item) => {
-        console.log('press', item);
-      }}
-      stakeAddress={item.key}
-      ownerAddress={item.OwnerInfo.Owner}
-      amount={item.allAmountFif}
-      partner={item.ValidatorMap.length}
-    />
-  );
-
-  _renderHeader = () => (
-    <ImageBackground source={require('../../resources/img/wallet/wallet_bg.png')} style={styles.overviewView}>
-      <Text style={styles.overviewHeaderText}>MAN钱包</Text>
-      <Text style={{ marginTop: 15 }}>
-        <Text style={styles.balanceText}>{this.state.balance}</Text>
-        <Text style={styles.balanceFooterText}>MAN</Text>
-      </Text>
-      <Text style={styles.addressText}>{this.state.address}</Text>
-      <View style={styles.overviewFooterView}>
-        <View style={{ alignItems: 'center', flex: 1, borderRightWidth: 1, borderColor: 'rgba(255, 255, 255, 0.3)' }}>
-          <Text style={styles.overviewValueText}>{this.state.balance}</Text>
-          <Text style={styles.overviewTitleText}>可用余额</Text>
-        </View>
-        <View style={{ alignItems: 'center', flex: 1, borderRightWidth: 1, borderColor: 'rgba(255, 255, 255, 0.3)' }}>
-          <Text style={styles.overviewValueText}>{this.state.entrustAmount}</Text>
-          <Text style={styles.overviewTitleText}>委托</Text>
-        </View>
-        <View style={{ alignItems: 'center', flex: 1, }}>
-          <Text style={styles.overviewValueText}>{this.state.redeemAmount}</Text>
-          <Text style={styles.overviewTitleText}>赎回中</Text>
+        <View style={styles.rewardView}>
+          <Text style={styles.rewardText}>
+            <Text style={styles.rewardTitleText}>收益：</Text>
+            <Text style={styles.rewardValueText}>{this.state.reward}</Text>
+          </Text>
+          <Button
+            // loading={this.state.isLoading}
+            // disabled={this.state.isLoading}
+            // onPress={this._onSubmit.bind(this)}
+            title='提取收益' buttonStyle={styles.rewardAction}
+            containerStyle={styles.rewardActionContainer}
+            titleStyle={styles.rewardActionTitle}
+          />
         </View>
       </View>
-    </ImageBackground>
-  );
+    )
+  };
 
   // _renderFooter = () => (
   //   <View style={{ backgroundColor: '#f6f7fb', height: 12 }}>
   //   </View>
   // );
+
+  _renderSectionHeader = (section) => {
+    if (section.section.data.length === 0) {
+      return null;
+    }
+
+    if (section.section.index === 0) {
+      return <View style={styles.sectionHeaderView}>
+        <Text style={styles.sectionHeaderHeaderText}>我的活期委托</Text>
+        <View style={styles.sectionHeaderContentView}>
+          <View style={styles.sectionHeaderLeftView}>
+            <Text style={styles.sectionHeaderTitleText}>
+              <Text style={styles.sectionHeaderTitleTitleText}>委托总额：</Text>
+              <Text style={styles.sectionHeaderTitleValueText}>{this.state.currentAmount}</Text>
+            </Text>
+            <Text style={styles.sectionHeaderTitleText}>
+              <Text style={styles.sectionHeaderTitleTitleText}>委托利息：</Text>
+              <Text style={styles.sectionHeaderTitleValueText}>{this.state.currentInterest}</Text>
+            </Text>
+          </View>
+          <Button
+            // loading={this.state.isLoading}
+            // disabled={this.state.isLoading}
+            onPress={this._onRedeemCurrent.bind(this)}
+            title='赎回' buttonStyle={styles.sectionHeaderAction}
+            containerStyle={styles.sectionHeaderActionContainer}
+            titleStyle={styles.sectionHeaderActionTitle}
+          />
+        </View>
+      </View>
+    } else if (section.section.index === 1) {
+      return <View style={styles.sectionHeaderView}>
+        <View style={{ marginBottom: 12 }}>
+          <Text style={styles.sectionHeaderHeaderText}>我的定期委托</Text>
+        </View>
+      </View>
+    }
+  }
 
   componentDidMount() {
     this._fetchData();
@@ -160,11 +369,12 @@ export default class StakeDetailScreen extends React.Component {
       let AllAmount = 0;
       // let that = this;
       let nowTime = parseInt(new Date().getTime() / 1000);
-      console.log(nowTime)
+      // console.log(nowTime)
 
-      let currentAmount;
       let maxTime = 0;
       let validatorMap = this.state.stake.ValidatorMap;
+      let currentArr = [];
+      let timeArr = [];
 
       for (let i = 0; i < validatorMap.length; i++) {
         AllAmount += parseInt(validatorMap[i].AllAmount);
@@ -238,15 +448,47 @@ export default class StakeDetailScreen extends React.Component {
           }
         }
         if (validatorMap[i].Address === address) {
-          // that.reward = validatorMap[i].Reward;
-          // that.Current = validatorMap[i].Current;
-          // that.positionsList = validatorMap[i].Positions;
-          // that.isTiqu = true;
+
+          let currentAmount = global.httpProvider.fromWei(validatorMap[i].Current.Amount);
+          if (currentAmount.indexOf(".") != -1) {
+            currentAmount = currentAmount.substring(0, currentAmount.indexOf(".") + 5);
+          }
+
+          let currentInterest = global.httpProvider.fromWei(validatorMap[i].Current.Interest);
+          if (currentInterest.indexOf(".") != -1) {
+            currentInterest = currentInterest.substring(0, currentInterest.indexOf(".") + 5);
+          }
+
+          this.setState({
+            reward: validatorMap[i].Reward,
+            currentAmount: currentAmount,
+            currentInterest: currentInterest,
+          })
         }
+
+        currentArr.push(...validatorMap[i].Current.WithdrawList);
+        if (validatorMap[i].Positions.length > 0) {
+          timeArr.push(...validatorMap[i].Positions);
+        }
+
       }
 
+      console.log(currentArr.concat(timeArr));
 
-      let b = {};
+      this.setState({
+        stakeRecordArr: [
+          {
+            index: 0,
+            data: currentArr,
+          },
+          {
+            index: 1,
+            data: timeArr,
+          }
+        ],
+      })
+
+      // let b = {};
       // console.log(b);
       // if (that.Current.Amount === undefined) {
       //   this.currentMassage = false;
@@ -275,41 +517,529 @@ export default class StakeDetailScreen extends React.Component {
 
       // this.getYearSyl();
     });
+  }
 
+  _onRedeemCurrent() {
+    this.setState({
+      isRedeemModalVisible: true,
+      actionType: this.ActionType.RedeemCurrent,
+    })
+  }
 
+  _onRedeemTime() {
+    this.setState({
+      isModalVisible: true,
+      actionType: this.ActionType.RedeemTime,
+    });
+  }
 
+  _onSubmitPasscode() {
+    if (this.state.actionType === this.ActionType.RedeemCurrent) {
+      this._redeemCurrent();
+    } else if (this.state.actionType === this.ActionType.RedeemTime) {
+      this._redeemTime();
+    }
+  }
+
+  async _redeemCurrent() {
+
+    let passcode;
+    let keyStore;
+    let pashadterss;
+    try {
+      passcode = await AsyncStorage.getItem('@passcode');
+      keyStore = await AsyncStorage.getItem('@keyStore');
+      pashadterss = await AsyncStorage.getItem('@pashadterss');
+
+    } catch (e) {
+      console.log(e);
+    }
+
+    //validate passcode
+    let reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[a-zA-Z]\S{7,15}$/;
+    if (!reg.test(this.state.passcode) || this.state.passcode !== passcode) {
+      Toast.show("PIN码输入有误，请重新输入", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+      return;
+    }
+
+    // console.log(that.redeemFrom.number, that.Current.Amount)
+    if (this.state.redeemCurrentAmount > this.state.currentAmount) {
+      // console.log(that.currents)
+      // that.currents = true;
+      // done();
+      // setTimeout(function () {
+      //   that.redeemShow = true;
+      // }, 0);
+      return;
+
+      // } else if (this.state.redeemCurrentAmount < 100) {
+      // that.current = true;
+      // done();
+      // setTimeout(function () {
+      //   that.redeemShow = true;
+      // }, 0);
+      // return;
+    }
+
+    this.setState({
+      isLoading: true,
+    });
+
+    let contractAbiArray = JSON.parse(bb.abi);
+    let contractAddress = bb.address;
+    let contractAbi = new global.ethProvider.eth.Contract(
+      contractAbiArray,
+      '0x0000000000000000000000000000000000000014'
+    );
+    // console.log(that.redeemFrom.number);
+    // return false;
+
+    // console.log(that.redeemFrom.number);
+    // return false
+    // console.log(that.xhDateTy);
+    let result = contractAbi.methods
+      .withdraw(global.httpProvider.toWei(this.state.redeemCurrentAmount), "0")
+      .encodeABI();
+
+    global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
+      if (error !== null) {
+        console.log('getTransactionCount', error);
+        return;
+      }
+      let nonce = resultData;
+      nonce += this.state.myNonceNum;
+      nonce = WalletUtil.numToHex(nonce);
+      let data = {
+        to: contractAddress, // MAN母合约不转化地址
+        value: this.state.amount,
+        gasLimit: 210000,
+        data: "",
+        gasPrice: 18000000000,
+        extra_to: [[0, 0, []]],
+        nonce: nonce
+      };
+      let jsonObj = TradingFuns.getTxData(data);
+      jsonObj.data = result;
+      let tx = WalletUtil.createTx(jsonObj);
+
+      let newPin = md5(pashadterss + passcode);
+      let decrypt = utils.decrypt(keyStore, newPin);
+
+      let privateKey = decrypt;
+      privateKey = Buffer.from(
+        privateKey.indexOf("0x") > -1
+          ? privateKey.substring(2, privateKey.length)
+          : privateKey,
+        "hex"
+      );
+      tx.sign(privateKey);
+      let serializedTx = tx.serialize();
+      let newTxData = SendTransfer.getTxParams(serializedTx);
+
+      global.httpProvider.man.sendRawTransaction(newTxData, (error, resultData) => {
+        if (error !== null) {
+          if (error.message === 'insufficient funds for gas * price + value') {
+            Toast.show("余额不足以支付交易手续费", {
+              duration: Toast.durations.LONG,
+              position: Toast.positions.CENTER,
+              shadow: true,
+              animation: true,
+              hideOnPress: true,
+              delay: 0,
+            });
+
+            this.setState({
+              isLoading: false,
+            });
+
+            return
+          }
+
+          if (this.state.myNonceNum < 5) {
+            this.setState({
+              myNonceNum: this.state.myNonceNum + 1,
+            }, () => {
+              this._postStake();
+            })
+          } else {
+            Toast.show("交易正在处理中", {
+              duration: Toast.durations.LONG,
+              position: Toast.positions.CENTER,
+              shadow: true,
+              animation: true,
+              hideOnPress: true,
+              delay: 0,
+            });
+
+            this.setState({
+              isLoading: false,
+              myNonceNum: 0,
+            });
+          }
+          return;
+        }
+
+        let hash = resultData;
+        console.log('success post', resultData);
+        this.setState({
+          isLoading: false,
+          myNonceNum: 0,
+        });
+      });
+    });
+  }
+
+  async _redeemTime() {
+
+    let passcode;
+    let keyStore;
+    let pashadterss;
+    try {
+      passcode = await AsyncStorage.getItem('@passcode');
+      keyStore = await AsyncStorage.getItem('@keyStore');
+      pashadterss = await AsyncStorage.getItem('@pashadterss');
+
+    } catch (e) {
+      console.log(e);
+    }
+
+    //validate passcode
+    let reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[a-zA-Z]\S{7,15}$/;
+    if (!reg.test(this.state.passcode) || this.state.passcode !== passcode) {
+      Toast.show("PIN码输入有误，请重新输入", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+      return;
+    }
+
+    this.setState({
+      isLoading: true,
+    });
+
+    // console.log(index > 0);
+    // return false
+    // let that = this;
+    // if (action === "confirm") {
+    let contractAbiArray = JSON.parse(bb.abi);
+    let contractAddress = bb.address;
+    let contractAbi = new global.ethProvider.eth.Contract(
+      contractAbiArray,
+      '0x0000000000000000000000000000000000000014'
+    );
+    // console.log(that.redeemFrom.number);
+    // return false;
+
+    let result;
+
+    if (this.state.redeemTimePosition === 0) {
+      // console.log(that.redeemFrom.number);
+      // console.log(that.xhDateTy);
+      result = contractAbi.methods
+        .withdraw(global.httpProvider.toWei(this.state.redeemTimeAmount), "0")
+        .encodeABI();
+    } else {
+      // console.log(that.redeemFrom.number);
+      // console.log(that.redeemFrom.position.toString());
+      result = contractAbi.methods
+        .withdraw(global.httpProvider.toWei(this.state.redeemTimeAmount), this.state.redeemTimePosition.toString())
+        .encodeABI();
+    }
+
+    global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
+      if (error !== null) {
+        console.log('getTransactionCount', error);
+        return;
+      }
+      let nonce = resultData;
+      nonce += this.state.myNonceNum;
+      nonce = WalletUtil.numToHex(nonce);
+      let data = {
+        to: contractAddress, // MAN母合约不转化地址
+        value: this.state.amount,
+        gasLimit: 210000,
+        data: "",
+        gasPrice: 18000000000,
+        extra_to: [[0, 0, []]],
+        nonce: nonce
+      };
+      let jsonObj = TradingFuns.getTxData(data);
+      jsonObj.data = result;
+      let tx = WalletUtil.createTx(jsonObj);
+
+      let newPin = md5(pashadterss + passcode);
+      let decrypt = utils.decrypt(keyStore, newPin);
+
+      let privateKey = decrypt;
+      privateKey = Buffer.from(
+        privateKey.indexOf("0x") > -1
+          ? privateKey.substring(2, privateKey.length)
+          : privateKey,
+        "hex"
+      );
+      tx.sign(privateKey);
+      let serializedTx = tx.serialize();
+      let newTxData = SendTransfer.getTxParams(serializedTx);
+
+      global.httpProvider.man.sendRawTransaction(newTxData, (error, resultData) => {
+        if (error !== null) {
+          if (error.message === 'insufficient funds for gas * price + value') {
+            Toast.show("余额不足以支付交易手续费", {
+              duration: Toast.durations.LONG,
+              position: Toast.positions.CENTER,
+              shadow: true,
+              animation: true,
+              hideOnPress: true,
+              delay: 0,
+            });
+
+            this.setState({
+              isLoading: false,
+            });
+
+            return
+          }
+
+          if (this.state.myNonceNum < 5) {
+            this.setState({
+              myNonceNum: this.state.myNonceNum + 1,
+            }, () => {
+              this._postStake();
+            })
+          } else {
+            Toast.show("交易正在处理中", {
+              duration: Toast.durations.LONG,
+              position: Toast.positions.CENTER,
+              shadow: true,
+              animation: true,
+              hideOnPress: true,
+              delay: 0,
+            });
+
+            this.setState({
+              isLoading: false,
+              myNonceNum: 0,
+            });
+          }
+          return;
+        }
+
+        let hash = resultData;
+        console.log('success post', resultData);
+        this.setState({
+          isLoading: false,
+          myNonceNum: 0,
+        });
+      });
+    });
+  }
+
+  async _withdraw() {
+    // let that = this;
+    // if (Date.now() > time * 1000) {
+    //   that.drawing = true;
+    // } else {
+    //   that.drawing = false;
+    //   this.$notify(this.$t('nodeDetail.Stilllocked'));
+    //   return false;
+    // }
+
+    let contractAbiArray = JSON.parse(bb.abi);
+    let contractAddress = bb.address;
+    let contractAbi = new global.ethProvider.eth.Contract(
+      contractAbiArray,
+      '0x0000000000000000000000000000000000000014'
+    );
+
+    // console.log(contractAbi);
+
+    let result = contractAbi.methods.refund(this.state.widthdrawAmount).encodeABI();
+
+    global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
+      if (error !== null) {
+        console.log('getTransactionCount', error);
+        return;
+      }
+      let nonce = resultData;
+      nonce += this.state.myNonceNum;
+      nonce = WalletUtil.numToHex(nonce);
+      let data = {
+        to: contractAddress, // MAN母合约不转化地址
+        value: this.state.amount,
+        gasLimit: 210000,
+        data: "",
+        gasPrice: 18000000000,
+        extra_to: [[0, 0, []]],
+        nonce: nonce
+      };
+      let jsonObj = TradingFuns.getTxData(data);
+      jsonObj.data = result;
+      let tx = WalletUtil.createTx(jsonObj);
+
+      let newPin = md5(pashadterss + passcode);
+      let decrypt = utils.decrypt(keyStore, newPin);
+
+      let privateKey = decrypt;
+      privateKey = Buffer.from(
+        privateKey.indexOf("0x") > -1
+          ? privateKey.substring(2, privateKey.length)
+          : privateKey,
+        "hex"
+      );
+      tx.sign(privateKey);
+      let serializedTx = tx.serialize();
+      let newTxData = SendTransfer.getTxParams(serializedTx);
+
+      global.httpProvider.man.sendRawTransaction(newTxData, (error, resultData) => {
+        if (error !== null) {
+          if (error.message === 'insufficient funds for gas * price + value') {
+            Toast.show("余额不足以支付交易手续费", {
+              duration: Toast.durations.LONG,
+              position: Toast.positions.CENTER,
+              shadow: true,
+              animation: true,
+              hideOnPress: true,
+              delay: 0,
+            });
+
+            this.setState({
+              isLoading: false,
+            });
+
+            return
+          }
+
+          if (this.state.myNonceNum < 5) {
+            this.setState({
+              myNonceNum: this.state.myNonceNum + 1,
+            }, () => {
+              this._postStake();
+            })
+          } else {
+            Toast.show("交易正在处理中", {
+              duration: Toast.durations.LONG,
+              position: Toast.positions.CENTER,
+              shadow: true,
+              animation: true,
+              hideOnPress: true,
+              delay: 0,
+            });
+
+            this.setState({
+              isLoading: false,
+              myNonceNum: 0,
+            });
+          }
+          return;
+        }
+
+        let hash = resultData;
+        console.log('success post', resultData);
+        this.setState({
+          isLoading: false,
+          myNonceNum: 0,
+        });
+      });
+    });
   }
 }
 
-class StakeItem extends React.PureComponent {
-  _onPress = () => {
-    this.props.onPressItem(this.props.id);
-  };
+class StakeCurrentItem extends React.PureComponent {
 
   render() {
+    let isActionEnable = false;
+    let date = moment(this.props.time * 1000);
+    let formatDate = moment(this.props.time * 1000).format('YYYY.M.D HH:mm');
+    if (new Date() > date) {
+      isActionEnable = true;
+    }
+
     return (
-      <TouchableHighlight style={{ backgroundColor: '#f6f7fb' }} activeOpacity={0.2} underlayColor='#f6f7fb' onPress={this._onPress}>
-        <View style={styles.itemView}>
-          <View style={styles.itemTitleView}>
-            <Text style={styles.itemTitleText}>
-              {this.props.stakeAddress}
-            </Text>
-            <Text style={styles.itemTitleText}>
-              {this.props.ownerAddress}
-            </Text>
-            <Text style={styles.itemDescText}>
-              金额：{this.props.amount}
-            </Text>
-          </View>
-          <Text style={styles.itemValueText}>
-            人数：{this.props.partner}
+      <View style={styles.listItemContainerView}>
+        <View style={styles.listItemView}>
+          <Text style={styles.listItemTitleText}>
+            赎回{this.props.amount}
+          </Text>
+          <Text style={styles.listItemFooterText}>
+            到期时间：{formatDate}（到期后才可提币）
           </Text>
         </View>
-      </TouchableHighlight>
+        {isActionEnable && <TouchableOpacity style={styles.listItemActionView}>
+          <Text style={styles.listItemActionText}>
+            提币
+          </Text>
+        </TouchableOpacity>}
+        {!isActionEnable && <Text style={styles.listItemStatusText}>
+          赎回中
+          </Text>}
+      </View>
     );
   }
 }
 
+class StakeTimeItem extends React.PureComponent {
+
+  _onRedeem = () => {
+    this.props.onRedeem({ amount: this.props.amount, position: this.props.position });
+  };
+
+  _onWithdraw = () => {
+    // this.props.onPressItem(this.props.id);
+  };
+
+  render() {
+    let isRedeemEnable = false;
+    let isWithdrawEnable = false;
+    let formatDate = null;
+    if (this.props.time === 0) {
+      isRedeemEnable = true;
+    } else {
+      formatDate = moment(this.props.time * 1000).format('YYYY.M.D HH:mm');
+
+      let date = moment(this.props.time * 1000);
+      if (new Date() > date) {
+        isWithdrawEnable = true;
+      }
+    }
+
+    return (
+      <View style={styles.listItemContainerView}>
+        <View style={styles.listItemView}>
+          <Text style={styles.listItemTitleText}>
+            {this.props.amount}
+          </Text>
+          <Text style={styles.listItemFooterText}>
+            仓位:{this.props.position}  周期:{this.props.type}  {!isRedeemEnable && <Text>到期时间:{formatDate}</Text>}
+          </Text>
+        </View>
+        {isRedeemEnable && <TouchableOpacity onPress={this._onRedeem.bind(this)} style={styles.listItemActionView}>
+          <Text style={styles.listItemActionText}>
+            赎回
+          </Text>
+        </TouchableOpacity>}
+        {!isRedeemEnable && isWithdrawEnable && <TouchableOpacity onPress={this._onWithdraw.bind(this)} style={styles.listItemActionView}>
+          <Text style={styles.listItemActionText}>
+            提币
+          </Text>
+        </TouchableOpacity>}
+        {!isRedeemEnable && !isWithdrawEnable && <Text style={styles.listItemStatusText}>
+          赎回中
+          </Text>}
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   overviewView: {
@@ -348,7 +1078,7 @@ const styles = StyleSheet.create({
   },
   overviewFooterView: {
     marginTop: 15,
-    borderColor: '#f7f7f7',
+    borderColor: '#f0f1f2',
     borderTopWidth: 1,
     borderBottomWidth: 1,
     flexDirection: 'row',
@@ -358,7 +1088,7 @@ const styles = StyleSheet.create({
   overviewItemView: {
     alignItems: 'center',
     marginVertical: 15,
-    borderColor: '#f7f7f7',
+    borderColor: '#f0f1f2',
     borderRightWidth: 1,
     flex: 1,
   },
@@ -376,6 +1106,178 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: "#222222",
     fontWeight: 'bold',
-  }
+  },
+  rewardView: {
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 16,
+    paddingLeft: 20,
+    alignSelf: 'stretch',
+    borderRadius: 6,
+    borderWidth: 0.5,
+    borderColor: "#f0f1f2",
+    backgroundColor: '#fff',
+    shadowColor: 'rgba(134, 142, 155, 0.15)',
+    shadowOffset: {
+      width: 0,
+      height: 10
+    },
+    shadowRadius: 15,
+    shadowOpacity: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  rewardTitleText: {
+    fontSize: 14,
+    color: "#2d2d2d"
+  },
+  rewardValueText: {
+    fontSize: 14,
+    color: "#2d2d2d",
+    fontWeight: 'bold',
+  },
+  rewardAction: {
+    backgroundColor: '#fbbe07',
+    height: 44,
+    borderRadius: 4,
+  },
+  rewardActionContainer: {
+    alignSelf: 'stretch',
+    height: 58,
+    justifyContent: 'center',
+    marginRight: 7,
+  },
+  rewardActionTitle: {
+    color: '#fff',
+    fontSize: 14,
+    marginHorizontal: 10,
+  },
+  list: {
+    width: '100%',
+    flex: 1,
+    backgroundColor: '#f7f7f7',
+  },
+  listItemContainerView: {
+    height: 54,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  listItemView: {
+    // justifyContent: 'flex-start',
+    // alignSelf: 'stretch',
+    // alignItems: 'center',
+    // flex: 1,
+  },
+  listItemTitleText: {
+    fontSize: 14,
+    color: "#2d2d2d",
+    fontWeight: 'bold',
+  },
+  listItemFooterText: {
+    marginTop: 5,
+    fontSize: 12,
+    color: "#8f92a1",
+  },
+  listItemActionView: {
+    justifyContent: 'flex-end',
+    width: 60,
+    alignItems: 'flex-end',
+  },
+  listItemActionText: {
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 54,
+    color: "#fbbe07",
+  },
+  listItemStatusText: {
+    fontSize: 14,
+    lineHeight: 54,
+    color: "#8f92a1",
+  },
+  sectionHeaderView: {
+    marginHorizontal: 16,
+    borderColor: '#f0f1f2',
+    borderBottomWidth: 1,
+    borderTopWidth: 1,
+  },
+  sectionHeaderHeaderText: {
+    marginTop: 16,
+    fontSize: 18,
+    color: "#2d2d2d",
+    fontWeight: 'bold',
+  },
+  sectionHeaderTitleText: {
+
+  },
+  sectionHeaderContentView: {
+    marginTop: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  sectionHeaderTitleTitleText: {
+    fontSize: 14,
+    color: "#2d2d2d",
+    lineHeight: 20,
+  },
+  sectionHeaderTitleValueText: {
+    fontSize: 14,
+    color: "#2d2d2d",
+    fontWeight: 'bold',
+  },
+  sectionHeaderAction: {
+    backgroundColor: '#e7f0fb',
+    borderRadius: 4,
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingTop: 8,
+    paddingBottom: 8,
+  },
+  sectionHeaderActionContainer: {
+    alignSelf: 'stretch',
+    justifyContent: 'center',
+  },
+  sectionHeaderActionTitle: {
+    color: '#4a90e2',
+    fontSize: 14,
+    marginHorizontal: 10,
+  },
+  bottomFloatView: {
+    height: 78,
+    alignSelf: 'stretch',
+    backgroundColor: '#fff',
+  },
+  action: {
+    backgroundColor: '#fbbe07',
+    height: 58,
+    borderRadius: 4,
+  },
+  actionContainer: {
+    alignSelf: 'stretch',
+    marginTop: 10,
+    height: 58,
+    paddingHorizontal: 16,
+  },
+  actionTitle: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  modal: {
+    borderRadius: 16,
+    width: '100%',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+  },
+  modalHandle: {
+    width: 38,
+    height: 5,
+    backgroundColor: 'rgba(45, 45, 45, 0.2)',
+    borderRadius: 2.5,
+    marginTop: 22,
+  },
 });
 

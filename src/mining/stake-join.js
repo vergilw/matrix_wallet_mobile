@@ -12,22 +12,20 @@ import TradingFuns from "../utils/TradingFuns.js";
 import SendTransfer from "../utils/SendTransfer.js";
 import Modal from 'react-native-modal';
 
-export default class StakePostScreen extends React.Component {
+export default class StakeJoinScreen extends React.Component {
 
   constructor(props) {
     super(props);
 
+    let stake = props.navigation.getParam('stake');
+
     this.state = {
       address: null,
       balance: null,
-      name: 'SuperDaddy',
-      nodeAddress: 'MAN.zEiE1VLa2SJ8nPpWmGJqp7rMhHYZ',
-      amount: '100000',
-      nodeRate: '1',
+      stake: stake,
+      amount: '100',
       period: '0',
       periodSelectedIndex: 0,
-      ownerRate: 1,
-      lvlRate: [1, 1, 1],
       myNonceNum: 0,
       passcode: 'Vergilw123',
       isModalVisible: false,
@@ -46,18 +44,8 @@ export default class StakePostScreen extends React.Component {
             style={styles.input}
             placeholder='输入节点名称'
             returnKeyType='done'
-            onChangeText={(text) => this.setState({ name: text })}
-            value={this.state.name}
-          />
-        </View>
-        <View style={styles.inputView}>
-          <Text style={styles.inputTitle}>签名地址</Text>
-          <TextInput
-            style={styles.input}
-            placeholder='输入签名地址'
-            returnKeyType='done'
-            onChangeText={(text) => this.setState({ nodeAddress: text })}
-            value={this.state.nodeAddress}
+            editable={false}
+            value={this.state.stake.name}
           />
         </View>
         <View style={styles.inputView}>
@@ -68,16 +56,6 @@ export default class StakePostScreen extends React.Component {
             returnKeyType='done'
             onChangeText={(text) => this.setState({ amount: text })}
             value={this.state.amount}
-          />
-        </View>
-        <View style={styles.inputView}>
-          <Text style={styles.inputTitle}>节点管理费（%）</Text>
-          <TextInput
-            style={styles.input}
-            placeholder='输入节点管理费'
-            returnKeyType='done'
-            onChangeText={(text) => this.setState({ nodeRate: text })}
-            value={this.state.nodeRate}
           />
         </View>
         <View style={styles.inputView}>
@@ -203,19 +181,7 @@ export default class StakePostScreen extends React.Component {
 
   _onSubmit() {
     // 加入输入判断
-    if (
-      !/(^[0-9]\d*$)/.test(this.state.nodeRate) &&
-      !this.state.nodeRate > -1 &&
-      !this.state.nodeRate <= 100
-    ) {
-      // that.muhyFromchoushui = true;
-      // done();
-      // setTimeout(function () {
-      //   that.yzjdContshow = true;
-      // }, 0);
-      return false;
-
-    } else if (this.state.amount < 100000) {
+    if (this.state.amount < 100) {
       // that.muhyFromNumflag = true;
       // done();
       // setTimeout(function () {
@@ -223,20 +189,6 @@ export default class StakePostScreen extends React.Component {
       // }, 0);
       return false;
 
-    } else if (this.state.nodeAddress === null) {
-      // that.muhyFromAddress = true;
-      // done();
-      // setTimeout(function () {
-      //   that.yzjdContshow = true;
-      // }, 0);
-      return false;
-    } else if (global.httpProvider.fromUtf8(this.state.name).length > 66) {
-      // done();
-      // setTimeout(function () {
-      //   that.yzjdContshow = true;
-      //   that.$notify(that.$t("nodeDetail.NameTooLong"));
-      // }, 0);
-      return false;
     } else if (this.state.period === null) {
       // done();
       // setTimeout(function () {
@@ -244,7 +196,7 @@ export default class StakePostScreen extends React.Component {
       //   that.$notify(that.$t("nodeDetail.NameTooLong"));
       // }, 0);
       return false;
-      
+
     } else if (parseInt(this.state.amount) > parseInt(this.state.balance)) {
       // done();
       // setTimeout(function () {
@@ -298,39 +250,16 @@ export default class StakePostScreen extends React.Component {
 
 
     // 创建母合约 abi调用
-    let contractAbiArray = JSON.parse(aa.abi);
-    let contractAddress = aa.address;
+    let contractAbiArray = JSON.parse(bb.abi);
+    let contractAddress = bb.address;
     // 初始化abi
     let contractAbi = new global.ethProvider.eth.Contract(
       contractAbiArray,
-      '0x0000000000000000000000000000000000000014',
+      '0x0000000000000000000000000000000000000014'
     );
 
-    // 输入数值进行转化
-    let myaddrTemps = SendTransfer.sanitizeHex(
-      WalletUtil.addressChange(this.state.nodeAddress.split(".")[1])
-    );
-    let nodeRate = this.state.nodeRate * 10000000;
     // 生成交易凭证
-    let result = contractAbi.methods
-      .createValidatorGroup(
-        myaddrTemps,
-        this.state.period,
-        this.state.ownerRate,
-        nodeRate,
-        this.state.lvlRate,
-      )
-      .encodeABI();
-
-    let muhyFromNames = global.httpProvider
-      .fromUtf8(this.state.name)
-      .slice(2);
-    let zero =
-      "0000000000000000000000000000000000000000000000000000000000000000";
-    muhyFromNames =
-      zero.substr(0, 64 - muhyFromNames.length) + muhyFromNames;
-    // rawTx.data = rawTx.data+zero.substr(0,64-tt.length)+tt;
-    result += muhyFromNames;
+    let result = contractAbi.methods.addDeposit(this.state.period).encodeABI();
 
     global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
       if (error !== null) {
