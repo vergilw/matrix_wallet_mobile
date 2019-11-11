@@ -34,9 +34,9 @@ export default class StakeAllScreen extends React.Component {
             this._fetchData();
           }}
           refreshing={this.state.isRefreshing}
-          getItemLayout={(data, index) => (
-            { length: 110, offset: 111 * index, index }
-          )}
+          // getItemLayout={(data, index) => (
+          //   { length: 110, offset: 111 * index, index }
+          // )}
           ItemSeparatorComponent={() => {
             return <View style={{ marginHorizontal: 16, height: 1, backgroundColor: '#f7f7f7' }}>
             </View>
@@ -52,7 +52,7 @@ export default class StakeAllScreen extends React.Component {
   _renderItem = ({ item }) => (
     <StakeItem
       onPressItem={(item) => {
-        this.props.screenProps.parentNavigation.navigate('StakeDetail', {'stake': item});
+        this.props.screenProps.parentNavigation.navigate('StakeDetail', {'stake': item, 'address': this.state.address});
       }}
       stake={item}
       stakeAddress={item.name}
@@ -241,10 +241,20 @@ class StakeItem extends React.PureComponent {
   };
 
   render() {
+    let isStakeExpired = false;
+    let time = parseInt(this.props.stake.OwnerInfo.WithdrawAllTime);
+    if (time !== 0 && time < new Date().getTime()/1000) {
+      isStakeExpired = true;
+    }
+
     return (
       <TouchableHighlight activeOpacity={0.2} underlayColor='#f6f7fb' onPress={this._onPress}>
         <View style={styles.itemView}>
           <Text style={styles.itemTitleText}>{this.props.stakeAddress}</Text>
+          {
+            isStakeExpired &&
+            (<Text style={styles.itemStatusText}>节点已停用</Text>)
+          }
           <Text>
             <Text style={styles.itemCaptionTitleText}>发起人：</Text>
             <Text style={styles.itemCaptionText}>{this.props.ownerAddress}</Text>
@@ -345,21 +355,27 @@ const styles = StyleSheet.create({
   },
   itemView: {
     marginHorizontal: 18,
-    height: 110,
+    // height: 110,
   },
   itemFooterView: {
     flexGrow: 1,
     flexDirection: 'row',
     marginTop: 10,
+    marginBottom: 12,
   },
   itemTitleText: {
-    marginTop: 25,
+    marginTop: 12,
     fontSize: 14,
     color: '#2d2d2d',
     fontWeight: 'bold',
   },
   itemCaptionTitleText: {
     marginTop: 5,
+    fontSize: 13,
+    lineHeight: 22,
+    color: '#2d2d2d',
+  },
+  itemStatusText: {
     fontSize: 13,
     lineHeight: 22,
     color: '#2d2d2d',

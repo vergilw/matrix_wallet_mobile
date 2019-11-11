@@ -15,6 +15,7 @@ export default class StakeMyScreen extends React.Component {
     ownerAddress: [],
     listener: null,
     isRefreshing: false,
+    sectionData: null,
   };
 
   render() {
@@ -56,7 +57,7 @@ export default class StakeMyScreen extends React.Component {
   _renderItem = ({ item }) => (
     <StakeItem
       onPressItem={(item) => {
-        this.props.screenProps.parentNavigation.navigate('StakeDetail', { 'stake': item });
+        this.props.screenProps.parentNavigation.navigate('StakeDetail', { 'stake': item, 'address': this.state.address });
       }}
       stake={item}
       stakeAddress={item.name}
@@ -150,8 +151,21 @@ export default class StakeMyScreen extends React.Component {
         let ownerAddress = [];
         let bba = [];
 
+        let joinedStakeArry = [];
+
         // 循环api获取用户列表
         for (let item in validatorGroupInfo) {
+
+          let stakeItem = validatorGroupInfo[item];
+          if (stakeItem.OwnerInfo.Owner !== this.state.address) {
+            for (let i in stakeItem.ValidatorMap) {
+              let positionItem = stakeItem.ValidatorMap[i];
+              if (positionItem.Address === this.state.address) {
+                joinedStakeArry.push(stakeItem);
+              }
+            }
+          }
+
           validatorGroupInfo[item].stakingNames = "resp.data.data.alias";
           validatorGroupInfo[item].stakingFormlv = "999";
           // 获取名称与年收益率
@@ -210,6 +224,8 @@ export default class StakeMyScreen extends React.Component {
         let sum = 0;
         let e19 = 1000000000000000000;
 
+        
+
         for (let item in myGroupInfo) {
           let maGroupInfoArr = myGroupInfo[item].ValidatorMap;
           for (let index in maGroupInfoArr) {
@@ -232,6 +248,7 @@ export default class StakeMyScreen extends React.Component {
               let aba = Number(maGroupInfoArr[index].AllAmount);
               aba = aba / e19;
               bba.push(aba);
+
             }
           }
         }
@@ -260,10 +277,13 @@ export default class StakeMyScreen extends React.Component {
           }
         }
 
+        groupInfo.push(...joinedStakeArry);
+
         this.setState({
           entrustAmount: entrustAmount,
           redeemAmount: sum,
           validatorGroupInfo: groupInfo,
+          // validatorGroupInfo: myGroupInfo,
           isRefreshing: false,
         })
 
@@ -282,10 +302,20 @@ class StakeItem extends React.PureComponent {
   };
 
   render() {
+    let isStakeExpired = false;
+    let time = parseInt(this.props.stake.OwnerInfo.WithdrawAllTime);
+    if (time !== 0 && time < new Date().getTime()/1000) {
+      isStakeExpired = true;
+    }
+
     return (
       <TouchableHighlight activeOpacity={0.2} underlayColor='#f6f7fb' onPress={this._onPress}>
         <View style={styles.itemView}>
           <Text style={styles.itemTitleText}>{this.props.stakeAddress}</Text>
+          {
+            isStakeExpired &&
+            (<Text style={styles.itemStatusText}>节点已停用</Text>)
+          }
           <Text>
             <Text style={styles.itemCaptionTitleText}>发起人：</Text>
             <Text style={styles.itemCaptionText}>{this.props.ownerAddress}</Text>
@@ -401,6 +431,11 @@ const styles = StyleSheet.create({
   },
   itemCaptionTitleText: {
     marginTop: 5,
+    fontSize: 13,
+    lineHeight: 22,
+    color: '#2d2d2d',
+  },
+  itemStatusText: {
     fontSize: 13,
     lineHeight: 22,
     color: '#2d2d2d',

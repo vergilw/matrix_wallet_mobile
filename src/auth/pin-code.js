@@ -16,9 +16,6 @@ export default class PinCodeScreen extends React.Component {
     let isSign = props.navigation.getParam('isSign', false);
 
     this.state = {
-      //FIXME: DEBUG
-      // passcode: null,
-      // repetition: 'Vergilw123',
       passcode: null,
       repetition: null,
       isSign: isSign,
@@ -59,7 +56,8 @@ export default class PinCodeScreen extends React.Component {
     let that = this;
     let reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[a-zA-Z]\S{7,15}$/;
     if (this.state.passcode !== this.state.repetition) {
-      let toast = Toast.show("两次输入不一致.", {
+
+      Toast.show("两次输入不一致.", {
         duration: Toast.durations.LONG,
         position: Toast.positions.CENTER,
         shadow: true,
@@ -67,8 +65,11 @@ export default class PinCodeScreen extends React.Component {
         hideOnPress: true,
         delay: 0,
       });
+      return;
+
     } else if (!reg.test(this.state.passcode)) {
-      let toast = Toast.show("8-16 bits of numbers and letters, beginning with a letter.", {
+      
+      Toast.show("PIN码必须以字母开头，8-16位包含数字和字母", {
         duration: Toast.durations.LONG,
         position: Toast.positions.CENTER,
         shadow: true,
@@ -76,6 +77,9 @@ export default class PinCodeScreen extends React.Component {
         hideOnPress: true,
         delay: 0,
       });
+
+      return;
+
     } else {
 
       if (this.state.isSign === true) {
@@ -118,7 +122,7 @@ export default class PinCodeScreen extends React.Component {
 
           }
 
-          let toast = Toast.show("PIN码设置成功", {
+          Toast.show("PIN码设置成功", {
             duration: Toast.durations.LONG,
             position: Toast.positions.CENTER,
             shadow: true,

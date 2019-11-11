@@ -37,7 +37,7 @@ export default class MeScreen extends React.Component {
       ],
       actionType: null,
       myNonceNum: 0,
-      passcode: 'Vergilw123',
+      passcode: null,
       isModalVisible: false,
       isLoading: false,
     };
@@ -76,7 +76,7 @@ export default class MeScreen extends React.Component {
             <View style={{ marginTop: 26, paddingHorizontal: 35, alignSelf: 'stretch', }}>
               <TextInput
                 secureTextEntry={true}
-                style={styles.input}
+                style={styles.modalInput}
                 placeholder='请输入PIN码，以此验证你的身份'
                 returnKeyType='done'
                 onChangeText={(text) => this.setState({ passcode: text })}
@@ -86,7 +86,9 @@ export default class MeScreen extends React.Component {
             <Button
               loading={this.state.isLoading}
               disabled={this.state.isLoading}
-              onPress={this._onSubmitPasscode.bind(this)}
+              onPress={() => {
+                this._onSubmitPasscode();
+              }}
               title='确定'
               buttonStyle={styles.action}
               containerStyle={{
@@ -129,7 +131,33 @@ export default class MeScreen extends React.Component {
     />
   );
 
-  _onSubmitPasscode() {
+  async _onSubmitPasscode() {
+    let passcode;
+    let keyStore;
+    let pashadterss;
+    try {
+      passcode = await AsyncStorage.getItem('@passcode');
+      keyStore = await AsyncStorage.getItem('@keyStore');
+      pashadterss = await AsyncStorage.getItem('@pashadterss');
+
+    } catch (e) {
+      console.log(e);
+    }
+
+    //validate passcode
+    let reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[a-zA-Z]\S{7,15}$/;
+    if (!reg.test(this.state.passcode) || this.state.passcode !== passcode) {
+      Toast.show("PIN码输入有误，请重新输入", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+      return;
+    }
+    
     if (this.state.actionType === this.ActionType.backup) {
       this.setState({
         isModalVisible: false,
@@ -214,6 +242,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(45, 45, 45, 0.2)',
     borderRadius: 2.5,
     marginTop: 22,
+  },
+  modalInput: {
+    textAlign: 'center',
   },
   action: {
     backgroundColor: '#fbbe07',

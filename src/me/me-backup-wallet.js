@@ -30,7 +30,7 @@ export default class MeBackupWalletScreen extends React.Component {
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', }}>
         <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-        <Text style={styles.title} >请按顺序写下助记词</Text>
+        <Text style={styles.title} >助记词</Text>
 
         <View style={styles.inputView}>
 
@@ -205,8 +205,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   title: {
-    fontSize: 12,
-    color: '#8f92a1',
+    fontWeight: 'bold',
+    alignSelf: 'stretch',
+    textAlign: 'left',
+    marginLeft: 30,
+    fontSize: 14,
+    color: '#2d2d2d',
     marginTop: 58,
   },
   footerText: {

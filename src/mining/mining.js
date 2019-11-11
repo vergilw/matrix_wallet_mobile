@@ -38,22 +38,26 @@ const MaterialTopTabNavigator = createMaterialTopTabNavigator({
   },
 }, {
   initialRouteName: 'MyStakes',
+  // initialLayout: {
+  //   width: Dimensions.get('window').width,
+  //   height: Dimensions.get('window').height,
+  // },
   tabBarOptions: {
-    // activeTintColor: 'orange',
-    // inactiveTintColor: 'grey',
     labelStyle: {
       color: '#2d2d2d',
       fontSize: 15,
     },
     style: {
       backgroundColor: '#fff',
+      // width: Dimensions.get('window').width,
     },
     indicatorStyle: {
-      marginHorizontal: (Dimensions.get('window').width / 2 - 48) / 2,
+      // paddingHorizontal: (Dimensions.get('window').width / 2 - 80) / 2,
       borderBottomColor: '#fbbe07',
-      width: 48,
+      // width: 80,
     },
     tabStyle: {
+      // width: Dimensions.get('window').width/2,
       borderColor: 'transparent',
       borderBottomColor: '#f7f7f7',
       borderWidth: 1,

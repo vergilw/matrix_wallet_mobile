@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, StyleSheet, SafeAreaView, TextInput, Dimensions, SectionList, ImageBackground, StatusBar, TouchableOpacity, TouchableHighlight, Image } from 'react-native';
+import { Text, View, StyleSheet, SafeAreaView, Alert, TextInput, Dimensions, SectionList, ImageBackground, StatusBar, TouchableOpacity, TouchableHighlight, Image } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import { Button } from 'react-native-elements';
 import moment from 'moment';
@@ -19,42 +19,52 @@ export default class StakeDetailScreen extends React.Component {
   _menu = null;
 
   static navigationOptions = ({ navigation }) => {
+
     return {
-      headerRight: () => (
-        <Menu
-          ref={ref => {
-            this._menu = ref;
-          }}
-          button={<Text onPress={() => {
-            this._menu.show();
-          }} style={styles.navigationEditText}>编辑</Text>}
-          style={styles.menu}
-        >
-          <MenuItem
-            style={styles.menuItem}
-            textStyle={styles.menuItemText}
-            onPress={() => {
-              this._menu.hide();
-              let func = navigation.getParam('onEditStake');
-              func();
+      headerRight: () => {
+        let stake = navigation.getParam('stake');
+        let address = navigation.getParam('address');
+
+        if (address !== stake.OwnerInfo.Owner) {
+          return null;
+        }
+
+        return (
+          <Menu
+            ref={ref => {
+              this._menu = ref;
             }}
+            button={<Text onPress={() => {
+              this._menu.show();
+            }} style={styles.navigationEditText}>编辑</Text>}
+            style={styles.menu}
           >
-            编辑
+            <MenuItem
+              style={styles.menuItem}
+              textStyle={styles.menuItemText}
+              onPress={() => {
+                this._menu.hide();
+                let func = navigation.getParam('onEditStake');
+                func();
+              }}
+            >
+              编辑
           </MenuItem>
-          <MenuDivider color={'rgba(255, 255, 255, 0.2)'} />
-          <MenuItem
-            style={styles.menuItem}
-            textStyle={styles.menuItemText}
-            onPress={() => {
-              this._menu.hide();
-              let func = navigation.getParam('onDeleteStake');
-              func();
-            }}
-          >
-            删除
+            <MenuDivider color={'rgba(255, 255, 255, 0.2)'} />
+            <MenuItem
+              style={styles.menuItem}
+              textStyle={styles.menuItemText}
+              onPress={() => {
+                this._menu.hide();
+                let func = navigation.getParam('onDeleteStake');
+                func();
+              }}
+            >
+              停用
           </MenuItem>
-        </Menu>
-      ),
+          </Menu>
+        )
+      },
     }
   };
 
@@ -72,6 +82,12 @@ export default class StakeDetailScreen extends React.Component {
 
     let stake = props.navigation.getParam('stake');
 
+    let isStakeExpired = false;
+    let time = stake.OwnerInfo.WithdrawAllTime;
+    if (time !== 0 && time < new Date().getTime()/1000) {
+      isStakeExpired = true;
+    }
+
     this.state = {
       stake: stake,
       balance: null,
@@ -83,6 +99,7 @@ export default class StakeDetailScreen extends React.Component {
       currentAmount: 0,
       currentInterest: 0,
       stakeRecordArr: null,
+      isStakeExpired: isStakeExpired,
 
       myNonceNum: 0,
       redeemCurrentAmount: null,
@@ -121,31 +138,35 @@ export default class StakeDetailScreen extends React.Component {
           renderSectionHeader={this._renderSectionHeader}
           stickySectionHeadersEnabled={false}
         />
-        <View style={styles.bottomFloatView}>
-          <Button
-            // loading={this.state.isLoading}
-            // disabled={this.state.isLoading}
-            onPress={() => {
-              this.props.navigation.navigate('StakeJoin', { 'stake': this.state.stake });
-            }}
-            title='加入节点' buttonStyle={styles.action}
-            containerStyle={styles.actionContainer}
-            titleStyle={styles.actionTitle}
-          />
-        </View>
+        {
+          !this.state.isStakeExpired && (
+            <View style={styles.bottomFloatView}>
+              <Button
+                // loading={this.state.isLoading}
+                // disabled={this.state.isLoading}
+                onPress={() => {
+                  this.props.navigation.navigate('StakeJoin', { 'stake': this.state.stake });
+                }}
+                title='加入节点' buttonStyle={styles.action}
+                containerStyle={styles.actionContainer}
+                titleStyle={styles.actionTitle}
+              />
+            </View>
+          )
+        }
 
         <Modal
           style={{ margin: 0, justifyContent: 'flex-end', }}
           isVisible={this.state.isRedeemModalVisible}
-          onSwipeComplete={() => this.setState({ isModalVisible: false })}
-          onBackdropPress={() => this.setState({ isModalVisible: false })}
+          onSwipeComplete={() => this.setState({ isRedeemModalVisible: false })}
+          onBackdropPress={() => this.setState({ isRedeemModalVisible: false })}
           swipeDirection={['down']}
         >
           <View style={styles.modal}>
             <View style={styles.modalHandle}></View>
             <View style={{ marginTop: 26, paddingHorizontal: 35, alignSelf: 'stretch', }}>
               <TextInput
-                style={styles.input}
+                style={styles.modalInput}
                 placeholder='请输入赎回活期的数量'
                 returnKeyType='done'
                 keyboardType='decimal-pad'
@@ -190,7 +211,7 @@ export default class StakeDetailScreen extends React.Component {
             <View style={{ marginTop: 26, paddingHorizontal: 35, alignSelf: 'stretch', }}>
               <TextInput
                 secureTextEntry={true}
-                style={styles.input}
+                style={styles.modalInput}
                 placeholder='请输入PIN码，以此验证你的身份'
                 returnKeyType='done'
                 onChangeText={(text) => this.setState({ passcode: text })}
@@ -335,7 +356,7 @@ export default class StakeDetailScreen extends React.Component {
   // );
 
   _renderSectionHeader = (section) => {
-    if (section.section.data.length === 0) {
+    if (section.section.index === 1 && section.section.data.length === 0) {
       return null;
     }
 
@@ -427,8 +448,12 @@ export default class StakeDetailScreen extends React.Component {
       let validatorMap = this.state.stake.ValidatorMap;
       let currentArr = [];
       let timeArr = [];
+      let reward = 0;
+      let currentAmount = 0;
+      let currentInterest = 0;
 
       for (let i = 0; i < validatorMap.length; i++) {
+        console.log(validatorMap, validatorMap[i].Current.WithdrawList);
         AllAmount += parseInt(validatorMap[i].AllAmount);
         if (validatorMap[i].Address === this.state.stake.OwnerInfo.Owner) {
           let ownerArr = validatorMap[i];
@@ -501,33 +526,29 @@ export default class StakeDetailScreen extends React.Component {
         }
         if (validatorMap[i].Address === address) {
 
-          let currentAmount = global.httpProvider.fromWei(validatorMap[i].Current.Amount);
+          currentAmount = global.httpProvider.fromWei(validatorMap[i].Current.Amount);
           if (currentAmount.indexOf(".") != -1) {
             currentAmount = currentAmount.substring(0, currentAmount.indexOf(".") + 5);
           }
 
-          let currentInterest = global.httpProvider.fromWei(validatorMap[i].Current.Interest);
+          currentInterest = global.httpProvider.fromWei(validatorMap[i].Current.Interest);
           if (currentInterest.indexOf(".") != -1) {
             currentInterest = currentInterest.substring(0, currentInterest.indexOf(".") + 5);
           }
 
-          this.setState({
-            reward: validatorMap[i].Reward,
-            currentAmount: currentAmount,
-            currentInterest: currentInterest,
-          })
-        }
+          reward = validatorMap[i].Reward;
 
-        currentArr.push(...validatorMap[i].Current.WithdrawList);
-        if (validatorMap[i].Positions.length > 0) {
-          timeArr.push(...validatorMap[i].Positions);
+          currentArr = validatorMap[i].Current.WithdrawList;
+          timeArr = validatorMap[i].Positions
+
         }
 
       }
 
-      console.log(currentArr.concat(timeArr));
-
       this.setState({
+        reward: reward,
+        currentAmount: currentAmount,
+        currentInterest: currentInterest,
         stakeRecordArr: [
           {
             index: 0,
@@ -539,6 +560,19 @@ export default class StakeDetailScreen extends React.Component {
           }
         ],
       })
+
+      // this.setState({
+      //   stakeRecordArr: [
+      //     {
+      //       index: 0,
+      //       data: currentArr,
+      //     },
+      //     {
+      //       index: 1,
+      //       data: timeArr,
+      //     }
+      //   ],
+      // })
 
       // let b = {};
       // console.log(b);
@@ -586,6 +620,21 @@ export default class StakeDetailScreen extends React.Component {
   }
 
   _onWithdrawReward() {
+
+    if (this.state.reward <= 0) {
+
+      Toast.show("收益为0", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+
+      return;
+    }
+
     this.setState({
       isModalVisible: true,
       actionType: this.ActionType.WithdrawReward,
@@ -695,6 +744,12 @@ export default class StakeDetailScreen extends React.Component {
 
     global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
       if (error !== null) {
+
+        this.setState({
+          isLoading: false,
+          isModalVisible: false,
+        });
+
         console.log('getTransactionCount', error);
         return;
       }
@@ -742,6 +797,7 @@ export default class StakeDetailScreen extends React.Component {
 
             this.setState({
               isLoading: false,
+              isModalVisible: false,
             });
 
             return
@@ -765,6 +821,7 @@ export default class StakeDetailScreen extends React.Component {
 
             this.setState({
               isLoading: false,
+              isModalVisible: false,
               myNonceNum: 0,
             });
           }
@@ -775,6 +832,7 @@ export default class StakeDetailScreen extends React.Component {
         console.log('success post', resultData);
         this.setState({
           isLoading: false,
+          isModalVisible: false,
           myNonceNum: 0,
         });
 
@@ -857,6 +915,12 @@ export default class StakeDetailScreen extends React.Component {
 
     global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
       if (error !== null) {
+
+        this.setState({
+          isLoading: false,
+          isModalVisible: false,
+        });
+
         console.log('getTransactionCount', error);
         return;
       }
@@ -904,6 +968,7 @@ export default class StakeDetailScreen extends React.Component {
 
             this.setState({
               isLoading: false,
+              isModalVisible: false,
             });
 
             return
@@ -928,6 +993,7 @@ export default class StakeDetailScreen extends React.Component {
             this.setState({
               isLoading: false,
               myNonceNum: 0,
+              isModalVisible: false,
             });
           }
           return;
@@ -938,6 +1004,7 @@ export default class StakeDetailScreen extends React.Component {
         this.setState({
           isLoading: false,
           myNonceNum: 0,
+          isModalVisible: false,
         });
 
         Alert.alert(
@@ -978,7 +1045,13 @@ export default class StakeDetailScreen extends React.Component {
 
     global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
       if (error !== null) {
+
+        this.setState({
+          isLoading: false,
+          isModalVisible: false,
+        });
         console.log('getTransactionCount', error);
+
         return;
       }
       let nonce = resultData;
@@ -1025,6 +1098,7 @@ export default class StakeDetailScreen extends React.Component {
 
             this.setState({
               isLoading: false,
+              isModalVisible: false,
             });
 
             return
@@ -1049,6 +1123,7 @@ export default class StakeDetailScreen extends React.Component {
             this.setState({
               isLoading: false,
               myNonceNum: 0,
+              isModalVisible: false,
             });
           }
           return;
@@ -1059,6 +1134,7 @@ export default class StakeDetailScreen extends React.Component {
         this.setState({
           isLoading: false,
           myNonceNum: 0,
+          isModalVisible: false,
         });
 
         Alert.alert(
@@ -1077,12 +1153,6 @@ export default class StakeDetailScreen extends React.Component {
   }
 
   async _withdrawReward() {
-    // let that = this;
-    // console.log(item);
-    if (this.state.reward <= 0) {
-      // this.$notify(that.$t('nodeDetail.RewardsZero'));
-      return;
-    }
 
     let contractAbiArray = JSON.parse(bb.abi);
     let contractAddress = bb.address;
@@ -1096,7 +1166,13 @@ export default class StakeDetailScreen extends React.Component {
 
     global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
       if (error !== null) {
+
+        this.setState({
+          isLoading: false,
+          isModalVisible: false,
+        });
         console.log('getTransactionCount', error);
+
         return;
       }
       let nonce = resultData;
@@ -1143,6 +1219,7 @@ export default class StakeDetailScreen extends React.Component {
 
             this.setState({
               isLoading: false,
+              isModalVisible: false,
             });
 
             return
@@ -1167,6 +1244,7 @@ export default class StakeDetailScreen extends React.Component {
             this.setState({
               isLoading: false,
               myNonceNum: 0,
+              isModalVisible: false,
             });
           }
           return;
@@ -1177,6 +1255,7 @@ export default class StakeDetailScreen extends React.Component {
         this.setState({
           isLoading: false,
           myNonceNum: 0,
+          isModalVisible: false,
         });
 
         Alert.alert(
@@ -1246,7 +1325,13 @@ export default class StakeDetailScreen extends React.Component {
 
     global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
       if (error !== null) {
+
+        this.setState({
+          isLoading: false,
+          isModalVisible: false,
+        });
         console.log('getTransactionCount', error);
+
         return;
       }
       let nonce = resultData;
@@ -1293,6 +1378,7 @@ export default class StakeDetailScreen extends React.Component {
 
             this.setState({
               isLoading: false,
+              isModalVisible: false,
             });
 
             return
@@ -1317,6 +1403,7 @@ export default class StakeDetailScreen extends React.Component {
             this.setState({
               isLoading: false,
               myNonceNum: 0,
+              isModalVisible: false,
             });
           }
           return;
@@ -1327,6 +1414,7 @@ export default class StakeDetailScreen extends React.Component {
         this.setState({
           isLoading: false,
           myNonceNum: 0,
+          isModalVisible: false,
         });
 
         Alert.alert(
@@ -1693,5 +1781,8 @@ const styles = StyleSheet.create({
     borderRadius: 2.5,
     marginTop: 22,
   },
+  modalInput: {
+    textAlign: 'center',
+  }
 });
 

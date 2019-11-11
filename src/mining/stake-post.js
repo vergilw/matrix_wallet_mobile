@@ -43,11 +43,11 @@ export default class StakePostScreen extends React.Component {
     let isEditing = props.navigation.getParam('isEditing', false);
     let stake = props.navigation.getParam('stake', {});
     let nodeAddress;
-    if (stake.OwnerInfo !== null) {
+    if (isEditing === true && stake.OwnerInfo !== null) {
       nodeAddress = stake.OwnerInfo.SignAddress;
     }
     let nodeRate;
-    if (stake.Reward !== null && stake.Reward.NodeRate !== null) {
+    if (isEditing === true && stake.Reward !== null && stake.Reward.NodeRate !== null) {
       nodeRate = (stake.Reward.NodeRate.Rate / stake.Reward.NodeRate.Decimal * 100).toString();
     }
 
@@ -79,7 +79,8 @@ export default class StakePostScreen extends React.Component {
         <View style={styles.inputTopView}>
           <Text style={styles.inputTitle}>节点名称</Text>
           <TextInput
-            style={styles.input}
+            editable={this.state.isEditing !== true}
+            style={this.state.isEditing !== true ? styles.input : styles.inputDisabled}
             placeholder='输入节点名称'
             returnKeyType='done'
             onChangeText={(text) => this.setState({ name: text })}
@@ -89,8 +90,7 @@ export default class StakePostScreen extends React.Component {
         <View style={styles.inputView}>
           <Text style={styles.inputTitle}>签名地址</Text>
           <TextInput
-            editable={this.state.isEditing !== true}
-            style={this.state.isEditing !== true ? styles.input : styles.inputDisabled}
+            style={styles.input}
             placeholder='输入签名地址'
             returnKeyType='done'
             onChangeText={(text) => this.setState({ nodeAddress: text })}
@@ -189,7 +189,7 @@ export default class StakePostScreen extends React.Component {
             <View style={{ marginTop: 26, paddingHorizontal: 35, alignSelf: 'stretch', }}>
               <TextInput
                 secureTextEntry={true}
-                style={styles.input}
+                style={styles.modalInput}
                 placeholder='请输入PIN码，以此验证你的身份'
                 returnKeyType='done'
                 onChangeText={(text) => this.setState({ passcode: text })}
@@ -245,11 +245,16 @@ export default class StakePostScreen extends React.Component {
 
     if (this.state.isEditing === true) {
       if (global.httpProvider.fromUtf8(this.state.name).length > 66) {
-        // done();
-        // setTimeout(function () {
-        //   that.yzjdContshow = true;
-        //   that.$notify(that.$t("nodeDetail.NameTooLong"));
-        // }, 0);
+        
+        Toast.show("节点名称不能超过66个字符", {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.CENTER,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          delay: 0,
+        });
+
         return false;
       }
 
@@ -260,55 +265,84 @@ export default class StakePostScreen extends React.Component {
       return;
     }
 
-    // 加入输入判断
     if (
       !/(^[0-9]\d*$)/.test(this.state.nodeRate) &&
       !this.state.nodeRate > -1 &&
       !this.state.nodeRate <= 100
     ) {
-      // that.muhyFromchoushui = true;
-      // done();
-      // setTimeout(function () {
-      //   that.yzjdContshow = true;
-      // }, 0);
+      
+      Toast.show("节点管理费必须在1-100之间", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+
       return false;
 
     } else if (this.state.amount < 100000) {
-      // that.muhyFromNumflag = true;
-      // done();
-      // setTimeout(function () {
-      //   that.yzjdContshow = true;
-      // }, 0);
+      
+      Toast.show("抵押数量不得低于100000", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+
       return false;
 
     } else if (this.state.nodeAddress === null) {
-      // that.muhyFromAddress = true;
-      // done();
-      // setTimeout(function () {
-      //   that.yzjdContshow = true;
-      // }, 0);
+      
+      Toast.show("节点地址不能为空", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+
       return false;
     } else if (global.httpProvider.fromUtf8(this.state.name).length > 66) {
-      // done();
-      // setTimeout(function () {
-      //   that.yzjdContshow = true;
-      //   that.$notify(that.$t("nodeDetail.NameTooLong"));
-      // }, 0);
+      
+      Toast.show("节点名称不能超过66个字符", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+
       return false;
     } else if (this.state.period === null) {
-      // done();
-      // setTimeout(function () {
-      //   that.yzjdContshow = true;
-      //   that.$notify(that.$t("nodeDetail.NameTooLong"));
-      // }, 0);
+      
+      Toast.show("抵押周期不能为空", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+
       return false;
 
     } else if (parseInt(this.state.amount) > parseInt(this.state.balance)) {
-      // done();
-      // setTimeout(function () {
-      //   that.yzjdContshow = true;
-      //   that.$notify(that.$t("nodeDetail.Insufficient"));
-      // }, 0);
+      
+      Toast.show("你的余额不足", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+      
       return false;
     }
 
@@ -396,7 +430,12 @@ export default class StakePostScreen extends React.Component {
 
     global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
       if (error !== null) {
+
+        this.setState({
+          isLoading: false,
+        });
         console.log('getTransactionCount', error);
+
         return;
       }
       let nonce = resultData;
@@ -549,7 +588,12 @@ export default class StakePostScreen extends React.Component {
 
     global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
       if (error !== null) {
+
+        this.setState({
+          isLoading: false,
+        });
         console.log('getTransactionCount', error);
+        
         return;
       }
       let nonce = resultData;
@@ -727,6 +771,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(45, 45, 45, 0.2)',
     borderRadius: 2.5,
     marginTop: 22,
+  },
+  modalInput: {
+    textAlign: 'center',
   },
   action: {
     backgroundColor: '#fbbe07',

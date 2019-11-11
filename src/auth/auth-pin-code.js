@@ -24,6 +24,7 @@ export default class AuthPinCodeScreen extends React.Component {
             style={styles.input}
             placeholder='以字母开头，8-16位包含数字和字母'
             returnKeyType='done'
+            secureTextEntry={true}
             onChangeText={(text) => this.setState({ passcode: text })}
             value={this.state.passcode}
           />

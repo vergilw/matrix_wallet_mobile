@@ -23,9 +23,10 @@ export default class StakeJoinScreen extends React.Component {
       address: null,
       balance: null,
       stake: stake,
-      amount: '100',
+      amount: null,
       period: '0',
       periodSelectedIndex: 0,
+      amountPlaceholder: '抵押数量不得低于100',
       myNonceNum: 0,
       passcode: null,
       isModalVisible: false,
@@ -52,14 +53,14 @@ export default class StakeJoinScreen extends React.Component {
           <Text style={styles.inputTitle}>抵押MAN数量</Text>
           <TextInput
             style={styles.input}
-            placeholder='抵押数量不得低于10000'
+            placeholder={this.state.amountPlaceholder}
             returnKeyType='done'
             onChangeText={(text) => this.setState({ amount: text })}
             value={this.state.amount}
           />
         </View>
         <View style={styles.inputView}>
-          <Text style={styles.inputTitle}>节点名称</Text>
+          <Text style={styles.inputTitle}>抵押周期</Text>
           <ButtonGroup
             containerStyle={styles.periodContainer}
             buttonStyle={styles.periodBtn}
@@ -73,26 +74,31 @@ export default class StakeJoinScreen extends React.Component {
                 this.setState({
                   periodSelectedIndex: index,
                   period: '0',
+                  amountPlaceholder: '抵押数量不得低于100',
                 });
               } else if (index === 1) {
                 this.setState({
                   periodSelectedIndex: index,
                   period: '1',
+                  amountPlaceholder: '抵押数量不得低于2000',
                 });
               } else if (index === 2) {
                 this.setState({
                   periodSelectedIndex: index,
                   period: '3',
+                  amountPlaceholder: '抵押数量不得低于2000',
                 });
               } else if (index === 3) {
                 this.setState({
                   periodSelectedIndex: index,
                   period: '6',
+                  amountPlaceholder: '抵押数量不得低于2000',
                 });
               } else if (index === 4) {
                 this.setState({
                   periodSelectedIndex: index,
                   period: '12',
+                  amountPlaceholder: '抵押数量不得低于2000',
                 });
               }
 
@@ -127,7 +133,7 @@ export default class StakeJoinScreen extends React.Component {
             <View style={{ marginTop: 26, paddingHorizontal: 35, alignSelf: 'stretch', }}>
               <TextInput
                 secureTextEntry={true}
-                style={styles.input}
+                style={styles.modalInput}
                 placeholder='请输入PIN码，以此验证你的身份'
                 returnKeyType='done'
                 onChangeText={(text) => this.setState({ passcode: text })}
@@ -180,29 +186,56 @@ export default class StakeJoinScreen extends React.Component {
   }
 
   _onSubmit() {
-    // 加入输入判断
-    if (this.state.amount < 100) {
-      // that.muhyFromNumflag = true;
-      // done();
-      // setTimeout(function () {
-      //   that.yzjdContshow = true;
-      // }, 0);
+    if (this.state.periodSelectedIndex === 0 && this.state.amount < 100) {
+
+      Toast.show("活期抵押不得低于100", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+
+      return false;
+
+    } else if (this.state.periodSelectedIndex !== 0 && this.state.amount < 2000) {
+
+      Toast.show("定期抵押不得低于2000", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+
       return false;
 
     } else if (this.state.period === null) {
-      // done();
-      // setTimeout(function () {
-      //   that.yzjdContshow = true;
-      //   that.$notify(that.$t("nodeDetail.NameTooLong"));
-      // }, 0);
+      
+      Toast.show("抵押周期未选择", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+
       return false;
 
     } else if (parseInt(this.state.amount) > parseInt(this.state.balance)) {
-      // done();
-      // setTimeout(function () {
-      //   that.yzjdContshow = true;
-      //   that.$notify(that.$t("nodeDetail.Insufficient"));
-      // }, 0);
+      
+      Toast.show("你的余额不足", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+
       return false;
     }
 
@@ -263,7 +296,12 @@ export default class StakeJoinScreen extends React.Component {
 
     global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
       if (error !== null) {
+
+        this.setState({
+          isLoading: false,
+        });
         console.log('getTransactionCount', error);
+        
         return;
       }
       let nonce = resultData;
@@ -434,6 +472,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(45, 45, 45, 0.2)',
     borderRadius: 2.5,
     marginTop: 22,
+  },
+  modalInput: {
+    textAlign: 'center',
   },
   action: {
     backgroundColor: '#fbbe07',
