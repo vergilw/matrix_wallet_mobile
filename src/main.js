@@ -23,6 +23,7 @@ import StakePostScreen from './mining/stake-post.js';
 import StakeDetailScreen from './mining/stake-detail.js';
 import StakeJoinScreen from './mining/stake-join.js';
 import MeAboutScreen from './me/me-about.js';
+import MeBackupWalletScreen from './me/me-backup-wallet.js';
 
 const WalletStack = createStackNavigator({
 
@@ -83,7 +84,6 @@ const MiningStack = createStackNavigator({
   StakePost: {
     screen: StakePostScreen,
     navigationOptions: {
-      headerTitle: '创建节点',
       headerStyle: {
         elevation: 0,
         shadowOpacity: 0,
@@ -167,6 +167,17 @@ const MeStack = createStackNavigator({
     screen: MeAboutScreen,
     navigationOptions: {
       headerTitle: '关于我们',
+      headerStyle: {
+        elevation: 0,
+        shadowOpacity: 0,
+        borderBottomWidth: 0,
+      },
+    },
+  },
+  MeBackupWallet: {
+    screen: MeBackupWalletScreen,
+    navigationOptions: {
+      headerTitle: '备份钱包',
       headerStyle: {
         elevation: 0,
         shadowOpacity: 0,

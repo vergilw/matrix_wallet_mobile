@@ -14,24 +14,60 @@ import Modal from 'react-native-modal';
 
 export default class StakePostScreen extends React.Component {
 
+  static navigationOptions = ({ navigation }) => {
+    const isEditing = navigation.getParam('isEditing', false);
+    if (isEditing) {
+      return {
+        headerTitle: '编辑节点',
+        headerStyle: {
+          elevation: 0,
+          shadowOpacity: 0,
+          borderBottomWidth: 0,
+        },
+      };
+    } else {
+      return {
+        headerTitle: '创建节点',
+        headerStyle: {
+          elevation: 0,
+          shadowOpacity: 0,
+          borderBottomWidth: 0,
+        },
+      };
+    }
+  };
+
   constructor(props) {
     super(props);
+
+    let isEditing = props.navigation.getParam('isEditing', false);
+    let stake = props.navigation.getParam('stake', {});
+    let nodeAddress;
+    if (stake.OwnerInfo !== null) {
+      nodeAddress = stake.OwnerInfo.SignAddress;
+    }
+    let nodeRate;
+    if (stake.Reward !== null && stake.Reward.NodeRate !== null) {
+      nodeRate = (stake.Reward.NodeRate.Rate / stake.Reward.NodeRate.Decimal * 100).toString();
+    }
 
     this.state = {
       address: null,
       balance: null,
-      name: 'SuperDaddy',
-      nodeAddress: 'MAN.zEiE1VLa2SJ8nPpWmGJqp7rMhHYZ',
-      amount: '100000',
-      nodeRate: '1',
-      period: '0',
-      periodSelectedIndex: 0,
+      stake: stake,
+      name: stake.name,
+      nodeAddress: nodeAddress,
+      amount: stake.allAmountFif,
+      nodeRate: nodeRate,
+      period: null,
+      periodSelectedIndex: null,
       ownerRate: 1,
       lvlRate: [1, 1, 1],
       myNonceNum: 0,
-      passcode: 'Vergilw123',
+      passcode: null,
       isModalVisible: false,
       isLoading: false,
+      isEditing: isEditing,
     };
   }
 
@@ -53,7 +89,8 @@ export default class StakePostScreen extends React.Component {
         <View style={styles.inputView}>
           <Text style={styles.inputTitle}>签名地址</Text>
           <TextInput
-            style={styles.input}
+            editable={this.state.isEditing !== true}
+            style={this.state.isEditing !== true ? styles.input : styles.inputDisabled}
             placeholder='输入签名地址'
             returnKeyType='done'
             onChangeText={(text) => this.setState({ nodeAddress: text })}
@@ -63,7 +100,8 @@ export default class StakePostScreen extends React.Component {
         <View style={styles.inputView}>
           <Text style={styles.inputTitle}>抵押MAN数量</Text>
           <TextInput
-            style={styles.input}
+            editable={this.state.isEditing !== true}
+            style={this.state.isEditing !== true ? styles.input : styles.inputDisabled}
             placeholder='抵押数量不得低于10000'
             returnKeyType='done'
             onChangeText={(text) => this.setState({ amount: text })}
@@ -73,7 +111,8 @@ export default class StakePostScreen extends React.Component {
         <View style={styles.inputView}>
           <Text style={styles.inputTitle}>节点管理费（%）</Text>
           <TextInput
-            style={styles.input}
+            editable={this.state.isEditing !== true}
+            style={this.state.isEditing !== true ? styles.input : styles.inputDisabled}
             placeholder='输入节点管理费'
             returnKeyType='done'
             onChangeText={(text) => this.setState({ nodeRate: text })}
@@ -81,8 +120,9 @@ export default class StakePostScreen extends React.Component {
           />
         </View>
         <View style={styles.inputView}>
-          <Text style={styles.inputTitle}>节点名称</Text>
+          <Text style={styles.inputTitle}>节点周期</Text>
           <ButtonGroup
+            disabled={this.state.isEditing}
             containerStyle={styles.periodContainer}
             buttonStyle={styles.periodBtn}
             containerBorderRadius={0}
@@ -202,6 +242,24 @@ export default class StakePostScreen extends React.Component {
   }
 
   _onSubmit() {
+
+    if (this.state.isEditing === true) {
+      if (global.httpProvider.fromUtf8(this.state.name).length > 66) {
+        // done();
+        // setTimeout(function () {
+        //   that.yzjdContshow = true;
+        //   that.$notify(that.$t("nodeDetail.NameTooLong"));
+        // }, 0);
+        return false;
+      }
+
+      this.setState({
+        isModalVisible: true,
+      });
+
+      return;
+    }
+
     // 加入输入判断
     if (
       !/(^[0-9]\d*$)/.test(this.state.nodeRate) &&
@@ -244,7 +302,7 @@ export default class StakePostScreen extends React.Component {
       //   that.$notify(that.$t("nodeDetail.NameTooLong"));
       // }, 0);
       return false;
-      
+
     } else if (parseInt(this.state.amount) > parseInt(this.state.balance)) {
       // done();
       // setTimeout(function () {
@@ -260,7 +318,11 @@ export default class StakePostScreen extends React.Component {
   }
 
   _onSubmitPasscode() {
-    this._postStake();
+    if (this.state.isEditing === true) {
+      this._editStake();
+    } else {
+      this._postStake();
+    }
   }
 
   async _postStake() {
@@ -414,9 +476,172 @@ export default class StakePostScreen extends React.Component {
         this.setState({
           isLoading: false,
         });
+
+        Alert.alert(
+          '创建成功',
+          '数据处理有一定延迟，请稍后刷新',
+          [
+            {text: '确定', onPress: () => {
+              this.props.navigation.goBack();
+            }, style: 'cancel'},
+          ],
+          { cancelable: false }
+        )
       });
     });
 
+  }
+
+  async _editStake() {
+
+    let passcode;
+    let keyStore;
+    let pashadterss;
+    try {
+      passcode = await AsyncStorage.getItem('@passcode');
+      keyStore = await AsyncStorage.getItem('@keyStore');
+      pashadterss = await AsyncStorage.getItem('@pashadterss');
+
+    } catch (e) {
+      console.log(e);
+    }
+
+    //validate passcode
+    let reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[a-zA-Z]\S{7,15}$/;
+    if (!reg.test(this.state.passcode) || this.state.passcode !== passcode) {
+      Toast.show("PIN码输入有误，请重新输入", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+      return;
+    }
+
+    //dismiss passcode modal and show loading
+    this.setState({
+      isModalVisible: false,
+      isLoading: true,
+    });
+    
+    // 创建母合约 abi调用
+    let contractAbiArray = JSON.parse(bb.abi);
+    let contractAddress = bb.address;
+    // 初始化abi
+    let contractAbi = new global.ethProvider.eth.Contract(
+      contractAbiArray,
+      '0x0000000000000000000000000000000000000014',
+    );
+
+    // 输入数值进行转化
+    let siginAddress = SendTransfer.sanitizeHex(
+      WalletUtil.addressChange(this.state.nodeAddress.split(".")[1])
+    );
+
+    // 生成交易凭证
+    // console.log(contractAbi.methods);
+    // console.log(siginAddress);
+    let result = contractAbi.methods
+      .setSignAccount(siginAddress)
+      .encodeABI();
+
+    global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
+      if (error !== null) {
+        console.log('getTransactionCount', error);
+        return;
+      }
+      let nonce = resultData;
+      nonce += this.state.myNonceNum;
+      nonce = WalletUtil.numToHex(nonce);
+      let data = {
+        to: this.state.stake.name, // MAN母合约不转化地址
+        value: this.state.amount,
+        gasLimit: 210000,
+        data: "",
+        gasPrice: 18000000000,
+        extra_to: [[0, 0, []]],
+        nonce: nonce
+      };
+      let jsonObj = TradingFuns.getTxData(data);
+      jsonObj.data = result;
+      let tx = WalletUtil.createTx(jsonObj);
+
+      let newPin = md5(pashadterss + passcode);
+      let decrypt = utils.decrypt(keyStore, newPin);
+
+      let privateKey = decrypt;
+      privateKey = Buffer.from(
+        privateKey.indexOf("0x") > -1
+          ? privateKey.substring(2, privateKey.length)
+          : privateKey,
+        "hex"
+      );
+      tx.sign(privateKey);
+      let serializedTx = tx.serialize();
+      let newTxData = SendTransfer.getTxParams(serializedTx);
+
+      global.httpProvider.man.sendRawTransaction(newTxData, (error, resultData) => {
+        if (error !== null) {
+          if (error.message === 'insufficient funds for gas * price + value') {
+            Toast.show("余额不足以支付交易手续费", {
+              duration: Toast.durations.LONG,
+              position: Toast.positions.CENTER,
+              shadow: true,
+              animation: true,
+              hideOnPress: true,
+              delay: 0,
+            });
+
+            this.setState({
+              isLoading: false,
+            });
+
+            return
+          }
+
+          if (this.state.myNonceNum < 5) {
+            this.setState({
+              myNonceNum: this.state.myNonceNum + 1,
+            }, () => {
+              this._postStake();
+            })
+          } else {
+            Toast.show("交易正在处理中", {
+              duration: Toast.durations.LONG,
+              position: Toast.positions.CENTER,
+              shadow: true,
+              animation: true,
+              hideOnPress: true,
+              delay: 0,
+            });
+
+            this.setState({
+              isLoading: false,
+            });
+          }
+          return;
+        }
+
+        let hash = resultData;
+        console.log('success post', resultData);
+        this.setState({
+          isLoading: false,
+        });
+
+        Alert.alert(
+          '编辑成功',
+          '数据处理有一定延迟，请稍后刷新',
+          [
+            {text: '确定', onPress: () => {
+              this.props.navigation.goBack();
+            }, style: 'cancel'},
+          ],
+          { cancelable: false }
+        )
+      });
+    });
   }
 }
 
@@ -442,6 +667,14 @@ const styles = StyleSheet.create({
     paddingBottom: 6,
     paddingTop: 10,
     fontSize: 15,
+  },
+  inputDisabled: {
+    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+    borderBottomWidth: 1,
+    paddingBottom: 6,
+    paddingTop: 10,
+    fontSize: 15,
+    color: '#bdc6cf',
   },
   periodContainer: {
     marginTop: 12,

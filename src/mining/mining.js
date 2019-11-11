@@ -70,11 +70,11 @@ export default class MiningScreen extends React.Component {
     return (
       <View style={{ flex: 1 }}>
         <MiningRoot screenProps={{ parentNavigation: this.props.navigation }} />
-        <TouchableOpacity style={styles.postBtn} onPress={() =>  {
+        <TouchableOpacity style={styles.postBtn} onPress={() => {
           this.props.navigation.navigate('StakePost');
         }}>
           <LinearGradient colors={['#fde011', '#fbbe07']} locations={[0, 0.7]} style={styles.linear}>
-            <Text>+</Text>
+            <Image source={require('../../resources/img/mining/stake_post.png')} />
           </LinearGradient>
         </TouchableOpacity>
       </View>
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
   linear: {
     flex: 1,
     justifyContent: 'center',
-    alignItems:  'center',
+    alignItems: 'center',
     borderRadius: 24,
   },
   postBtn: {
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     right: 16,
     width: 48,
     height: 48,
-    
+
     // backgroundColor
   }
 });

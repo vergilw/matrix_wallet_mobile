@@ -27,7 +27,7 @@ export default class StakeJoinScreen extends React.Component {
       period: '0',
       periodSelectedIndex: 0,
       myNonceNum: 0,
-      passcode: 'Vergilw123',
+      passcode: null,
       isModalVisible: false,
       isLoading: false,
     };
@@ -270,7 +270,7 @@ export default class StakeJoinScreen extends React.Component {
       nonce += this.state.myNonceNum;
       nonce = WalletUtil.numToHex(nonce);
       let data = {
-        to: contractAddress, // MAN母合约不转化地址
+        to: this.state.stake.name, // MAN母合约不转化地址
         value: this.state.amount,
         gasLimit: 210000,
         data: "",
@@ -343,6 +343,17 @@ export default class StakeJoinScreen extends React.Component {
         this.setState({
           isLoading: false,
         });
+
+        Alert.alert(
+          '加入成功',
+          '数据处理有一定延迟，请稍后刷新',
+          [
+            {text: '确定', onPress: () => {
+              this.props.navigation.goBack();
+            }, style: 'cancel'},
+          ],
+          { cancelable: false }
+        )
       });
     });
 

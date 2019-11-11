@@ -17,7 +17,7 @@ export default class PinCodeScreen extends React.Component {
 
     this.state = {
       //FIXME: DEBUG
-      // passcode: 'Vergilw123',
+      // passcode: null,
       // repetition: 'Vergilw123',
       passcode: null,
       repetition: null,

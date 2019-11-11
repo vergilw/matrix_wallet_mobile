@@ -63,6 +63,8 @@ export default class StakeDetailScreen extends React.Component {
     RedeemTime: Symbol("2"),
     Withdraw: Symbol("3"),
     WithdrawReward: Symbol("4"),
+    EditStake: Symbol("5"),
+    DeleteStake: Symbol("6")
   });
 
   constructor(props) {
@@ -90,7 +92,7 @@ export default class StakeDetailScreen extends React.Component {
 
       actionType: null,
       isRedeemModalVisible: false,
-      passcode: 'Vergilw123',
+      passcode: null,
       isModalVisible: false,
       isLoading: false,
     };
@@ -100,6 +102,7 @@ export default class StakeDetailScreen extends React.Component {
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', }}>
         <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+
         <SectionList
           style={styles.list}
           sections={this.state.stakeRecordArr}
@@ -373,8 +376,8 @@ export default class StakeDetailScreen extends React.Component {
     this._fetchData();
 
     this.props.navigation.setParams({
-      onEditStake: this._onEditStake,
-      onDeleteStake: this._onDeleteStake,
+      onEditStake: this._onEditStake.bind(this),
+      onDeleteStake: this._onDeleteStake.bind(this),
     });
 
   }
@@ -589,6 +592,26 @@ export default class StakeDetailScreen extends React.Component {
     });
   }
 
+  _onEditStake() {
+    // setTimeout(() => {
+    //   this.setState({
+    //     isModalVisible: true,
+    //     actionType: this.ActionType.EditStake,
+    //   });
+    // }, 500);
+
+    this.props.navigation.navigate('StakePost', { isEditing: true, stake: this.state.stake })
+  }
+
+  _onDeleteStake() {
+    setTimeout(() => {
+      this.setState({
+        isModalVisible: true,
+        actionType: this.ActionType.DeleteStake,
+      });
+    }, 500);
+  }
+
   _onSubmitPasscode() {
     if (this.state.actionType === this.ActionType.RedeemCurrent) {
       this._redeemCurrent();
@@ -596,6 +619,10 @@ export default class StakeDetailScreen extends React.Component {
       this._redeemTime();
     } else if (this.state.actionType === this.ActionType.WithdrawReward) {
       this._withdrawReward();
+    } else if (this.state.actionType === this.ActionType.EditStake) {
+      this._editStake();
+    } else if (this.state.actionType === this.ActionType.DeleteStake) {
+      this._deleteStake();
     }
   }
 
@@ -675,7 +702,7 @@ export default class StakeDetailScreen extends React.Component {
       nonce += this.state.myNonceNum;
       nonce = WalletUtil.numToHex(nonce);
       let data = {
-        to: contractAddress, // MAN母合约不转化地址
+        to: this.state.stake.name, // MAN母合约不转化地址
         value: this.state.amount,
         gasLimit: 210000,
         data: "",
@@ -750,6 +777,19 @@ export default class StakeDetailScreen extends React.Component {
           isLoading: false,
           myNonceNum: 0,
         });
+
+        Alert.alert(
+          '赎回成功',
+          '数据处理有一定延迟，请稍后刷新',
+          [
+            {
+              text: '确定', onPress: () => {
+                this.props.navigation.goBack();
+              }, style: 'cancel'
+            },
+          ],
+          { cancelable: false }
+        )
       });
     });
   }
@@ -824,7 +864,7 @@ export default class StakeDetailScreen extends React.Component {
       nonce += this.state.myNonceNum;
       nonce = WalletUtil.numToHex(nonce);
       let data = {
-        to: contractAddress, // MAN母合约不转化地址
+        to: this.state.stake.name, // MAN母合约不转化地址
         value: this.state.amount,
         gasLimit: 210000,
         data: "",
@@ -899,6 +939,18 @@ export default class StakeDetailScreen extends React.Component {
           isLoading: false,
           myNonceNum: 0,
         });
+
+        Alert.alert(
+          '赎回成功',
+          '数据处理有一定延迟，请稍后刷新',
+          [
+            {
+              text: '确定', onPress: () => {
+              }, style: 'cancel'
+            },
+          ],
+          { cancelable: false }
+        )
       });
     });
   }
@@ -933,7 +985,7 @@ export default class StakeDetailScreen extends React.Component {
       nonce += this.state.myNonceNum;
       nonce = WalletUtil.numToHex(nonce);
       let data = {
-        to: contractAddress, // MAN母合约不转化地址
+        to: this.state.stake.name, // MAN母合约不转化地址
         value: this.state.amount,
         gasLimit: 210000,
         data: "",
@@ -1008,6 +1060,18 @@ export default class StakeDetailScreen extends React.Component {
           isLoading: false,
           myNonceNum: 0,
         });
+
+        Alert.alert(
+          '提币成功',
+          '数据处理有一定延迟，请稍后刷新',
+          [
+            {
+              text: '确定', onPress: () => {
+              }, style: 'cancel'
+            },
+          ],
+          { cancelable: false }
+        )
       });
     });
   }
@@ -1039,7 +1103,7 @@ export default class StakeDetailScreen extends React.Component {
       nonce += this.state.myNonceNum;
       nonce = WalletUtil.numToHex(nonce);
       let data = {
-        to: contractAddress, // MAN母合约不转化地址
+        to: this.state.stake.name, // MAN母合约不转化地址
         value: this.state.amount,
         gasLimit: 210000,
         data: "",
@@ -1114,15 +1178,171 @@ export default class StakeDetailScreen extends React.Component {
           isLoading: false,
           myNonceNum: 0,
         });
+
+        Alert.alert(
+          '提币成功',
+          '数据处理有一定延迟，请稍后刷新',
+          [
+            {
+              text: '确定', onPress: () => {
+              }, style: 'cancel'
+            },
+          ],
+          { cancelable: false }
+        )
       });
     });
   }
 
-  _onEditStake() {
+  async _deleteStake() {
 
-  }
 
-  _onDeleteStake() {
+    let passcode;
+    let keyStore;
+    let pashadterss;
+    try {
+      passcode = await AsyncStorage.getItem('@passcode');
+      keyStore = await AsyncStorage.getItem('@keyStore');
+      pashadterss = await AsyncStorage.getItem('@pashadterss');
+
+    } catch (e) {
+      console.log(e);
+    }
+
+    //validate passcode
+    let reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[a-zA-Z]\S{7,15}$/;
+    if (!reg.test(this.state.passcode) || this.state.passcode !== passcode) {
+      Toast.show("PIN码输入有误，请重新输入", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+      return;
+    }
+
+    this.setState({
+      isLoading: true,
+    });
+
+    // 创建母合约 abi调用
+    let contractAbiArray = JSON.parse(bb.abi);
+    let contractAddress = bb.address;
+    // 初始化abi
+    let contractAbi = new global.ethProvider.eth.Contract(
+      contractAbiArray,
+      '0x0000000000000000000000000000000000000014'
+    );
+
+    // 输入数值进行转化
+    // let siginAddress = SendTransfer.sanitizeHex(
+    //   WalletUtil.addressChange(this.myAddress.split(".")[1])
+    // );
+
+    // 生成交易凭证
+    let result = contractAbi.methods.withdrawAll().encodeABI();
+
+    global.httpProvider.man.getTransactionCount(this.state.address, (error, resultData) => {
+      if (error !== null) {
+        console.log('getTransactionCount', error);
+        return;
+      }
+      let nonce = resultData;
+      nonce += this.state.myNonceNum;
+      nonce = WalletUtil.numToHex(nonce);
+      let data = {
+        to: this.state.stake.name, // MAN母合约不转化地址
+        value: this.state.amount,
+        gasLimit: 210000,
+        data: "",
+        gasPrice: 18000000000,
+        extra_to: [[0, 0, []]],
+        nonce: nonce
+      };
+      let jsonObj = TradingFuns.getTxData(data);
+      jsonObj.data = result;
+      let tx = WalletUtil.createTx(jsonObj);
+
+      let newPin = md5(pashadterss + passcode);
+      let decrypt = utils.decrypt(keyStore, newPin);
+
+      let privateKey = decrypt;
+      privateKey = Buffer.from(
+        privateKey.indexOf("0x") > -1
+          ? privateKey.substring(2, privateKey.length)
+          : privateKey,
+        "hex"
+      );
+      tx.sign(privateKey);
+      let serializedTx = tx.serialize();
+      let newTxData = SendTransfer.getTxParams(serializedTx);
+
+      global.httpProvider.man.sendRawTransaction(newTxData, (error, resultData) => {
+        if (error !== null) {
+          if (error.message === 'insufficient funds for gas * price + value') {
+            Toast.show("余额不足以支付交易手续费", {
+              duration: Toast.durations.LONG,
+              position: Toast.positions.CENTER,
+              shadow: true,
+              animation: true,
+              hideOnPress: true,
+              delay: 0,
+            });
+
+            this.setState({
+              isLoading: false,
+            });
+
+            return
+          }
+
+          if (this.state.myNonceNum < 5) {
+            this.setState({
+              myNonceNum: this.state.myNonceNum + 1,
+            }, () => {
+              this._postStake();
+            })
+          } else {
+            Toast.show("交易正在处理中", {
+              duration: Toast.durations.LONG,
+              position: Toast.positions.CENTER,
+              shadow: true,
+              animation: true,
+              hideOnPress: true,
+              delay: 0,
+            });
+
+            this.setState({
+              isLoading: false,
+              myNonceNum: 0,
+            });
+          }
+          return;
+        }
+
+        let hash = resultData;
+        console.log('success post', resultData);
+        this.setState({
+          isLoading: false,
+          myNonceNum: 0,
+        });
+
+        Alert.alert(
+          '删除成功',
+          '数据处理有一定延迟，请稍后刷新',
+          [
+            {
+              text: '确定', onPress: () => {
+                this.props.navigation.goBack();
+              }, style: 'cancel'
+            },
+          ],
+          { cancelable: false }
+        )
+      });
+    });
   }
 }
 

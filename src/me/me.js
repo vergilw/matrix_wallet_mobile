@@ -3,6 +3,9 @@ import { Text, View, StyleSheet, TextInput, FlatList, Dimensions, ImageBackgroun
 import DeviceInfo from 'react-native-device-info';
 import Modal from 'react-native-modal';
 import { Button } from 'react-native-elements';
+import AsyncStorage from '@react-native-community/async-storage';
+import Toast from 'react-native-root-toast';
+import NavigationService from '../utils/NavigationService.js';
 
 export default class MeScreen extends React.Component {
 
@@ -28,8 +31,8 @@ export default class MeScreen extends React.Component {
           title: '删除钱包',
         },
         {
-          title: '关于我们',
-          value: '版本' + versionNumber + '(' + buildNumber + ')'
+          title: '版本',
+          value: versionNumber + '(' + buildNumber + ')'
         }
       ],
       actionType: null,
@@ -117,7 +120,7 @@ export default class MeScreen extends React.Component {
             actionType: this.ActionType.delete,
           });
         } else if (index === 2) {
-          this.props.navigation.navigate('MeAbout');
+          // this.props.navigation.navigate('MeAbout');
         }
       }}
       index={index}
@@ -128,18 +131,35 @@ export default class MeScreen extends React.Component {
 
   _onSubmitPasscode() {
     if (this.state.actionType === this.ActionType.backup) {
-      this._backupWallet();
+      this.setState({
+        isModalVisible: false,
+      }, () => {
+        this.props.navigation.navigate('MeBackupWallet');
+      });
+
     } else if (this.state.actionType === this.ActionType.delete) {
       this._deleteWallet();
     }
   }
 
-  async _backupWallet() {
-
-  }
-
   async _deleteWallet() {
+    try {
+      await AsyncStorage.clear();
 
+    } catch (e) {
+      console.log(e);
+    }
+
+    Toast.show("删除成功", {
+      duration: Toast.durations.LONG,
+      position: Toast.positions.CENTER,
+      shadow: true,
+      animation: true,
+      hideOnPress: true,
+      delay: 0,
+    });
+
+    NavigationService.navigate('Auth');
   }
 }
 

@@ -37,7 +37,7 @@ class WalletTransferScreen extends React.Component {
     myNonceNum: 0,
     isModalVisible: false,
     //FIXME: DEBUG
-    // passcode: 'Vergilw123',
+    // passcode: null,
     passcode: null,
     isLoading: false,
   };

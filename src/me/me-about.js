@@ -30,7 +30,7 @@ export default class MeAboutScreen extends React.Component {
       ],
       actionType: null,
       myNonceNum: 0,
-      passcode: 'Vergilw123',
+      passcode: null,
       isModalVisible: false,
       isLoading: false,
     };
