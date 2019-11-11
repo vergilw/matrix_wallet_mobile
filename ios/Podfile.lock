@@ -236,6 +236,8 @@ PODS:
     - ReactCommon/jscallinvoker (= 0.61.2)
   - RNCAsyncStorage (1.6.2):
     - React
+  - RNDeviceInfo (5.2.1):
+    - React
   - RNGestureHandler (1.5.0):
     - React
   - RNPermissions (2.0.3):
@@ -287,6 +289,7 @@ DEPENDENCIES:
   - ReactCommon/jscallinvoker (from `../node_modules/react-native/ReactCommon`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
+  - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
@@ -362,6 +365,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-community/async-storage"
+  RNDeviceInfo:
+    :path: "../node_modules/react-native-device-info"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNPermissions:
@@ -412,6 +417,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: fb54c732fd20405a76598e431aa2f8c2bf527de9
   ReactCommon: 5848032ed2f274fcb40f6b9ec24067787c42d479
   RNCAsyncStorage: 5ae4d57458804e99f73d427214442a6b10a53856
+  RNDeviceInfo: 223aea06c561ce99ae2045b621882bd7b7db1e59
   RNGestureHandler: a4ddde1ffc6e590c8127b8b7eabfdade45475c74
   RNPermissions: 332fd0d0c33ba71d83a22f584fce7b2270488ae0
   RNReanimated: b2ab0b693dddd2339bd2f300e770f6302d2e960c

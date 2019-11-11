@@ -13,7 +13,7 @@ import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import WalletScreen from './wallet/wallet.js';
 import MiningScreen from './mining/mining.js';
-import MeScreen from './me.js';
+import MeScreen from './me/me.js';
 import WalletDetailScreen from './wallet/wallet-detail.js';
 import WalletTransferScreen from './wallet/wallet-transfer.js';
 import WalletQRCodeScreen from './wallet/wallet-qrcode.js';
@@ -22,6 +22,7 @@ import NavigationService from './utils/NavigationService.js';
 import StakePostScreen from './mining/stake-post.js';
 import StakeDetailScreen from './mining/stake-detail.js';
 import StakeJoinScreen from './mining/stake-join.js';
+import MeAboutScreen from './me/me-about.js';
 
 const WalletStack = createStackNavigator({
 
@@ -138,7 +139,7 @@ MiningStack.navigationOptions = ({ navigation }) => {
   let { routeName } = navigation.state.routes[navigation.state.index];
   let navigationOptions = {};
   if (routeName === 'Mining') {
-    navigationOptions.tabBarLabel = '钱包';
+    navigationOptions.tabBarLabel = '挖矿';
     navigationOptions.tabBarIcon = ({ focused, horizontal, tintColor }) => {
       return <Image
         source={focused === true ? require('../resources/img/wallet/tabBar_miningSelected.png') : require('../resources/img/wallet/tabBar_miningNormal.png')}
@@ -151,11 +152,31 @@ MiningStack.navigationOptions = ({ navigation }) => {
 }
 
 const MeStack = createStackNavigator({
-  Me: MeScreen,
+  Me: {
+    screen: MeScreen,
+    navigationOptions: {
+      headerTitle: '设置',
+      headerStyle: {
+        elevation: 0,
+        shadowOpacity: 0,
+        borderBottomWidth: 0,
+      },
+    },
+  },
+  MeAbout: {
+    screen: MeAboutScreen,
+    navigationOptions: {
+      headerTitle: '关于我们',
+      headerStyle: {
+        elevation: 0,
+        shadowOpacity: 0,
+        borderBottomWidth: 0,
+      },
+    },
+  },
 }, {
   defaultNavigationOptions: {
     headerBackTitle: null,
-    headerTransparent: true,
     headerTintColor: '#000',
     headerLeftContainerStyle: {
       paddingLeft: 16,
@@ -166,14 +187,21 @@ const MeStack = createStackNavigator({
   },
 });
 
-MeStack.navigationOptions = {
-  tabBarLabel: '设置',
-  tabBarIcon: ({ focused, horizontal, tintColor }) => {
-    return <Image
-      source={focused === true ? require('../resources/img/wallet/tabBar_settingsSelected.png') : require('../resources/img/wallet/tabBar_settingsNormal.png')}
-    />
-  },
-};
+MeStack.navigationOptions = ({ navigation }) => {
+  let { routeName } = navigation.state.routes[navigation.state.index];
+  let navigationOptions = {};
+  if (routeName === 'Me') {
+    navigationOptions.tabBarLabel = '设置';
+    navigationOptions.tabBarIcon = ({ focused, horizontal, tintColor }) => {
+      return <Image
+        source={focused === true ? require('../resources/img/wallet/tabBar_settingsSelected.png') : require('../resources/img/wallet/tabBar_settingsNormal.png')}
+      />
+    }
+  } else if (routeName !== 'Me') {
+    navigationOptions.tabBarVisible = false;
+  }
+  return navigationOptions;
+}
 
 const BottomTabNavigator = createBottomTabNavigator(
   {

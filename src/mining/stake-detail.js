@@ -18,25 +18,44 @@ export default class StakeDetailScreen extends React.Component {
 
   _menu = null;
 
-  static navigationOptions = {
-    headerRight: () => (
-      <Menu
-        ref={ref => {
-          this._menu = ref;
-        }}
-        button={<Text onPress={() => {
-          this._menu.show();
-        }} style={styles.navigationEditText}>编辑</Text>}
-      >
-        <MenuItem onPress={this.hideMenu}>Menu item 1</MenuItem>
-        <MenuItem onPress={this.hideMenu}>Menu item 2</MenuItem>
-        <MenuItem onPress={this.hideMenu} disabled>
-          Menu item 3
+  static navigationOptions = ({ navigation }) => {
+    return {
+      headerRight: () => (
+        <Menu
+          ref={ref => {
+            this._menu = ref;
+          }}
+          button={<Text onPress={() => {
+            this._menu.show();
+          }} style={styles.navigationEditText}>编辑</Text>}
+          style={styles.menu}
+        >
+          <MenuItem
+            style={styles.menuItem}
+            textStyle={styles.menuItemText}
+            onPress={() => {
+              this._menu.hide();
+              let func = navigation.getParam('onEditStake');
+              func();
+            }}
+          >
+            编辑
           </MenuItem>
-        <MenuDivider />
-        <MenuItem onPress={this.hideMenu}>Menu item 4</MenuItem>
-      </Menu>
-    ),
+          <MenuDivider color={'rgba(255, 255, 255, 0.2)'} />
+          <MenuItem
+            style={styles.menuItem}
+            textStyle={styles.menuItemText}
+            onPress={() => {
+              this._menu.hide();
+              let func = navigation.getParam('onDeleteStake');
+              func();
+            }}
+          >
+            删除
+          </MenuItem>
+        </Menu>
+      ),
+    }
   };
 
   ActionType = Object.freeze({
@@ -81,22 +100,6 @@ export default class StakeDetailScreen extends React.Component {
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', }}>
         <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-        <Menu
-          ref={ref => {
-            this._menu = ref;
-          }}
-          button={<Text onPress={() => {
-            this._menu.show();
-          }} style={styles.navigationEditText}>编辑</Text>}
-        >
-          <MenuItem onPress={this.hideMenu}>Menu item 1</MenuItem>
-          <MenuItem onPress={this.hideMenu}>Menu item 2</MenuItem>
-          <MenuItem onPress={this.hideMenu} disabled>
-            Menu item 3
-          </MenuItem>
-          <MenuDivider />
-          <MenuItem onPress={this.hideMenu}>Menu item 4</MenuItem>
-        </Menu>
         <SectionList
           style={styles.list}
           sections={this.state.stakeRecordArr}
@@ -368,6 +371,12 @@ export default class StakeDetailScreen extends React.Component {
 
   componentDidMount() {
     this._fetchData();
+
+    this.props.navigation.setParams({
+      onEditStake: this._onEditStake,
+      onDeleteStake: this._onDeleteStake,
+    });
+
   }
 
   async _fetchData() {
@@ -1108,6 +1117,13 @@ export default class StakeDetailScreen extends React.Component {
       });
     });
   }
+
+  _onEditStake() {
+
+  }
+
+  _onDeleteStake() {
+  }
 }
 
 class StakeCurrentItem extends React.PureComponent {
@@ -1197,8 +1213,22 @@ class StakeTimeItem extends React.PureComponent {
 }
 
 const styles = StyleSheet.create({
+  menu: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    marginTop: 40,
+    marginRight: 16,
+    borderRadius: 16,
+    borderTopRightRadius: 0,
+    overflow: 'hidden',
+  },
+  menuItem: {
+    height: 46,
+  },
+  menuItemText: {
+    color: '#fff',
+    textAlign: 'center',
+  },
   navigationEditText: {
-    backgroundColor: '#ccc',
     paddingRight: 16,
     paddingLeft: 30,
     paddingTop: 12,
