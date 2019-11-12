@@ -15,6 +15,7 @@ class WalletScreen extends React.Component {
     balance: null,
     currenryArr: null,
     listener: null,
+    isRefreshing: false,
   };
 
   render() {
@@ -37,6 +38,14 @@ class WalletScreen extends React.Component {
           renderItem={this._renderItem}
           extraData={this.state}
           keyExtractor={this._keyExtractor}
+          onRefresh={() => {
+            this.setState({
+              isRefreshing: true,
+            })
+
+            this._fetchData();
+          }}
+          refreshing={this.state.isRefreshing}
           getItemLayout={(data, index) => (
             { length: 84, offset: 96 * index, index }
           )}
@@ -110,8 +119,6 @@ class WalletScreen extends React.Component {
 
   _componentWillFocus() {
     this._fetchData();
-
-    
   }
 
   async _fetchData() {
@@ -127,10 +134,21 @@ class WalletScreen extends React.Component {
             balance: balance,
           })
         }
+
+        setTimeout(() => {
+          this.setState({
+            isRefreshing: false,
+          })
+        }, 300)
+        
       });
 
     } catch (e) {
       console.log(e);
+
+      this.setState({
+        isRefreshing: false,
+      })
     }
   }
 }

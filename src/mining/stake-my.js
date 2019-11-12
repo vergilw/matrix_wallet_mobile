@@ -284,8 +284,13 @@ export default class StakeMyScreen extends React.Component {
           redeemAmount: sum,
           validatorGroupInfo: groupInfo,
           // validatorGroupInfo: myGroupInfo,
-          isRefreshing: false,
         })
+
+        setTimeout(() => {
+          this.setState({
+            isRefreshing: false,
+          })
+        }, 300)
 
         console.log('render list', groupInfo);
       })

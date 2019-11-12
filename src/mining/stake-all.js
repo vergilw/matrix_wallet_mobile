@@ -3,7 +3,7 @@ import { Text, View, StyleSheet, FlatList, Dimensions, ImageBackground, StatusBa
 import AsyncStorage from '@react-native-community/async-storage';
 import filters from '../utils/filters.js';
 const axios = require('axios');
-import { NavigationActions} from 'react-navigation';
+import { NavigationActions } from 'react-navigation';
 
 export default class StakeAllScreen extends React.Component {
 
@@ -19,6 +19,10 @@ export default class StakeAllScreen extends React.Component {
     return (
       <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', }}>
         <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+
+        {/* <View style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
+          <Image source={require('../../resources/img/common/loadingPlaceholder.gif')} style={{ width: 51, height: 65 }} />
+        </View> */}
 
         <FlatList
           style={styles.list}
@@ -52,7 +56,7 @@ export default class StakeAllScreen extends React.Component {
   _renderItem = ({ item }) => (
     <StakeItem
       onPressItem={(item) => {
-        this.props.screenProps.parentNavigation.navigate('StakeDetail', {'stake': item, 'address': this.state.address});
+        this.props.screenProps.parentNavigation.navigate('StakeDetail', { 'stake': item, 'address': this.state.address });
       }}
       stake={item}
       stakeAddress={item.name}
@@ -224,8 +228,14 @@ export default class StakeAllScreen extends React.Component {
           entrustAmount: entrustAmount,
           redeemAmount: sum,
           validatorGroupInfo: groupInfo,
-          isRefreshing: false,
+          // isRefreshing: false,
         })
+
+        setTimeout(() => {
+          this.setState({
+            isRefreshing: false,
+          })
+        }, 300)
 
         console.log('render list', groupInfo);
       })
@@ -243,7 +253,7 @@ class StakeItem extends React.PureComponent {
   render() {
     let isStakeExpired = false;
     let time = parseInt(this.props.stake.OwnerInfo.WithdrawAllTime);
-    if (time !== 0 && time < new Date().getTime()/1000) {
+    if (time !== 0 && time < new Date().getTime() / 1000) {
       isStakeExpired = true;
     }
 
