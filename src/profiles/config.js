@@ -1,5 +1,6 @@
 import HttpProvider from '../utils/HttpProvider.js';
 
+//FIXME: DEBUG
 //distri
 export const chainUrl = 'https://api85.matrix.io'
 export const chainId = 1

@@ -536,7 +536,10 @@ export default class StakeDetailScreen extends React.Component {
             currentInterest = currentInterest.substring(0, currentInterest.indexOf(".") + 5);
           }
 
-          reward = validatorMap[i].Reward;
+          reward = global.httpProvider.fromWei(validatorMap[i].Reward);
+          if (reward.indexOf(".") != -1) {
+            reward = reward.substring(0, reward.indexOf(".") + 5);
+          }
 
           currentArr = validatorMap[i].Current.WithdrawList;
           timeArr = validatorMap[i].Positions
@@ -836,18 +839,20 @@ export default class StakeDetailScreen extends React.Component {
           myNonceNum: 0,
         });
 
-        Alert.alert(
-          '赎回成功',
-          '数据处理有一定延迟，请稍后刷新',
-          [
-            {
-              text: '确定', onPress: () => {
-                this.props.navigation.goBack();
-              }, style: 'cancel'
-            },
-          ],
-          { cancelable: false }
-        )
+        setTimeout(() => {
+          Alert.alert(
+            '赎回成功',
+            '数据处理有一定延迟，请稍后刷新',
+            [
+              {
+                text: '确定', onPress: () => {
+                  this.props.navigation.goBack();
+                }, style: 'cancel'
+              },
+            ],
+            { cancelable: false }
+          )
+        }, 500)
       });
     });
   }
@@ -1007,22 +1012,55 @@ export default class StakeDetailScreen extends React.Component {
           isModalVisible: false,
         });
 
-        Alert.alert(
-          '赎回成功',
-          '数据处理有一定延迟，请稍后刷新',
-          [
-            {
-              text: '确定', onPress: () => {
-              }, style: 'cancel'
-            },
-          ],
-          { cancelable: false }
-        )
+        setTimeout(() => {
+          Alert.alert(
+            '赎回成功',
+            '数据处理有一定延迟，请稍后刷新',
+            [
+              {
+                text: '确定', onPress: () => {
+                  this.props.navigation.goBack();
+                }, style: 'cancel'
+              },
+            ],
+            { cancelable: false }
+          )
+        }, 500)
       });
     });
   }
 
   async _withdraw() {
+    let passcode;
+    let keyStore;
+    let pashadterss;
+    try {
+      passcode = await AsyncStorage.getItem('@passcode');
+      keyStore = await AsyncStorage.getItem('@keyStore');
+      pashadterss = await AsyncStorage.getItem('@pashadterss');
+
+    } catch (e) {
+      console.log(e);
+    }
+
+    //validate passcode
+    let reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[a-zA-Z]\S{7,15}$/;
+    if (!reg.test(this.state.passcode) || this.state.passcode !== passcode) {
+      Toast.show("PIN码输入有误，请重新输入", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+      return;
+    }
+
+    this.setState({
+      isLoading: true,
+    });
+
     // let that = this;
     // if (Date.now() > time * 1000) {
     //   that.drawing = true;
@@ -1137,23 +1175,56 @@ export default class StakeDetailScreen extends React.Component {
           isModalVisible: false,
         });
 
-        Alert.alert(
-          '提币成功',
-          '数据处理有一定延迟，请稍后刷新',
-          [
-            {
-              text: '确定', onPress: () => {
-              }, style: 'cancel'
-            },
-          ],
-          { cancelable: false }
-        )
+        setTimeout(() => {
+          Alert.alert(
+            '提币成功',
+            '数据处理有一定延迟，请稍后刷新',
+            [
+              {
+                text: '确定', onPress: () => {
+                  this.props.navigation.goBack();
+                }, style: 'cancel'
+              },
+            ],
+            { cancelable: false }
+          )
+        }, 500)
       });
     });
   }
 
   async _withdrawReward() {
 
+    let passcode;
+    let keyStore;
+    let pashadterss;
+    try {
+      passcode = await AsyncStorage.getItem('@passcode');
+      keyStore = await AsyncStorage.getItem('@keyStore');
+      pashadterss = await AsyncStorage.getItem('@pashadterss');
+
+    } catch (e) {
+      console.log(e);
+    }
+
+    //validate passcode
+    let reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[a-zA-Z]\S{7,15}$/;
+    if (!reg.test(this.state.passcode) || this.state.passcode !== passcode) {
+      Toast.show("PIN码输入有误，请重新输入", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
+      return;
+    }
+
+    this.setState({
+      isLoading: true,
+    });
+    
     let contractAbiArray = JSON.parse(bb.abi);
     let contractAddress = bb.address;
     let contractAbi = new global.ethProvider.eth.Contract(
@@ -1258,17 +1329,20 @@ export default class StakeDetailScreen extends React.Component {
           isModalVisible: false,
         });
 
-        Alert.alert(
-          '提币成功',
-          '数据处理有一定延迟，请稍后刷新',
-          [
-            {
-              text: '确定', onPress: () => {
-              }, style: 'cancel'
-            },
-          ],
-          { cancelable: false }
-        )
+        setTimeout(() => {
+          Alert.alert(
+            '提币成功',
+            '数据处理有一定延迟，请稍后刷新',
+            [
+              {
+                text: '确定', onPress: () => {
+                  this.props.navigation.goBack();
+                }, style: 'cancel'
+              },
+            ],
+            { cancelable: false }
+          )
+        }, 500)
       });
     });
   }
@@ -1417,18 +1491,20 @@ export default class StakeDetailScreen extends React.Component {
           isModalVisible: false,
         });
 
-        Alert.alert(
-          '删除成功',
-          '数据处理有一定延迟，请稍后刷新',
-          [
-            {
-              text: '确定', onPress: () => {
-                this.props.navigation.goBack();
-              }, style: 'cancel'
-            },
-          ],
-          { cancelable: false }
-        )
+        setTimeout(() => {
+          Alert.alert(
+            '删除成功',
+            '数据处理有一定延迟，请稍后刷新',
+            [
+              {
+                text: '确定', onPress: () => {
+                  this.props.navigation.goBack();
+                }, style: 'cancel'
+              },
+            ],
+            { cancelable: false }
+          )
+        }, 500)
       });
     });
   }
