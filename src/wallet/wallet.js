@@ -167,7 +167,7 @@ class CurrencyItem extends React.PureComponent {
           </Image>
           <View style={styles.itemTitleView}>
             <Text style={styles.itemTitleText}>
-              Man
+              MAN
             </Text>
             <Text style={styles.itemDescText}>
               Matrix
@@ -233,6 +233,7 @@ const styles = StyleSheet.create({
     height: 38,
     width: 38,
     flexGrow: 0,
+    borderRadius: 19,
   },
   itemTitleView: {
     flexGrow: 1,

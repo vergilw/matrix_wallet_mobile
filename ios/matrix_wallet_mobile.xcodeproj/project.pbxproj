@@ -47,7 +47,7 @@
 		00E356F21AD99517003FC87E /* matrix_wallet_mobileTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = matrix_wallet_mobileTests.m; sourceTree = "<group>"; };
 		018D2A1E84E54E249795530C /* FontAwesome5_Solid.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Solid.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Solid.ttf"; sourceTree = "<group>"; };
 		130F8CD9236BDF12008A9D62 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* Dappore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dappore.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07F961A680F5B00A75B9A /* ManGo Wallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ManGo Wallet.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = matrix_wallet_mobile/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = matrix_wallet_mobile/AppDelegate.m; sourceTree = "<group>"; };
 		13B07FB21A68108700A75B9A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
@@ -219,7 +219,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* Dappore.app */,
+				13B07F961A680F5B00A75B9A /* ManGo Wallet.app */,
 				00E356EE1AD99517003FC87E /* matrix_wallet_mobileTests.xctest */,
 				2D02E47B1E0B4A5D006451C7 /* matrix_wallet_mobile-tvOS.app */,
 				2D02E4901E0B4A5D006451C7 /* matrix_wallet_mobile-tvOSTests.xctest */,
@@ -282,7 +282,7 @@
 			);
 			name = matrix_wallet_mobile;
 			productName = matrix_wallet_mobile;
-			productReference = 13B07F961A680F5B00A75B9A /* Dappore.app */;
+			productReference = 13B07F961A680F5B00A75B9A /* ManGo Wallet.app */;
 			productType = "com.apple.product-type.application";
 		};
 		2D02E47A1E0B4A5D006451C7 /* matrix_wallet_mobile-tvOS */ = {
@@ -738,18 +738,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 59;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = P45JM86Y46;
 				INFOPLIST_FILE = matrix_wallet_mobile/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zl.dappore;
-				PRODUCT_NAME = Dappore;
+				PRODUCT_BUNDLE_IDENTIFIER = io.dcloud.H5B2B5088;
+				PRODUCT_NAME = "ManGo Wallet";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -762,17 +763,18 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 59;
 				DEVELOPMENT_TEAM = P45JM86Y46;
 				INFOPLIST_FILE = matrix_wallet_mobile/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zl.dappore;
-				PRODUCT_NAME = Dappore;
+				PRODUCT_BUNDLE_IDENTIFIER = io.dcloud.H5B2B5088;
+				PRODUCT_NAME = "ManGo Wallet";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
